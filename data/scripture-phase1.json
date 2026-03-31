@@ -1,0 +1,253 @@
+{
+  "verses": [
+    {
+      "id": "GEN.1.1",
+      "reference": "Genesis 1:1",
+      "book": "Genesis",
+      "chapter": 1,
+      "verse": 1,
+      "text": "In the beginning God created the heavens and the earth.",
+      "translation": "ESV",
+      "crossReferences": ["John 1:1", "Hebrews 11:3", "Revelation 4:11"],
+      "commentary": "Genesis opens with a sovereign declaration: creation is intentional, ordered, and attributed to God alone.",
+      "original": {
+        "language": "Hebrew",
+        "text": "bereshit bara elohim et hashamayim ve-et haaretz",
+        "strongs": [
+          { "number": "H7225", "lemma": "reshith", "definition": "beginning, first" },
+          { "number": "H1254", "lemma": "bara", "definition": "to create" },
+          { "number": "H430", "lemma": "elohim", "definition": "God" }
+        ]
+      },
+      "contextTimeline": ["Creation Initiated", "Cosmic Ordering", "Human Vocation to Follow"],
+      "themes": ["creation", "sovereignty", "origin"],
+      "people": ["God"],
+      "events": ["Creation"],
+      "keyLayers": {
+        "literal": "God is the first cause and creator of all that exists.",
+        "historical": "Written within Israel's theological tradition to distinguish Yahweh from surrounding creation myths.",
+        "prophetic": "Sets the frame for new creation motifs fulfilled in Messiah-centered restoration.",
+        "symbolic": "Beginning symbolizes divine order emerging from unformed reality.",
+        "connections": ["John 1:1", "2 Corinthians 5:17", "Revelation 21:1"]
+      },
+      "relatedVerseIds": ["JHN.1.1", "REV.21.1"]
+    },
+    {
+      "id": "EXO.12.13",
+      "reference": "Exodus 12:13",
+      "book": "Exodus",
+      "chapter": 12,
+      "verse": 13,
+      "text": "The blood shall be a sign for you, on the houses where you are.",
+      "translation": "ESV",
+      "crossReferences": ["Leviticus 17:11", "John 1:29", "1 Corinthians 5:7"],
+      "commentary": "Passover blood marks covenant protection and points forward to redemptive sacrifice.",
+      "original": {
+        "language": "Hebrew",
+        "text": "vehayah hadam lakem leot al habattim",
+        "strongs": [
+          { "number": "H1818", "lemma": "dam", "definition": "blood" },
+          { "number": "H226", "lemma": "ot", "definition": "sign, mark" }
+        ]
+      },
+      "contextTimeline": ["Egyptian Bondage", "Passover Night", "Exodus Deliverance"],
+      "themes": ["blood", "covenant", "deliverance"],
+      "people": ["Moses", "Aaron"],
+      "events": ["Passover"],
+      "keyLayers": {
+        "literal": "Blood on doorposts identifies households under divine protection.",
+        "historical": "Given during Israel's liberation from Egypt as a ritual act of obedience.",
+        "prophetic": "Foreshadows the Messiah as the sacrificial Lamb.",
+        "symbolic": "Blood signifies life, atonement, and covenant identity.",
+        "connections": ["John 1:29", "Hebrews 9:22", "Revelation 5:9"]
+      },
+      "relatedVerseIds": ["JHN.1.29", "1CO.5.7"]
+    },
+    {
+      "id": "PSA.23.1",
+      "reference": "Psalm 23:1",
+      "book": "Psalms",
+      "chapter": 23,
+      "verse": 1,
+      "text": "The Lord is my shepherd; I shall not want.",
+      "translation": "ESV",
+      "crossReferences": ["John 10:11", "Ezekiel 34:11", "Philippians 4:19"],
+      "commentary": "David uses shepherd imagery to present God as personal guide, protector, and provider.",
+      "original": {
+        "language": "Hebrew",
+        "text": "adonai roi lo ehsar",
+        "strongs": [
+          { "number": "H7462", "lemma": "raah", "definition": "to shepherd" },
+          { "number": "H2637", "lemma": "chaser", "definition": "to lack" }
+        ]
+      },
+      "contextTimeline": ["Davidic Kingship", "Temple Worship Tradition", "Messianic Shepherd Hope"],
+      "themes": ["guidance", "provision", "trust"],
+      "people": ["David"],
+      "events": ["Davidic Psalms"],
+      "keyLayers": {
+        "literal": "God personally provides and guides the believer.",
+        "historical": "Pastoral imagery reflects ancient Near Eastern leadership metaphors.",
+        "prophetic": "Points toward the Good Shepherd identity in the New Testament.",
+        "symbolic": "Shepherd expresses intimate governance and covenant care.",
+        "connections": ["John 10:11", "1 Peter 5:4", "Revelation 7:17"]
+      },
+      "relatedVerseIds": ["JHN.10.11", "REV.7.17"]
+    },
+    {
+      "id": "JHN.1.1",
+      "reference": "John 1:1",
+      "book": "John",
+      "chapter": 1,
+      "verse": 1,
+      "text": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+      "translation": "ESV",
+      "crossReferences": ["Genesis 1:1", "Colossians 1:16", "Hebrews 1:2"],
+      "commentary": "John identifies the pre-existent Word as divine and active in creation.",
+      "original": {
+        "language": "Greek",
+        "text": "en arche en ho logos kai ho logos en pros ton theon kai theos en ho logos",
+        "strongs": [
+          { "number": "G746", "lemma": "arche", "definition": "beginning" },
+          { "number": "G3056", "lemma": "logos", "definition": "word, reason, expression" }
+        ]
+      },
+      "contextTimeline": ["Incarnation Prologue", "Public Ministry Prelude", "Creation-Recreation Frame"],
+      "themes": ["word", "divinity", "creation"],
+      "people": ["Jesus"],
+      "events": ["Incarnation"],
+      "keyLayers": {
+        "literal": "The Word existed eternally and is fully divine.",
+        "historical": "Written in a Hellenistic context where logos carried philosophical and theological significance.",
+        "prophetic": "Links Genesis creation language to Messiah revelation.",
+        "symbolic": "Word symbolizes God's self-disclosure in person and power.",
+        "connections": ["Genesis 1:1", "Hebrews 1:3", "Revelation 19:13"]
+      },
+      "relatedVerseIds": ["GEN.1.1", "COL.1.16"]
+    },
+    {
+      "id": "JHN.1.29",
+      "reference": "John 1:29",
+      "book": "John",
+      "chapter": 1,
+      "verse": 29,
+      "text": "Behold, the Lamb of God, who takes away the sin of the world!",
+      "translation": "ESV",
+      "crossReferences": ["Exodus 12:13", "Isaiah 53:7", "1 Peter 1:19"],
+      "commentary": "John the Baptist introduces Jesus as sacrificial fulfillment.",
+      "original": {
+        "language": "Greek",
+        "text": "ide ho amnos tou theou ho airon ten hamartian tou kosmou",
+        "strongs": [
+          { "number": "G286", "lemma": "amnos", "definition": "lamb" },
+          { "number": "G266", "lemma": "hamartia", "definition": "sin" }
+        ]
+      },
+      "contextTimeline": ["Baptism Preparation", "Messianic Identification", "Atonement Trajectory"],
+      "themes": ["blood", "atonement", "messiah"],
+      "people": ["Jesus", "John the Baptist"],
+      "events": ["Baptism of Jesus"],
+      "keyLayers": {
+        "literal": "Jesus is identified as the sacrificial one who removes sin.",
+        "historical": "Announced in a Jewish purification context with Passover resonances.",
+        "prophetic": "Echoes Isaiah's suffering servant and Passover fulfillment.",
+        "symbolic": "Lamb represents innocence, sacrifice, and covenant redemption.",
+        "connections": ["Exodus 12:13", "Isaiah 53:7", "Revelation 5:12"]
+      },
+      "relatedVerseIds": ["EXO.12.13", "REV.5.12"]
+    },
+    {
+      "id": "ROM.8.1",
+      "reference": "Romans 8:1",
+      "book": "Romans",
+      "chapter": 8,
+      "verse": 1,
+      "text": "There is therefore now no condemnation for those who are in Christ Jesus.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 5:1", "John 3:17", "Galatians 2:20"],
+      "commentary": "Paul announces legal and relational freedom for believers united with Christ.",
+      "original": {
+        "language": "Greek",
+        "text": "ouden ara nyn katakrima tois en christo iesou",
+        "strongs": [
+          { "number": "G2631", "lemma": "katakrima", "definition": "condemnation, sentence" },
+          { "number": "G5547", "lemma": "christos", "definition": "anointed one, Christ" }
+        ]
+      },
+      "contextTimeline": ["Pauline Mission", "Roman Church Formation", "Spirit-Life Teaching"],
+      "themes": ["grace", "justification", "freedom"],
+      "people": ["Paul", "Jesus"],
+      "events": ["Epistle to Romans"],
+      "keyLayers": {
+        "literal": "Believers in Christ are no longer under condemnation.",
+        "historical": "Addressed to a mixed Jewish-Gentile church navigating law and grace.",
+        "prophetic": "Shows covenant fulfillment through Messiah's redemptive work.",
+        "symbolic": "No condemnation symbolizes release from spiritual verdict and shame.",
+        "connections": ["Romans 5:1", "Galatians 3:13", "Hebrews 10:14"]
+      },
+      "relatedVerseIds": ["ROM.5.1", "HEB.10.14"]
+    },
+    {
+      "id": "1CO.5.7",
+      "reference": "1 Corinthians 5:7",
+      "book": "1 Corinthians",
+      "chapter": 5,
+      "verse": 7,
+      "text": "For Christ, our Passover lamb, has been sacrificed.",
+      "translation": "ESV",
+      "crossReferences": ["Exodus 12:13", "John 1:29", "Hebrews 9:14"],
+      "commentary": "Paul explicitly identifies Christ as Passover fulfillment.",
+      "original": {
+        "language": "Greek",
+        "text": "kai gar to pascha hemon etuthe christos",
+        "strongs": [
+          { "number": "G3957", "lemma": "pascha", "definition": "passover" },
+          { "number": "G2380", "lemma": "thyo", "definition": "to sacrifice" }
+        ]
+      },
+      "contextTimeline": ["Corinthian Correction", "Festival Imagery", "Covenant Purity Call"],
+      "themes": ["blood", "atonement", "holiness"],
+      "people": ["Paul", "Jesus"],
+      "events": ["Epistle to Corinthians"],
+      "keyLayers": {
+        "literal": "Christ is presented as the sacrificial Passover lamb.",
+        "historical": "Written to correct church practice using familiar festival typology.",
+        "prophetic": "Connects Old Testament sacrificial system to Messiah's final offering.",
+        "symbolic": "Passover symbolizes deliverance and moral cleansing.",
+        "connections": ["Exodus 12:13", "John 1:29", "Hebrews 10:10"]
+      },
+      "relatedVerseIds": ["EXO.12.13", "JHN.1.29"]
+    },
+    {
+      "id": "REV.21.1",
+      "reference": "Revelation 21:1",
+      "book": "Revelation",
+      "chapter": 21,
+      "verse": 1,
+      "text": "Then I saw a new heaven and a new earth.",
+      "translation": "ESV",
+      "crossReferences": ["Genesis 1:1", "Isaiah 65:17", "2 Peter 3:13"],
+      "commentary": "The biblical storyline culminates in renewed creation and restored dwelling.",
+      "original": {
+        "language": "Greek",
+        "text": "kai eidon ouranon kainon kai gen kainen",
+        "strongs": [
+          { "number": "G2537", "lemma": "kainos", "definition": "new in quality" },
+          { "number": "G3772", "lemma": "ouranos", "definition": "heaven" }
+        ]
+      },
+      "contextTimeline": ["Apocalyptic Vision", "Judgment Completed", "New Creation Realized"],
+      "themes": ["new creation", "hope", "restoration"],
+      "people": ["John"],
+      "events": ["New Creation"],
+      "keyLayers": {
+        "literal": "A renewed cosmos replaces the former order.",
+        "historical": "Addressed to persecuted churches with hope-centered apocalyptic imagery.",
+        "prophetic": "Completes promises of restoration in prophets and gospel trajectory.",
+        "symbolic": "New heavens and earth symbolize total renewal under God's reign.",
+        "connections": ["Genesis 1:1", "Isaiah 65:17", "Romans 8:21"]
+      },
+      "relatedVerseIds": ["GEN.1.1", "ROM.8.1"]
+    }
+  ]
+}

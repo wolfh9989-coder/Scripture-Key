@@ -1,0 +1,21 @@
+{
+  "name": "scripture-key",
+  "version": "0.1.0",
+  "description": "Phase 1 website for Scripture Key",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "scripture",
+    "bible",
+    "knowledge-graph",
+    "phase-1"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

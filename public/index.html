@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scripture Key | Phase 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow"></div>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Scripture Key</p>
+        <h1>Unlock the Word. Explore the Living Structure.</h1>
+      </div>
+      <div class="mode-controls">
+        <label for="modeSelect">Insight Mode</label>
+        <select id="modeSelect">
+          <option value="beginner">Beginner</option>
+          <option value="study" selected>Study</option>
+          <option value="deep">Deep / Theological</option>
+          <option value="devotional">Devotional</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel panel-verse-list">
+        <div class="panel-head">
+          <h2>Scripture Viewer</h2>
+          <input id="searchInput" type="search" placeholder="Search reference or text" />
+        </div>
+        <ul id="verseList" class="verse-list"></ul>
+      </aside>
+
+      <section class="panel panel-split">
+        <div class="split-col">
+          <h3>Verse</h3>
+          <p id="verseRef" class="verse-ref">Select a verse</p>
+          <p id="verseText" class="verse-text">Verse text appears here.</p>
+          <div id="crossRefs" class="chips"></div>
+        </div>
+
+        <div class="split-col">
+          <h3>Commentary + Context</h3>
+          <p id="commentaryText">Commentary appears here.</p>
+          <h4>Context Timeline</h4>
+          <ul id="timelineList" class="timeline"></ul>
+        </div>
+
+        <div class="split-col">
+          <h3>Original Language + Strong's</h3>
+          <p id="originalLang" class="meta"></p>
+          <p id="originalText" class="original"></p>
+          <ul id="strongList" class="strong-list"></ul>
+        </div>
+      </section>
+
+      <aside class="panel panel-unlock">
+        <div class="panel-head">
+          <h2>Key Mode</h2>
+          <button id="unlockBtn" class="unlock">Unlock</button>
+        </div>
+        <p id="modeGuidance" class="meta">Select a verse and press Unlock.</p>
+        <div id="layerStack" class="layer-stack"></div>
+        <h4>Related Verses</h4>
+        <ul id="relatedList" class="related-list"></ul>
+        <h4>Lattice Signals</h4>
+        <div id="latticeSignals" class="chips"></div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
