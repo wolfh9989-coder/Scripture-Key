@@ -41,6 +41,9 @@ const runCrossVersionBtnEl = document.getElementById("runCrossVersionBtn");
 const crossVersionSummaryEl = document.getElementById("crossVersionSummary");
 const crossVersionSharedEl = document.getElementById("crossVersionShared");
 const crossVersionTextListEl = document.getElementById("crossVersionTextList");
+const chapterParallelRefEl = document.getElementById("chapterParallelRef");
+const loadChapterParallelBtnEl = document.getElementById("loadChapterParallelBtn");
+const chapterParallelGridEl = document.getElementById("chapterParallelGrid");
 const accordanceFileInputEl = document.getElementById("accordanceFileInput");
 const accordanceDropzoneEl = document.getElementById("accordanceDropzone");
 const refreshHistoryBtnEl = document.getElementById("refreshHistoryBtn");
@@ -146,6 +149,9 @@ async function selectVerse(verseId) {
   });
   loadParallelView().catch(() => {
     clearChildren(parallelGridEl);
+  });
+  loadChapterParallelView().catch(() => {
+    clearChildren(chapterParallelGridEl);
   });
 }
 
@@ -331,6 +337,24 @@ function selectedVersionCodes() {
   return versionSelectors().map((el) => el.value).filter(Boolean);
 }
 
+function selectedChapterRef() {
+  const typed = chapterParallelRefEl.value.trim();
+  if (typed) {
+    return typed;
+  }
+
+  const currentVerse = verses.find((item) => item.id === selectedVerseId);
+  if (!currentVerse) {
+    return "Genesis:1";
+  }
+
+  const chapterAndBook = currentVerse.reference.split(":")[0];
+  const space = chapterAndBook.lastIndexOf(" ");
+  const book = chapterAndBook.slice(0, space);
+  const chapter = chapterAndBook.slice(space + 1);
+  return `${book}:${chapter}`;
+}
+
 function populateVersionSelectors(versions) {
   availableVersions = versions || [];
   const defaults = ["KJV", "ASV", "WEB", "YLT"];
@@ -373,6 +397,34 @@ async function loadParallelView() {
       <p>${panel.text}</p>
     `;
     parallelGridEl.appendChild(card);
+  });
+}
+
+async function loadChapterParallelView() {
+  const versions = selectedVersionCodes().slice(0, 4);
+  const versionQuery = encodeURIComponent(versions.join(","));
+  const chapterRef = selectedChapterRef();
+  const chapterQuery = encodeURIComponent(chapterRef);
+
+  const data = await fetchJson(
+    `/api/v1/scripture/parallel-chapter?chapterRef=${chapterQuery}&versions=${versionQuery}`
+  );
+
+  chapterParallelRefEl.value = data.chapterRef;
+  clearChildren(chapterParallelGridEl);
+
+  data.panels.forEach((panel) => {
+    const card = document.createElement("article");
+    card.className = "chapter-parallel-card";
+
+    const versesHtml = panel.verses
+      .map((entry) => {
+        return `<p class="chapter-verse"><strong>${entry.reference}</strong><br/>${entry.text}</p>`;
+      })
+      .join("");
+
+    card.innerHTML = `<h5>${panel.version} | ${panel.name}</h5>${versesHtml}`;
+    chapterParallelGridEl.appendChild(card);
   });
 }
 
@@ -542,6 +594,12 @@ loadParallelBtnEl.addEventListener("click", () => {
   });
 });
 
+loadChapterParallelBtnEl.addEventListener("click", () => {
+  loadChapterParallelView().catch(() => {
+    clearChildren(chapterParallelGridEl);
+  });
+});
+
 runCrossVersionBtnEl.addEventListener("click", () => {
   runCrossVersionComparison().catch(() => {
     crossVersionSummaryEl.textContent = "Cross-version comparison failed.";
@@ -552,6 +610,9 @@ versionSelectors().forEach((selectEl) => {
   selectEl.addEventListener("change", () => {
     loadParallelView().catch(() => {
       clearChildren(parallelGridEl);
+    });
+    loadChapterParallelView().catch(() => {
+      clearChildren(chapterParallelGridEl);
     });
   });
 });
@@ -601,9 +662,10 @@ loadLibraryOverviewAndPackages()
   });
 
 loadAvailableVersions()
-  .then(() => loadParallelView())
+  .then(() => Promise.all([loadParallelView(), loadChapterParallelView()]))
   .catch(() => {
     clearChildren(parallelGridEl);
+    clearChildren(chapterParallelGridEl);
   });
 
 loadOpenSourceHistory().catch(() => {

@@ -152,6 +152,28 @@ function buildVersionCrossReference(verseId, versions) {
   };
 }
 
+function getChapterVerses(book, chapter) {
+  return scriptureData.verses.filter(
+    (verse) => normalizedString(verse.book) === normalizedString(book) && verse.chapter === chapter
+  );
+}
+
+function parseChapterReference(reference) {
+  const raw = String(reference || "").trim();
+  const parts = raw.split(":");
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const book = parts[0].trim();
+  const chapter = Number(parts[1].trim());
+  if (!book || Number.isNaN(chapter)) {
+    return null;
+  }
+
+  return { book, chapter };
+}
+
 function getVerseById(verseId) {
   return scriptureData.verses.find((verse) => verse.id === verseId);
 }
@@ -450,6 +472,48 @@ app.get("/api/v1/scripture/cross-version/:verseId", (req, res) => {
   }
 
   return res.json(payload);
+});
+
+app.get("/api/v1/scripture/parallel-chapter", (req, res) => {
+  const chapterRef = String(req.query.chapterRef || "");
+  const parsed = parseChapterReference(chapterRef);
+
+  if (!parsed) {
+    return res.status(400).json({ error: "chapterRef must be formatted as Book:Chapter" });
+  }
+
+  const requestedVersions = String(req.query.versions || "")
+    .split(",")
+    .map((item) => item.trim().toUpperCase())
+    .filter(Boolean);
+
+  const selectedVersions = requestedVersions
+    .filter((code) => getVersionMetadata(code))
+    .slice(0, 4);
+
+  const versionsToUse = selectedVersions.length > 0 ? selectedVersions : ["KJV", "ASV", "WEB", "YLT"];
+  const chapterVerses = getChapterVerses(parsed.book, parsed.chapter);
+
+  if (chapterVerses.length === 0) {
+    return res.status(404).json({ error: "No verses found for requested chapter" });
+  }
+
+  return res.json({
+    chapterRef: `${parsed.book}:${parsed.chapter}`,
+    verseCount: chapterVerses.length,
+    panels: versionsToUse.map((code) => {
+      const meta = getVersionMetadata(code);
+      return {
+        version: code,
+        name: meta ? meta.name : code,
+        verses: chapterVerses.map((verse) => ({
+          verseId: verse.id,
+          reference: verse.reference,
+          text: getVerseTextForVersion(verse.id, code, verse.text)
+        }))
+      };
+    })
+  });
 });
 
 app.get("/api/v1/scripture/:verseId", (req, res) => {

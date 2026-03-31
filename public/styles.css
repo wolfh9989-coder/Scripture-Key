@@ -278,6 +278,34 @@ button:hover {
   line-height: 1.55;
 }
 
+.chapter-parallel-card {
+  border: 1px solid rgba(247, 186, 109, 0.26);
+  border-radius: 10px;
+  background: rgba(15, 17, 28, 0.55);
+  padding: 10px;
+  max-height: 380px;
+  overflow: auto;
+}
+
+.chapter-parallel-card h5 {
+  margin: 0 0 8px;
+  color: #ffd8a4;
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chapter-verse {
+  border-left: 2px solid rgba(119, 236, 229, 0.3);
+  padding-left: 8px;
+  margin: 0 0 10px;
+}
+
+.chapter-verse strong {
+  color: var(--accent-warm);
+}
+
 .pattern-item h5 {
   margin: 0 0 6px;
   color: var(--accent-warm);
