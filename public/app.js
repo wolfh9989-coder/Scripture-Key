@@ -14,11 +14,6 @@ const modeGuidanceEl = document.getElementById("modeGuidance");
 const modeSelectEl = document.getElementById("modeSelect");
 const latticeSignalsEl = document.getElementById("latticeSignals");
 const searchInputEl = document.getElementById("searchInput");
-const brcisInputEl = document.getElementById("brcisInput");
-const runBrcisBtnEl = document.getElementById("runBrcisBtn");
-const brcisIntentEl = document.getElementById("brcisIntent");
-const brcisAnswerEl = document.getElementById("brcisAnswer");
-const brcisRefsEl = document.getElementById("brcisRefs");
 const runPatternBtnEl = document.getElementById("runPatternBtn");
 const patternScopeTypeEl = document.getElementById("patternScopeType");
 const patternScopeRefEl = document.getElementById("patternScopeRef");
@@ -260,31 +255,6 @@ function defaultScopeRef(scopeType) {
   }
 
   return "";
-}
-
-async function runBrcisQuery() {
-  const content = brcisInputEl.value.trim();
-
-  if (!content) {
-    brcisIntentEl.textContent = "Intent: Empty";
-    brcisAnswerEl.textContent = "Type a command first.";
-    return;
-  }
-
-  const data = await fetchJson("/api/v1/brcis/query", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      content,
-      mode: modeSelectEl.value
-    })
-  });
-
-  brcisIntentEl.textContent = `Intent: ${data.intent}`;
-  brcisAnswerEl.textContent = data.answer;
-  renderChips(brcisRefsEl, data.supportingReferences || []);
 }
 
 function renderPatternFindings(findings) {
@@ -554,13 +524,6 @@ searchInputEl.addEventListener("input", (event) => {
 unlockBtnEl.addEventListener("click", () => {
   unlockSelectedVerse().catch(() => {
     modeGuidanceEl.textContent = "Unlock failed. Try again.";
-  });
-});
-
-runBrcisBtnEl.addEventListener("click", () => {
-  runBrcisQuery().catch(() => {
-    brcisIntentEl.textContent = "Intent: Error";
-    brcisAnswerEl.textContent = "BRCIS query failed. Try again.";
   });
 });
 

@@ -30,10 +30,6 @@
             <option value="devotional">Devotional</option>
           </select>
         </div>
-        <div class="mode-controls">
-          <label for="searchInput">Scripture Search</label>
-          <input id="searchInput" type="search" placeholder="Search reference or text" />
-        </div>
       </div>
     </header>
 
@@ -41,6 +37,10 @@
       <aside class="panel panel-verse-list">
         <div class="panel-head">
           <h2>Scripture Viewer</h2>
+        </div>
+        <div class="mode-controls viewer-search">
+          <label for="searchInput">Search Reference</label>
+          <input id="searchInput" type="search" placeholder="Search reference or text" />
         </div>
         <ul id="verseList" class="verse-list"></ul>
       </aside>
@@ -126,23 +126,6 @@
     </section>
 
     <section class="phase2-layout">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Command Layer</h2>
-          <button id="runBrcisBtn">Run Query</button>
-        </div>
-        <label for="brcisInput">Command</label>
-        <textarea
-          id="brcisInput"
-          class="command-input"
-          rows="3"
-          placeholder="Example: Compare Romans 8 with Genesis 1"
-        ></textarea>
-        <p id="brcisIntent" class="meta">Intent: Waiting</p>
-        <p id="brcisAnswer" class="phase2-answer">BRCIS response appears here.</p>
-        <div id="brcisRefs" class="chips"></div>
-      </article>
-
       <article class="panel">
         <div class="panel-head">
           <h2>Pattern Lab</h2>

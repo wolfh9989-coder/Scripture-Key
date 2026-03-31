@@ -72,6 +72,15 @@ h1 {
   gap: 8px;
 }
 
+.viewer-search {
+  margin-bottom: 10px;
+}
+
+.viewer-search input {
+  width: 100%;
+  min-width: 0;
+}
+
 .header-controls {
   display: flex;
   gap: 12px;
