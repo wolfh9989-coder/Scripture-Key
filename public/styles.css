@@ -248,6 +248,13 @@ button:hover {
   margin: 0;
 }
 
+.inline-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

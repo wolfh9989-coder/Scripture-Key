@@ -23,6 +23,14 @@ const runPatternBtnEl = document.getElementById("runPatternBtn");
 const patternScopeTypeEl = document.getElementById("patternScopeType");
 const patternScopeRefEl = document.getElementById("patternScopeRef");
 const patternFindingsEl = document.getElementById("patternFindings");
+const accordanceImportInputEl = document.getElementById("accordanceImportInput");
+const importAccordanceBtnEl = document.getElementById("importAccordanceBtn");
+const refreshLibraryBtnEl = document.getElementById("refreshLibraryBtn");
+const importModeSelectEl = document.getElementById("importModeSelect");
+const accordanceStatusEl = document.getElementById("accordanceStatus");
+const bibleListingsListEl = document.getElementById("bibleListingsList");
+const packageModulesListEl = document.getElementById("packageModulesList");
+const historicalResourcesListEl = document.getElementById("historicalResourcesList");
 
 let verses = [];
 let selectedVerseId = null;
@@ -118,6 +126,9 @@ async function selectVerse(verseId) {
   clearChildren(layerStackEl);
   clearChildren(relatedListEl);
   modeGuidanceEl.textContent = "Press Unlock to expand layered interpretation.";
+  loadHistoricalResourcesForSelectedVerse().catch(() => {
+    clearChildren(historicalResourcesListEl);
+  });
 }
 
 function createLayerCard(label, text, confidence) {
@@ -294,6 +305,87 @@ async function runPatternAnalysis() {
   renderPatternFindings(data.findings);
 }
 
+function renderLibraryList(container, items, formatter) {
+  clearChildren(container);
+
+  if (!items || items.length === 0) {
+    const li = document.createElement("li");
+    li.className = "pattern-item";
+    li.textContent = "No imported items yet.";
+    container.appendChild(li);
+    return;
+  }
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "pattern-item";
+    li.innerHTML = formatter(item);
+    container.appendChild(li);
+  });
+}
+
+async function loadLibraryOverviewAndPackages() {
+  const [overview, packages] = await Promise.all([
+    fetchJson("/api/v1/library/overview"),
+    fetchJson("/api/v1/library/packages")
+  ]);
+
+  const importedAt = overview.lastImportedAt
+    ? new Date(overview.lastImportedAt).toLocaleString()
+    : "never";
+
+  accordanceStatusEl.textContent = `Library status: ${overview.counts.bibleListings} listings, ${overview.counts.modules} modules, ${overview.counts.historicResources} historical resources. Last import: ${importedAt}.`;
+
+  renderLibraryList(bibleListingsListEl, packages.bibleListings, (item) => {
+    return `<h5>${item.name}</h5><p class="meta">${item.abbreviation || "N/A"} | ${item.language} | ${item.testament}</p>`;
+  });
+
+  renderLibraryList(packageModulesListEl, packages.modules, (item) => {
+    return `<h5>${item.name}</h5><p class="meta">${item.category} | package: ${item.package}</p>`;
+  });
+}
+
+async function loadHistoricalResourcesForSelectedVerse() {
+  if (!selectedVerseId) {
+    return;
+  }
+
+  const data = await fetchJson(`/api/v1/library/historical/${encodeURIComponent(selectedVerseId)}`);
+  renderLibraryList(historicalResourcesListEl, data.resources, (item) => {
+    return `<h5>${item.title}</h5><p>${item.summary || "No summary provided."}</p><p class="meta">${item.period} | refs: ${(item.references || []).join(" | ")}</p>`;
+  });
+}
+
+async function importAccordanceExport() {
+  const raw = accordanceImportInputEl.value.trim();
+  if (!raw) {
+    accordanceStatusEl.textContent = "Library status: provide JSON payload first.";
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    accordanceStatusEl.textContent = "Library status: invalid JSON payload.";
+    return;
+  }
+
+  await fetchJson("/api/v1/integrations/accordance/import", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      ...parsed,
+      mode: importModeSelectEl.value
+    })
+  });
+
+  await loadLibraryOverviewAndPackages();
+  await loadHistoricalResourcesForSelectedVerse();
+}
+
 searchInputEl.addEventListener("input", (event) => {
   const items = filteredVerses(event.target.value);
   renderVerseList(items);
@@ -322,9 +414,29 @@ patternScopeTypeEl.addEventListener("change", () => {
   patternScopeRefEl.value = defaultScopeRef(patternScopeTypeEl.value);
 });
 
+importAccordanceBtnEl.addEventListener("click", () => {
+  importAccordanceExport().catch(() => {
+    accordanceStatusEl.textContent = "Library status: import failed.";
+  });
+});
+
+refreshLibraryBtnEl.addEventListener("click", () => {
+  loadLibraryOverviewAndPackages()
+    .then(() => loadHistoricalResourcesForSelectedVerse())
+    .catch(() => {
+      accordanceStatusEl.textContent = "Library status: refresh failed.";
+    });
+});
+
 loadVerseList().catch(() => {
   verseRefEl.textContent = "Load error";
   verseTextEl.textContent = "Could not load Scripture data.";
 });
 
 patternScopeRefEl.value = "Genesis:1";
+
+loadLibraryOverviewAndPackages()
+  .then(() => loadHistoricalResourcesForSelectedVerse())
+  .catch(() => {
+    accordanceStatusEl.textContent = "Library status: initial load failed.";
+  });

@@ -10,6 +10,68 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const dataPath = path.join(__dirname, "data", "scripture-phase1.json");
 const scriptureData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+const accordanceBridgePath = path.join(__dirname, "data", "accordance-bridge.json");
+
+function loadAccordanceBridgeData() {
+  try {
+    const raw = fs.readFileSync(accordanceBridgePath, "utf-8");
+    const parsed = JSON.parse(raw);
+
+    return {
+      provider: "Accordance",
+      lastImportedAt: parsed.lastImportedAt || null,
+      bibleListings: Array.isArray(parsed.bibleListings) ? parsed.bibleListings : [],
+      modules: Array.isArray(parsed.modules) ? parsed.modules : [],
+      historicResources: Array.isArray(parsed.historicResources) ? parsed.historicResources : []
+    };
+  } catch (error) {
+    return {
+      provider: "Accordance",
+      lastImportedAt: null,
+      bibleListings: [],
+      modules: [],
+      historicResources: []
+    };
+  }
+}
+
+function saveAccordanceBridgeData(payload) {
+  const safePayload = {
+    provider: "Accordance",
+    lastImportedAt: payload.lastImportedAt || null,
+    bibleListings: Array.isArray(payload.bibleListings) ? payload.bibleListings : [],
+    modules: Array.isArray(payload.modules) ? payload.modules : [],
+    historicResources: Array.isArray(payload.historicResources) ? payload.historicResources : [],
+    notes: [
+      "This file stores user-imported metadata and resources exported by the account owner.",
+      "Do not include copyrighted package content unless licensed for personal use and redistribution."
+    ]
+  };
+
+  fs.writeFileSync(accordanceBridgePath, JSON.stringify(safePayload, null, 2), "utf-8");
+}
+
+let accordanceBridgeData = loadAccordanceBridgeData();
+
+function normalizedString(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function mergeByKey(existing, incoming, keyFn) {
+  const map = new Map();
+
+  existing.forEach((item) => {
+    map.set(keyFn(item), item);
+  });
+
+  incoming.forEach((item) => {
+    map.set(keyFn(item), item);
+  });
+
+  return Array.from(map.values());
+}
 
 function getVerseById(verseId) {
   return scriptureData.verses.find((verse) => verse.id === verseId);
@@ -418,6 +480,144 @@ app.get("/api/v1/timeline/events", (req, res) => {
   );
 
   return res.json({ events });
+});
+
+app.get("/api/v1/integrations/accordance/capabilities", (req, res) => {
+  return res.json({
+    provider: "Accordance",
+    integrationMode: "user-export-import",
+    licensingNote:
+      "Scripture Key imports user-owned export data. Proprietary content must remain within your license rights.",
+    capabilities: [
+      "Bible listings import",
+      "Library modules and package cataloging",
+      "Historical resources linked to verse references",
+      "Cross-reference style metadata ingestion",
+      "Original-language support mapping"
+    ]
+  });
+});
+
+app.get("/api/v1/library/overview", (req, res) => {
+  return res.json({
+    provider: accordanceBridgeData.provider,
+    lastImportedAt: accordanceBridgeData.lastImportedAt,
+    counts: {
+      bibleListings: accordanceBridgeData.bibleListings.length,
+      modules: accordanceBridgeData.modules.length,
+      historicResources: accordanceBridgeData.historicResources.length
+    }
+  });
+});
+
+app.get("/api/v1/library/packages", (req, res) => {
+  return res.json({
+    modules: accordanceBridgeData.modules,
+    bibleListings: accordanceBridgeData.bibleListings
+  });
+});
+
+app.get("/api/v1/library/historical/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) {
+    return res.status(404).json({ error: "Verse not found" });
+  }
+
+  const resources = accordanceBridgeData.historicResources.filter((item) => {
+    const references = Array.isArray(item.references) ? item.references : [];
+    return references.some((ref) => {
+      const norm = normalizedString(ref);
+      return norm === normalizedString(verse.id) || norm === normalizedString(verse.reference);
+    });
+  });
+
+  return res.json({ verse: verse.reference, resources });
+});
+
+app.post("/api/v1/integrations/accordance/import", (req, res) => {
+  const {
+    bibleListings = [],
+    modules = [],
+    historicResources = [],
+    mode = "merge"
+  } = req.body || {};
+
+  const safeBibleListings = Array.isArray(bibleListings)
+    ? bibleListings
+        .filter((item) => item && item.name)
+        .map((item) => ({
+          name: String(item.name),
+          language: String(item.language || "unknown"),
+          testament: String(item.testament || "both"),
+          abbreviation: String(item.abbreviation || "")
+        }))
+    : [];
+
+  const safeModules = Array.isArray(modules)
+    ? modules
+        .filter((item) => item && item.name)
+        .map((item) => ({
+          name: String(item.name),
+          category: String(item.category || "study"),
+          package: String(item.package || "user-import"),
+          source: String(item.source || "Accordance export")
+        }))
+    : [];
+
+  const safeHistoricResources = Array.isArray(historicResources)
+    ? historicResources
+        .filter((item) => item && item.title)
+        .map((item) => ({
+          title: String(item.title),
+          period: String(item.period || "unspecified"),
+          summary: String(item.summary || ""),
+          references: Array.isArray(item.references)
+            ? item.references.map((ref) => String(ref))
+            : []
+        }))
+    : [];
+
+  if (mode === "replace") {
+    accordanceBridgeData = {
+      provider: "Accordance",
+      lastImportedAt: new Date().toISOString(),
+      bibleListings: safeBibleListings,
+      modules: safeModules,
+      historicResources: safeHistoricResources
+    };
+  } else {
+    accordanceBridgeData = {
+      provider: "Accordance",
+      lastImportedAt: new Date().toISOString(),
+      bibleListings: mergeByKey(
+        accordanceBridgeData.bibleListings,
+        safeBibleListings,
+        (item) => `${normalizedString(item.name)}|${normalizedString(item.abbreviation)}`
+      ),
+      modules: mergeByKey(
+        accordanceBridgeData.modules,
+        safeModules,
+        (item) => `${normalizedString(item.name)}|${normalizedString(item.category)}`
+      ),
+      historicResources: mergeByKey(
+        accordanceBridgeData.historicResources,
+        safeHistoricResources,
+        (item) => `${normalizedString(item.title)}|${normalizedString(item.period)}`
+      )
+    };
+  }
+
+  saveAccordanceBridgeData(accordanceBridgeData);
+
+  return res.json({
+    message: "Accordance export imported successfully.",
+    lastImportedAt: accordanceBridgeData.lastImportedAt,
+    counts: {
+      bibleListings: accordanceBridgeData.bibleListings.length,
+      modules: accordanceBridgeData.modules.length,
+      historicResources: accordanceBridgeData.historicResources.length
+    }
+  });
 });
 
 app.get("*", (req, res) => {

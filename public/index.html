@@ -119,6 +119,38 @@
         </div>
         <ul id="patternFindings" class="pattern-list"></ul>
       </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Accordance Bridge</h2>
+          <button id="refreshLibraryBtn">Refresh Library</button>
+        </div>
+        <p class="meta">
+          Import your own Accordance export JSON to map Bible listings, historical resources, and
+          package modules into Scripture Key.
+        </p>
+        <label for="accordanceImportInput">Accordance Export JSON</label>
+        <textarea
+          id="accordanceImportInput"
+          class="command-input"
+          rows="5"
+          placeholder='{"bibleListings":[],"modules":[],"historicResources":[]}'
+        ></textarea>
+        <div class="inline-actions">
+          <button id="importAccordanceBtn">Import Export</button>
+          <select id="importModeSelect">
+            <option value="merge" selected>Merge</option>
+            <option value="replace">Replace</option>
+          </select>
+        </div>
+        <p id="accordanceStatus" class="meta">Library status: waiting</p>
+        <h4>Imported Bible Listings</h4>
+        <ul id="bibleListingsList" class="pattern-list"></ul>
+        <h4>Imported Modules</h4>
+        <ul id="packageModulesList" class="pattern-list"></ul>
+        <h4>Historical Resources for Selected Verse</h4>
+        <ul id="historicalResourcesList" class="pattern-list"></ul>
+      </article>
     </section>
 
     <script src="app.js"></script>

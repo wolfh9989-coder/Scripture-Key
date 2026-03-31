@@ -1,0 +1,35 @@
+{
+  "provider": "Accordance",
+  "lastImportedAt": "2026-03-31T23:31:15.113Z",
+  "bibleListings": [
+    {
+      "name": "English Study Bible",
+      "language": "English",
+      "testament": "both",
+      "abbreviation": "ESB"
+    }
+  ],
+  "modules": [
+    {
+      "name": "Historical Background Notes",
+      "category": "historical",
+      "package": "User Accordance Pack",
+      "source": "Accordance Export"
+    }
+  ],
+  "historicResources": [
+    {
+      "title": "Second Temple Context",
+      "period": "Second Temple",
+      "summary": "Background context for intertestamental setting.",
+      "references": [
+        "GEN.1.1",
+        "Genesis 1:1"
+      ]
+    }
+  ],
+  "notes": [
+    "This file stores user-imported metadata and resources exported by the account owner.",
+    "Do not include copyrighted package content unless licensed for personal use and redistribution."
+  ]
+}
