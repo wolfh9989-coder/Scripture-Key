@@ -72,6 +72,12 @@ h1 {
   gap: 8px;
 }
 
+.header-controls {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+}
+
 select,
 input,
 button {
@@ -306,6 +312,17 @@ button:hover {
 }
 
 @media (max-width: 1180px) {
+  .topbar {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .header-controls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .layout {
     grid-template-columns: 1fr;
   }

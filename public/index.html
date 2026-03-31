@@ -20,14 +20,20 @@
         <p class="eyebrow">Scripture Key</p>
         <h1>Unlock the Word. Explore the Living Structure.</h1>
       </div>
-      <div class="mode-controls">
-        <label for="modeSelect">Insight Mode</label>
-        <select id="modeSelect">
-          <option value="beginner">Beginner</option>
-          <option value="study" selected>Study</option>
-          <option value="deep">Deep / Theological</option>
-          <option value="devotional">Devotional</option>
-        </select>
+      <div class="header-controls">
+        <div class="mode-controls">
+          <label for="modeSelect">Insight Mode</label>
+          <select id="modeSelect">
+            <option value="beginner">Beginner</option>
+            <option value="study" selected>Study</option>
+            <option value="deep">Deep / Theological</option>
+            <option value="devotional">Devotional</option>
+          </select>
+        </div>
+        <div class="mode-controls">
+          <label for="searchInput">Scripture Search</label>
+          <input id="searchInput" type="search" placeholder="Search reference or text" />
+        </div>
       </div>
     </header>
 
@@ -35,7 +41,6 @@
       <aside class="panel panel-verse-list">
         <div class="panel-head">
           <h2>Scripture Viewer</h2>
-          <input id="searchInput" type="search" placeholder="Search reference or text" />
         </div>
         <ul id="verseList" class="verse-list"></ul>
       </aside>
@@ -80,7 +85,7 @@
     <section class="phase2-layout">
       <article class="panel">
         <div class="panel-head">
-          <h2>BRCIS Command Layer</h2>
+          <h2>Command Layer</h2>
           <button id="runBrcisBtn">Run Query</button>
         </div>
         <label for="brcisInput">Command</label>
@@ -97,7 +102,7 @@
 
       <article class="panel">
         <div class="panel-head">
-          <h2>UMIE Pattern Lab</h2>
+          <h2>Pattern Lab</h2>
           <button id="runPatternBtn">Analyze Patterns</button>
         </div>
         <div class="pattern-controls">
