@@ -15,6 +15,250 @@ function getVerseById(verseId) {
   return scriptureData.verses.find((verse) => verse.id === verseId);
 }
 
+function getVerseByReference(reference) {
+  const normalized = reference.trim().toLowerCase();
+  return scriptureData.verses.find((verse) => verse.reference.toLowerCase() === normalized);
+}
+
+function findVersesByReferenceFragment(fragment) {
+  const normalized = fragment.trim().toLowerCase();
+  return scriptureData.verses.filter((verse) => verse.reference.toLowerCase().includes(normalized));
+}
+
+function tokenize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function collectScopeVerses(scopeType, scopeRef) {
+  if (scopeType === "verse") {
+    const verse = getVerseById(scopeRef);
+    return verse ? [verse] : [];
+  }
+
+  if (scopeType === "chapter") {
+    const parts = (scopeRef || "").split(":");
+    if (parts.length !== 2) {
+      return [];
+    }
+
+    const book = parts[0].trim().toLowerCase();
+    const chapter = Number(parts[1]);
+
+    return scriptureData.verses.filter(
+      (verse) => verse.book.toLowerCase() === book && verse.chapter === chapter
+    );
+  }
+
+  if (scopeType === "book") {
+    return scriptureData.verses.filter(
+      (verse) => verse.book.toLowerCase() === String(scopeRef || "").toLowerCase()
+    );
+  }
+
+  return scriptureData.verses;
+}
+
+function buildPhraseRepeats(verses) {
+  const phraseCounts = {};
+
+  verses.forEach((verse) => {
+    const words = tokenize(verse.text);
+    for (let size = 2; size <= 3; size += 1) {
+      for (let i = 0; i <= words.length - size; i += 1) {
+        const phrase = words.slice(i, i + size).join(" ");
+        if (!phraseCounts[phrase]) {
+          phraseCounts[phrase] = { count: 0, references: new Set() };
+        }
+        phraseCounts[phrase].count += 1;
+        phraseCounts[phrase].references.add(verse.reference);
+      }
+    }
+  });
+
+  return Object.entries(phraseCounts)
+    .filter(([, value]) => value.references.size > 1)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 6)
+    .map(([phrase, value]) => ({
+      patternType: "phrase_repeat",
+      finding: phrase,
+      confidence: Math.min(0.95, 0.45 + value.count * 0.05),
+      evidence: Array.from(value.references)
+    }));
+}
+
+function buildNumericMotifs(verses) {
+  const targets = [7, 12, 40];
+
+  return targets
+    .map((num) => {
+      const matcher = new RegExp(`\\b${num}\\b`, "g");
+      const hits = verses
+        .filter((verse) => matcher.test(verse.text))
+        .map((verse) => verse.reference);
+
+      return {
+        number: num,
+        hits
+      };
+    })
+    .filter((entry) => entry.hits.length > 0)
+    .map((entry) => ({
+      patternType: "numeric",
+      finding: `Numeric motif ${entry.number}`,
+      confidence: 0.8,
+      evidence: entry.hits
+    }));
+}
+
+function buildParallelThemes(verses) {
+  const themeMap = {};
+
+  verses.forEach((verse) => {
+    verse.themes.forEach((theme) => {
+      if (!themeMap[theme]) {
+        themeMap[theme] = [];
+      }
+      themeMap[theme].push(verse.reference);
+    });
+  });
+
+  return Object.entries(themeMap)
+    .filter(([, refs]) => refs.length > 1)
+    .slice(0, 8)
+    .map(([theme, refs]) => ({
+      patternType: "parallel",
+      finding: `Theme parallel: ${theme}`,
+      confidence: 0.77,
+      evidence: refs
+    }));
+}
+
+function buildChiasticCandidates(verses) {
+  const candidates = verses
+    .map((verse) => {
+      const words = tokenize(verse.text).filter((word) => word.length > 3);
+      if (words.length < 4) {
+        return null;
+      }
+
+      const first = words[0];
+      const last = words[words.length - 1];
+
+      if (first === last) {
+        return {
+          patternType: "chiastic",
+          finding: `Possible chiastic mirror in ${verse.reference}`,
+          confidence: 0.61,
+          evidence: [verse.reference]
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean);
+
+  return candidates.slice(0, 4);
+}
+
+function compareVerses(leftVerse, rightVerse) {
+  const sharedThemes = leftVerse.themes.filter((theme) => rightVerse.themes.includes(theme));
+  const sharedPeople = leftVerse.people.filter((person) => rightVerse.people.includes(person));
+
+  return {
+    left: mapSummary(leftVerse),
+    right: mapSummary(rightVerse),
+    similarities: {
+      sharedThemes,
+      sharedPeople,
+      sharedCrossReferences: leftVerse.crossReferences.filter((ref) =>
+        rightVerse.crossReferences.includes(ref)
+      )
+    },
+    contrast: {
+      leftPrimaryThemes: leftVerse.themes,
+      rightPrimaryThemes: rightVerse.themes
+    },
+    commentary: `Comparison between ${leftVerse.reference} and ${rightVerse.reference} generated for study mode.`
+  };
+}
+
+function handleBrcisQuery(content, mode) {
+  const input = String(content || "").trim();
+  const lower = input.toLowerCase();
+
+  const compareMatch = lower.match(/compare\s+(.+?)\s+with\s+(.+)/i);
+  if (compareMatch) {
+    const leftCandidates = findVersesByReferenceFragment(compareMatch[1]);
+    const rightCandidates = findVersesByReferenceFragment(compareMatch[2]);
+
+    if (leftCandidates.length > 0 && rightCandidates.length > 0) {
+      const result = compareVerses(leftCandidates[0], rightCandidates[0]);
+      return {
+        intent: "compare",
+        answer: result.commentary,
+        mode,
+        supportingReferences: [result.left.reference, result.right.reference],
+        data: result,
+        alternateInterpretations: [
+          "Evaluate each verse in its chapter context for fuller nuance.",
+          "Track covenant continuity and discontinuity across both texts."
+        ]
+      };
+    }
+  }
+
+  if (lower.includes("every time") || lower.includes("show me every")) {
+    const faithSet = scriptureData.verses.filter((verse) =>
+      verse.themes.some((theme) => ["faith", "trust", "belief"].includes(theme.toLowerCase()))
+    );
+
+    return {
+      intent: "thematic_search",
+      answer: `Found ${faithSet.length} verse candidates connected to faith/trust themes in the current dataset.`,
+      mode,
+      supportingReferences: faithSet.map((verse) => verse.reference),
+      data: faithSet.map(mapSummary),
+      alternateInterpretations: [
+        "Expand dataset scope for a complete canon-level answer.",
+        "Filter by direct sayings of Jesus in gospel passages only."
+      ]
+    };
+  }
+
+  const verseFromDirectRef = getVerseByReference(input);
+  if (verseFromDirectRef) {
+    return {
+      intent: "verse_explain",
+      answer: verseFromDirectRef.keyLayers.literal,
+      mode,
+      supportingReferences: [verseFromDirectRef.reference],
+      data: {
+        summary: mapSummary(verseFromDirectRef),
+        historical: verseFromDirectRef.keyLayers.historical,
+        symbolic: verseFromDirectRef.keyLayers.symbolic
+      },
+      alternateInterpretations: [
+        "Review prophetic reading with cross-reference chain.",
+        "Use devotional mode for personal reflection framing."
+      ]
+    };
+  }
+
+  return {
+    intent: "generic_study",
+    answer: "I can compare verses, explain a direct verse reference, or run thematic searches from the current Phase 2 dataset.",
+    mode,
+    supportingReferences: [],
+    data: null,
+    alternateInterpretations: []
+  };
+}
+
 function mapSummary(verse) {
   return {
     id: verse.id,
@@ -109,6 +353,71 @@ app.get("/api/v1/graph/theme/:theme", (req, res) => {
       type: "THEME_OF"
     }))
   });
+});
+
+app.post("/api/v1/compare", (req, res) => {
+  const { leftVerseId, rightVerseId } = req.body;
+  const leftVerse = getVerseById(leftVerseId);
+  const rightVerse = getVerseById(rightVerseId);
+
+  if (!leftVerse || !rightVerse) {
+    return res.status(404).json({ error: "One or both verses not found" });
+  }
+
+  return res.json(compareVerses(leftVerse, rightVerse));
+});
+
+app.post("/api/v1/patterns/analyze", (req, res) => {
+  const {
+    scopeType = "corpus",
+    scopeRef = "",
+    patternTypes = ["phrase_repeat", "numeric", "chiastic", "parallel"]
+  } = req.body;
+
+  const scopeVerses = collectScopeVerses(scopeType, scopeRef);
+
+  if (scopeVerses.length === 0) {
+    return res.status(404).json({ error: "No verses found for requested scope" });
+  }
+
+  let findings = [];
+
+  if (patternTypes.includes("phrase_repeat")) {
+    findings = findings.concat(buildPhraseRepeats(scopeVerses));
+  }
+  if (patternTypes.includes("numeric")) {
+    findings = findings.concat(buildNumericMotifs(scopeVerses));
+  }
+  if (patternTypes.includes("chiastic")) {
+    findings = findings.concat(buildChiasticCandidates(scopeVerses));
+  }
+  if (patternTypes.includes("parallel")) {
+    findings = findings.concat(buildParallelThemes(scopeVerses));
+  }
+
+  return res.json({
+    scopeType,
+    scopeRef,
+    findings,
+    analyzedVerseCount: scopeVerses.length
+  });
+});
+
+app.post("/api/v1/brcis/query", (req, res) => {
+  const { content = "", mode = "study" } = req.body;
+  return res.json(handleBrcisQuery(content, mode));
+});
+
+app.get("/api/v1/timeline/events", (req, res) => {
+  const events = scriptureData.verses.flatMap((verse) =>
+    verse.contextTimeline.map((point, index) => ({
+      reference: verse.reference,
+      sequence: index + 1,
+      point
+    }))
+  );
+
+  return res.json({ events });
 });
 
 app.get("*", (req, res) => {

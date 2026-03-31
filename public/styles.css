@@ -101,6 +101,15 @@ button:hover {
   padding: 12px 24px 24px;
 }
 
+.phase2-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 14px;
+  padding: 0 24px 24px;
+}
+
 .panel {
   border: 1px solid var(--line);
   background: var(--panel);
@@ -140,7 +149,8 @@ button:hover {
 .verse-list,
 .timeline,
 .strong-list,
-.related-list {
+.related-list,
+.pattern-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -150,7 +160,8 @@ button:hover {
 
 .verse-item,
 .related-item,
-.strong-item {
+.strong-item,
+.pattern-item {
   border: 1px solid rgba(119, 236, 229, 0.18);
   border-radius: 10px;
   padding: 10px;
@@ -191,6 +202,44 @@ button:hover {
 .meta {
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+.phase2-answer {
+  line-height: 1.5;
+  background: rgba(3, 16, 20, 0.7);
+  border: 1px solid rgba(119, 236, 229, 0.16);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.command-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 82px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(5, 13, 17, 0.9);
+  color: var(--text);
+  padding: 10px;
+}
+
+.pattern-controls {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pattern-item h5 {
+  margin: 0 0 6px;
+  color: var(--accent-warm);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pattern-item p {
+  margin: 0;
 }
 
 .chips {
@@ -258,6 +307,10 @@ button:hover {
 
 @media (max-width: 1180px) {
   .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .phase2-layout {
     grid-template-columns: 1fr;
   }
 

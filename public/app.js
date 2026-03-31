@@ -14,6 +14,15 @@ const modeGuidanceEl = document.getElementById("modeGuidance");
 const modeSelectEl = document.getElementById("modeSelect");
 const latticeSignalsEl = document.getElementById("latticeSignals");
 const searchInputEl = document.getElementById("searchInput");
+const brcisInputEl = document.getElementById("brcisInput");
+const runBrcisBtnEl = document.getElementById("runBrcisBtn");
+const brcisIntentEl = document.getElementById("brcisIntent");
+const brcisAnswerEl = document.getElementById("brcisAnswer");
+const brcisRefsEl = document.getElementById("brcisRefs");
+const runPatternBtnEl = document.getElementById("runPatternBtn");
+const patternScopeTypeEl = document.getElementById("patternScopeType");
+const patternScopeRefEl = document.getElementById("patternScopeRef");
+const patternFindingsEl = document.getElementById("patternFindings");
 
 let verses = [];
 let selectedVerseId = null;
@@ -190,6 +199,101 @@ function filteredVerses(query) {
   });
 }
 
+function defaultScopeRef(scopeType) {
+  const currentVerse = verses.find((item) => item.id === selectedVerseId);
+
+  if (!currentVerse) {
+    return "";
+  }
+
+  if (scopeType === "verse") {
+    return currentVerse.id;
+  }
+
+  if (scopeType === "chapter") {
+    const chapterAndBook = currentVerse.reference.split(":")[0];
+    const space = chapterAndBook.lastIndexOf(" ");
+    const book = chapterAndBook.slice(0, space);
+    const chapter = chapterAndBook.slice(space + 1);
+    return `${book}:${chapter}`;
+  }
+
+  if (scopeType === "book") {
+    const chapterAndBook = currentVerse.reference.split(":")[0];
+    const space = chapterAndBook.lastIndexOf(" ");
+    return chapterAndBook.slice(0, space);
+  }
+
+  return "";
+}
+
+async function runBrcisQuery() {
+  const content = brcisInputEl.value.trim();
+
+  if (!content) {
+    brcisIntentEl.textContent = "Intent: Empty";
+    brcisAnswerEl.textContent = "Type a command first.";
+    return;
+  }
+
+  const data = await fetchJson("/api/v1/brcis/query", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content,
+      mode: modeSelectEl.value
+    })
+  });
+
+  brcisIntentEl.textContent = `Intent: ${data.intent}`;
+  brcisAnswerEl.textContent = data.answer;
+  renderChips(brcisRefsEl, data.supportingReferences || []);
+}
+
+function renderPatternFindings(findings) {
+  clearChildren(patternFindingsEl);
+
+  if (!findings || findings.length === 0) {
+    const li = document.createElement("li");
+    li.className = "pattern-item";
+    li.textContent = "No high-confidence patterns found for this scope.";
+    patternFindingsEl.appendChild(li);
+    return;
+  }
+
+  findings.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "pattern-item";
+    li.innerHTML = `
+      <h5>${item.patternType} (${Math.round((item.confidence || 0) * 100)}%)</h5>
+      <p>${item.finding}</p>
+      <p class="meta">Evidence: ${(item.evidence || []).join(" | ")}</p>
+    `;
+    patternFindingsEl.appendChild(li);
+  });
+}
+
+async function runPatternAnalysis() {
+  const scopeType = patternScopeTypeEl.value;
+  const scopeRef = patternScopeRefEl.value.trim() || defaultScopeRef(scopeType);
+
+  const data = await fetchJson("/api/v1/patterns/analyze", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      scopeType,
+      scopeRef,
+      patternTypes: ["phrase_repeat", "numeric", "chiastic", "parallel"]
+    })
+  });
+
+  renderPatternFindings(data.findings);
+}
+
 searchInputEl.addEventListener("input", (event) => {
   const items = filteredVerses(event.target.value);
   renderVerseList(items);
@@ -201,7 +305,26 @@ unlockBtnEl.addEventListener("click", () => {
   });
 });
 
+runBrcisBtnEl.addEventListener("click", () => {
+  runBrcisQuery().catch(() => {
+    brcisIntentEl.textContent = "Intent: Error";
+    brcisAnswerEl.textContent = "BRCIS query failed. Try again.";
+  });
+});
+
+runPatternBtnEl.addEventListener("click", () => {
+  runPatternAnalysis().catch(() => {
+    renderPatternFindings([]);
+  });
+});
+
+patternScopeTypeEl.addEventListener("change", () => {
+  patternScopeRefEl.value = defaultScopeRef(patternScopeTypeEl.value);
+});
+
 loadVerseList().catch(() => {
   verseRefEl.textContent = "Load error";
   verseTextEl.textContent = "Could not load Scripture data.";
 });
+
+patternScopeRefEl.value = "Genesis:1";

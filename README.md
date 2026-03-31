@@ -4,7 +4,7 @@ Tagline: Unlock the Word. Explore the Living Structure.
 
 Scripture Key is a living, interactive Scripture intelligence website that combines deep textual study, graph-aware exploration, and AI-ready interpretation layers.
 
-## Phase 1 Website (Implemented)
+## Phase 1 + Phase 2 Website (Implemented)
 
 This repository now includes a runnable Node.js website for Phase 1:
 
@@ -19,6 +19,13 @@ This repository now includes a runnable Node.js website for Phase 1:
 	- Connections
 - Lattice signals panel (themes, people, events)
 - Related verses navigation
+
+Phase 2 additions now included:
+
+- BRCIS command query endpoint and UI panel
+- Verse comparison engine (manual endpoint + natural-language compare intent)
+- UMIE-style pattern analysis endpoint and UI panel
+- Timeline event endpoint for context progression
 
 ## Tech Stack
 
@@ -49,6 +56,13 @@ Open:
 - GET /api/v1/scripture/:verseId
 - POST /api/v1/scripture/unlock
 - GET /api/v1/graph/theme/:theme
+
+## API Endpoints (Phase 2)
+
+- POST /api/v1/brcis/query
+- POST /api/v1/compare
+- POST /api/v1/patterns/analyze
+- GET /api/v1/timeline/events
 
 ## Project Structure
 
