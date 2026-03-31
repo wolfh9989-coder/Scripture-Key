@@ -31,9 +31,24 @@ const accordanceStatusEl = document.getElementById("accordanceStatus");
 const bibleListingsListEl = document.getElementById("bibleListingsList");
 const packageModulesListEl = document.getElementById("packageModulesList");
 const historicalResourcesListEl = document.getElementById("historicalResourcesList");
+const parallelVersion1El = document.getElementById("parallelVersion1");
+const parallelVersion2El = document.getElementById("parallelVersion2");
+const parallelVersion3El = document.getElementById("parallelVersion3");
+const parallelVersion4El = document.getElementById("parallelVersion4");
+const loadParallelBtnEl = document.getElementById("loadParallelBtn");
+const parallelGridEl = document.getElementById("parallelGrid");
+const runCrossVersionBtnEl = document.getElementById("runCrossVersionBtn");
+const crossVersionSummaryEl = document.getElementById("crossVersionSummary");
+const crossVersionSharedEl = document.getElementById("crossVersionShared");
+const crossVersionTextListEl = document.getElementById("crossVersionTextList");
+const accordanceFileInputEl = document.getElementById("accordanceFileInput");
+const accordanceDropzoneEl = document.getElementById("accordanceDropzone");
+const refreshHistoryBtnEl = document.getElementById("refreshHistoryBtn");
+const openHistoryListEl = document.getElementById("openHistoryList");
 
 let verses = [];
 let selectedVerseId = null;
+let availableVersions = [];
 
 function clearChildren(element) {
   while (element.firstChild) {
@@ -128,6 +143,9 @@ async function selectVerse(verseId) {
   modeGuidanceEl.textContent = "Press Unlock to expand layered interpretation.";
   loadHistoricalResourcesForSelectedVerse().catch(() => {
     clearChildren(historicalResourcesListEl);
+  });
+  loadParallelView().catch(() => {
+    clearChildren(parallelGridEl);
   });
 }
 
@@ -305,6 +323,79 @@ async function runPatternAnalysis() {
   renderPatternFindings(data.findings);
 }
 
+function versionSelectors() {
+  return [parallelVersion1El, parallelVersion2El, parallelVersion3El, parallelVersion4El];
+}
+
+function selectedVersionCodes() {
+  return versionSelectors().map((el) => el.value).filter(Boolean);
+}
+
+function populateVersionSelectors(versions) {
+  availableVersions = versions || [];
+  const defaults = ["KJV", "ASV", "WEB", "YLT"];
+
+  versionSelectors().forEach((selectEl, index) => {
+    clearChildren(selectEl);
+
+    availableVersions.forEach((version) => {
+      const option = document.createElement("option");
+      option.value = version.code;
+      option.textContent = `${version.code} - ${version.name}`;
+      if (defaults[index] === version.code) {
+        option.selected = true;
+      }
+      selectEl.appendChild(option);
+    });
+  });
+}
+
+async function loadAvailableVersions() {
+  const data = await fetchJson("/api/v1/versions");
+  populateVersionSelectors(data.versions || []);
+}
+
+async function loadParallelView() {
+  if (!selectedVerseId) {
+    return;
+  }
+
+  const versions = selectedVersionCodes().slice(0, 4);
+  const query = encodeURIComponent(versions.join(","));
+  const data = await fetchJson(`/api/v1/scripture/parallel/${encodeURIComponent(selectedVerseId)}?versions=${query}`);
+
+  clearChildren(parallelGridEl);
+  data.panels.forEach((panel) => {
+    const card = document.createElement("article");
+    card.className = "parallel-card";
+    card.innerHTML = `
+      <h5>${panel.version} | ${panel.name}</h5>
+      <p>${panel.text}</p>
+    `;
+    parallelGridEl.appendChild(card);
+  });
+}
+
+async function runCrossVersionComparison() {
+  if (!selectedVerseId) {
+    crossVersionSummaryEl.textContent = "Select a verse first.";
+    return;
+  }
+
+  const versions = selectedVersionCodes().slice(0, 4);
+  const query = encodeURIComponent(versions.join(","));
+  const data = await fetchJson(
+    `/api/v1/scripture/cross-version/${encodeURIComponent(selectedVerseId)}?versions=${query}`
+  );
+
+  crossVersionSummaryEl.textContent = `${data.reference} compared across: ${data.comparedVersions.join(", ")}`;
+  renderChips(crossVersionSharedEl, data.sharedLexicalCore || []);
+
+  renderLibraryList(crossVersionTextListEl, data.versionTexts || [], (item) => {
+    return `<h5>${item.version}</h5><p>${item.text}</p>`;
+  });
+}
+
 function renderLibraryList(container, items, formatter) {
   clearChildren(container);
 
@@ -386,6 +477,23 @@ async function importAccordanceExport() {
   await loadHistoricalResourcesForSelectedVerse();
 }
 
+async function importAccordanceFromFile(file) {
+  if (!file) {
+    return;
+  }
+
+  const text = await file.text();
+  accordanceImportInputEl.value = text;
+  await importAccordanceExport();
+}
+
+async function loadOpenSourceHistory() {
+  const data = await fetchJson("/api/v1/library/open-source-history");
+  renderLibraryList(openHistoryListEl, data.resources || [], (item) => {
+    return `<h5>${item.title}</h5><p class="meta">${item.author} | ${item.source}</p><p><a href="${item.url}" target="_blank" rel="noopener noreferrer">Open Source Link</a></p>`;
+  });
+}
+
 searchInputEl.addEventListener("input", (event) => {
   const items = filteredVerses(event.target.value);
   renderVerseList(items);
@@ -428,6 +536,57 @@ refreshLibraryBtnEl.addEventListener("click", () => {
     });
 });
 
+loadParallelBtnEl.addEventListener("click", () => {
+  loadParallelView().catch(() => {
+    clearChildren(parallelGridEl);
+  });
+});
+
+runCrossVersionBtnEl.addEventListener("click", () => {
+  runCrossVersionComparison().catch(() => {
+    crossVersionSummaryEl.textContent = "Cross-version comparison failed.";
+  });
+});
+
+versionSelectors().forEach((selectEl) => {
+  selectEl.addEventListener("change", () => {
+    loadParallelView().catch(() => {
+      clearChildren(parallelGridEl);
+    });
+  });
+});
+
+accordanceFileInputEl.addEventListener("change", (event) => {
+  const file = event.target.files && event.target.files[0];
+  importAccordanceFromFile(file).catch(() => {
+    accordanceStatusEl.textContent = "Library status: file import failed.";
+  });
+});
+
+accordanceDropzoneEl.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  accordanceDropzoneEl.classList.add("active");
+});
+
+accordanceDropzoneEl.addEventListener("dragleave", () => {
+  accordanceDropzoneEl.classList.remove("active");
+});
+
+accordanceDropzoneEl.addEventListener("drop", (event) => {
+  event.preventDefault();
+  accordanceDropzoneEl.classList.remove("active");
+  const file = event.dataTransfer.files && event.dataTransfer.files[0];
+  importAccordanceFromFile(file).catch(() => {
+    accordanceStatusEl.textContent = "Library status: dropped file import failed.";
+  });
+});
+
+refreshHistoryBtnEl.addEventListener("click", () => {
+  loadOpenSourceHistory().catch(() => {
+    renderLibraryList(openHistoryListEl, [], () => "");
+  });
+});
+
 loadVerseList().catch(() => {
   verseRefEl.textContent = "Load error";
   verseTextEl.textContent = "Could not load Scripture data.";
@@ -440,3 +599,13 @@ loadLibraryOverviewAndPackages()
   .catch(() => {
     accordanceStatusEl.textContent = "Library status: initial load failed.";
   });
+
+loadAvailableVersions()
+  .then(() => loadParallelView())
+  .catch(() => {
+    clearChildren(parallelGridEl);
+  });
+
+loadOpenSourceHistory().catch(() => {
+  renderLibraryList(openHistoryListEl, [], () => "");
+});

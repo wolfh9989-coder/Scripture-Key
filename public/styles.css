@@ -116,6 +116,15 @@ button:hover {
   padding: 0 24px 24px;
 }
 
+.parallel-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 14px;
+  padding: 0 24px 24px;
+}
+
 .panel {
   border: 1px solid var(--line);
   background: var(--panel);
@@ -235,6 +244,40 @@ button:hover {
   margin-bottom: 10px;
 }
 
+.parallel-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.parallel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.parallel-card {
+  border: 1px solid rgba(119, 236, 229, 0.24);
+  border-radius: 10px;
+  background: rgba(4, 18, 22, 0.78);
+  padding: 10px;
+}
+
+.parallel-card h5 {
+  margin: 0 0 8px;
+  color: var(--accent-warm);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.parallel-card p {
+  margin: 0;
+  line-height: 1.55;
+}
+
 .pattern-item h5 {
   margin: 0 0 6px;
   color: var(--accent-warm);
@@ -253,6 +296,21 @@ button:hover {
   gap: 8px;
   align-items: center;
   margin: 8px 0;
+}
+
+.dropzone {
+  margin-top: 8px;
+  border: 1px dashed rgba(119, 236, 229, 0.5);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  color: var(--muted);
+  background: rgba(4, 16, 20, 0.65);
+}
+
+.dropzone.active {
+  border-color: var(--accent-warm);
+  color: #ffd8a4;
 }
 
 .chips {
@@ -335,6 +393,18 @@ button:hover {
   }
 
   .phase2-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .parallel-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .parallel-controls {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .parallel-grid {
     grid-template-columns: 1fr;
   }
 

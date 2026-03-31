@@ -82,6 +82,44 @@
       </aside>
     </main>
 
+    <section class="parallel-layout">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Parallel Bible Reader (4 Panels)</h2>
+          <button id="loadParallelBtn">Load Parallel View</button>
+        </div>
+        <div class="parallel-controls">
+          <div class="mode-controls">
+            <label for="parallelVersion1">Panel 1 Version</label>
+            <select id="parallelVersion1"></select>
+          </div>
+          <div class="mode-controls">
+            <label for="parallelVersion2">Panel 2 Version</label>
+            <select id="parallelVersion2"></select>
+          </div>
+          <div class="mode-controls">
+            <label for="parallelVersion3">Panel 3 Version</label>
+            <select id="parallelVersion3"></select>
+          </div>
+          <div class="mode-controls">
+            <label for="parallelVersion4">Panel 4 Version</label>
+            <select id="parallelVersion4"></select>
+          </div>
+        </div>
+        <div id="parallelGrid" class="parallel-grid"></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Cross-Version References</h2>
+          <button id="runCrossVersionBtn">Compare Versions</button>
+        </div>
+        <p id="crossVersionSummary" class="meta">Select a verse and compare up to 4 versions.</p>
+        <div id="crossVersionShared" class="chips"></div>
+        <ul id="crossVersionTextList" class="pattern-list"></ul>
+      </article>
+    </section>
+
     <section class="phase2-layout">
       <article class="panel">
         <div class="panel-head">
@@ -136,6 +174,9 @@
           rows="5"
           placeholder='{"bibleListings":[],"modules":[],"historicResources":[]}'
         ></textarea>
+        <label for="accordanceFileInput">Import Export File (JSON)</label>
+        <input id="accordanceFileInput" type="file" accept="application/json" />
+        <div id="accordanceDropzone" class="dropzone">Drop Accordance JSON file here</div>
         <div class="inline-actions">
           <button id="importAccordanceBtn">Import Export</button>
           <select id="importModeSelect">
@@ -150,6 +191,17 @@
         <ul id="packageModulesList" class="pattern-list"></ul>
         <h4>Historical Resources for Selected Verse</h4>
         <ul id="historicalResourcesList" class="pattern-list"></ul>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Open-Source Bible History Library</h2>
+          <button id="refreshHistoryBtn">Refresh Sources</button>
+        </div>
+        <p class="meta">
+          Curated public/open resources for historical Bible study. Links open in a new tab.
+        </p>
+        <ul id="openHistoryList" class="pattern-list"></ul>
       </article>
     </section>
 

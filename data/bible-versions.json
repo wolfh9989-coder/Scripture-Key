@@ -1,0 +1,104 @@
+{
+  "versions": [
+    {
+      "code": "KJV",
+      "name": "King James Version",
+      "license": "Public Domain",
+      "language": "English"
+    },
+    {
+      "code": "ASV",
+      "name": "American Standard Version",
+      "license": "Public Domain",
+      "language": "English"
+    },
+    {
+      "code": "WEB",
+      "name": "World English Bible",
+      "license": "Public Domain",
+      "language": "English"
+    },
+    {
+      "code": "YLT",
+      "name": "Young's Literal Translation",
+      "license": "Public Domain",
+      "language": "English"
+    }
+  ],
+  "texts": {
+    "GEN.1.1": {
+      "KJV": "In the beginning God created the heaven and the earth.",
+      "ASV": "In the beginning God created the heavens and the earth.",
+      "WEB": "In the beginning, God created the heavens and the earth.",
+      "YLT": "In the beginning of God's preparing the heavens and the earth."
+    },
+    "EXO.12.13": {
+      "KJV": "And the blood shall be to you for a token upon the houses where ye are.",
+      "ASV": "And the blood shall be to you for a token upon the houses where ye are.",
+      "WEB": "The blood shall be to you for a token on the houses where you are.",
+      "YLT": "And the blood hath become a sign for you on the houses where ye are."
+    },
+    "PSA.23.1": {
+      "KJV": "The Lord is my shepherd; I shall not want.",
+      "ASV": "Jehovah is my shepherd; I shall not want.",
+      "WEB": "Yahweh is my shepherd: I shall lack nothing.",
+      "YLT": "Jehovah is my shepherd, I do not lack."
+    },
+    "JHN.1.1": {
+      "KJV": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+      "ASV": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+      "WEB": "In the beginning was the Word, and the Word was with God, and the Word was God.",
+      "YLT": "In the beginning was the Word, and the Word was with God, and the Word was God."
+    },
+    "JHN.1.29": {
+      "KJV": "Behold the Lamb of God, which taketh away the sin of the world.",
+      "ASV": "Behold, the Lamb of God, that taketh away the sin of the world.",
+      "WEB": "Behold, the Lamb of God, who takes away the sin of the world.",
+      "YLT": "Lo, the Lamb of God, who is taking away the sin of the world."
+    },
+    "ROM.8.1": {
+      "KJV": "There is therefore now no condemnation to them which are in Christ Jesus.",
+      "ASV": "There is therefore now no condemnation to them that are in Christ Jesus.",
+      "WEB": "There is therefore now no condemnation to those who are in Christ Jesus.",
+      "YLT": "There is, then, now no condemnation to those in Christ Jesus."
+    },
+    "1CO.5.7": {
+      "KJV": "For even Christ our passover is sacrificed for us.",
+      "ASV": "For our passover also hath been sacrificed, even Christ.",
+      "WEB": "For indeed Christ, our Passover, has been sacrificed in our place.",
+      "YLT": "For also our passover for us was sacrificed, Christ."
+    },
+    "REV.21.1": {
+      "KJV": "And I saw a new heaven and a new earth.",
+      "ASV": "And I saw a new heaven and a new earth.",
+      "WEB": "I saw a new heaven and a new earth.",
+      "YLT": "And I saw a new heaven and a new earth."
+    }
+  },
+  "openSourceHistoryBooks": [
+    {
+      "title": "The Antiquities of the Jews",
+      "author": "Flavius Josephus",
+      "source": "Project Gutenberg",
+      "url": "https://www.gutenberg.org/ebooks/2848"
+    },
+    {
+      "title": "The Wars of the Jews",
+      "author": "Flavius Josephus",
+      "source": "Project Gutenberg",
+      "url": "https://www.gutenberg.org/ebooks/2850"
+    },
+    {
+      "title": "The Apostolic Fathers",
+      "author": "Various",
+      "source": "Internet Archive",
+      "url": "https://archive.org/details/apostolicfathers0000unse"
+    },
+    {
+      "title": "A Dictionary of the Bible",
+      "author": "William Smith",
+      "source": "Project Gutenberg",
+      "url": "https://www.gutenberg.org/ebooks/35332"
+    }
+  ]
+}

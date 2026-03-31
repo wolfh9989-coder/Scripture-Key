@@ -11,6 +11,8 @@ app.use(express.static(path.join(__dirname, "public")));
 const dataPath = path.join(__dirname, "data", "scripture-phase1.json");
 const scriptureData = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 const accordanceBridgePath = path.join(__dirname, "data", "accordance-bridge.json");
+const versionsPath = path.join(__dirname, "data", "bible-versions.json");
+const versionData = JSON.parse(fs.readFileSync(versionsPath, "utf-8"));
 
 function loadAccordanceBridgeData() {
   try {
@@ -71,6 +73,83 @@ function mergeByKey(existing, incoming, keyFn) {
   });
 
   return Array.from(map.values());
+}
+
+function getVersionMetadata(code) {
+  return versionData.versions.find((item) => item.code === code);
+}
+
+function getVerseTextForVersion(verseId, versionCode, fallbackText) {
+  const verseVersions = versionData.texts[verseId] || {};
+  return verseVersions[versionCode] || fallbackText;
+}
+
+function buildParallelVersePayload(verseId, requestedVersions) {
+  const verse = getVerseById(verseId);
+  if (!verse) {
+    return null;
+  }
+
+  const selectedVersions = requestedVersions
+    .filter((code) => getVersionMetadata(code))
+    .slice(0, 4);
+
+  const versionsToUse = selectedVersions.length > 0 ? selectedVersions : ["KJV", "ASV", "WEB", "YLT"];
+
+  return {
+    verseId: verse.id,
+    reference: verse.reference,
+    panels: versionsToUse.map((code) => {
+      const meta = getVersionMetadata(code);
+      return {
+        version: code,
+        name: meta ? meta.name : code,
+        text: getVerseTextForVersion(verse.id, code, verse.text),
+        crossReferences: verse.crossReferences
+      };
+    })
+  };
+}
+
+function tokenizeForComparison(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function buildVersionCrossReference(verseId, versions) {
+  const verse = getVerseById(verseId);
+  if (!verse) {
+    return null;
+  }
+
+  const sanitized = versions.filter((code) => getVersionMetadata(code)).slice(0, 4);
+  const versionsToUse = sanitized.length > 0 ? sanitized : ["KJV", "ASV", "WEB", "YLT"];
+
+  const texts = versionsToUse.map((code) => ({
+    version: code,
+    text: getVerseTextForVersion(verse.id, code, verse.text)
+  }));
+
+  const tokenSets = texts.map((item) => ({
+    version: item.version,
+    tokens: new Set(tokenizeForComparison(item.text))
+  }));
+
+  const sharedTokens = tokenSets.length
+    ? Array.from(tokenSets[0].tokens).filter((token) => tokenSets.every((set) => set.tokens.has(token)))
+    : [];
+
+  return {
+    verseId: verse.id,
+    reference: verse.reference,
+    comparedVersions: versionsToUse,
+    sharedLexicalCore: sharedTokens.slice(0, 24),
+    versionTexts: texts,
+    sourceCrossReferences: verse.crossReferences
+  };
 }
 
 function getVerseById(verseId) {
@@ -337,6 +416,42 @@ app.get("/api/v1/scripture", (req, res) => {
   res.json({ verses: summaries });
 });
 
+app.get("/api/v1/versions", (req, res) => {
+  return res.json({
+    versions: versionData.versions,
+    note:
+      "Includes public-domain/open resources by default. Additional licensed versions can be imported through your own data pipelines."
+  });
+});
+
+app.get("/api/v1/scripture/parallel/:verseId", (req, res) => {
+  const requestedVersions = String(req.query.versions || "")
+    .split(",")
+    .map((item) => item.trim().toUpperCase())
+    .filter(Boolean);
+
+  const payload = buildParallelVersePayload(req.params.verseId, requestedVersions);
+  if (!payload) {
+    return res.status(404).json({ error: "Verse not found" });
+  }
+
+  return res.json(payload);
+});
+
+app.get("/api/v1/scripture/cross-version/:verseId", (req, res) => {
+  const requestedVersions = String(req.query.versions || "")
+    .split(",")
+    .map((item) => item.trim().toUpperCase())
+    .filter(Boolean);
+
+  const payload = buildVersionCrossReference(req.params.verseId, requestedVersions);
+  if (!payload) {
+    return res.status(404).json({ error: "Verse not found" });
+  }
+
+  return res.json(payload);
+});
+
 app.get("/api/v1/scripture/:verseId", (req, res) => {
   const verse = getVerseById(req.params.verseId);
 
@@ -514,6 +629,13 @@ app.get("/api/v1/library/packages", (req, res) => {
   return res.json({
     modules: accordanceBridgeData.modules,
     bibleListings: accordanceBridgeData.bibleListings
+  });
+});
+
+app.get("/api/v1/library/open-source-history", (req, res) => {
+  return res.json({
+    resources: versionData.openSourceHistoryBooks,
+    note: "External links are provided for open-source/public resources."
   });
 });
 
