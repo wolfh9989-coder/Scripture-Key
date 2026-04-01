@@ -433,9 +433,291 @@ function mapSummary(verse) {
   };
 }
 
+const CANON_TRADITIONS = {
+  protestant: [
+    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
+    "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalms", "Proverbs",
+    "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos",
+    "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark",
+    "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians",
+    "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
+    "1 John", "2 John", "3 John", "Jude", "Revelation"
+  ],
+  catholic: [
+    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
+    "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Tobit", "Judith", "Esther", "1 Maccabees",
+    "2 Maccabees", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Wisdom", "Sirach", "Isaiah", "Jeremiah",
+    "Lamentations", "Baruch", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
+    "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians",
+    "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy",
+    "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"
+  ],
+  orthodox: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Psalms", "Isaiah", "Daniel", "Matthew", "Luke", "John", "Acts", "Romans", "Revelation"],
+  ethiopian: ["Genesis", "Exodus", "Psalms", "Isaiah", "Daniel", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "Revelation"],
+  hebrew: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Samuel", "Kings", "Isaiah", "Jeremiah", "Ezekiel", "Psalms", "Proverbs"]
+};
+
+const TIMELINE_TYPES = [
+  "biblical_event_timeline",
+  "kings_and_prophets",
+  "life_of_messiah",
+  "exodus_to_exile",
+  "church_timeline",
+  "intertestamental",
+  "prophecy_fulfillment",
+  "canon_and_manuscript",
+  "parallel_empires"
+];
+
+const HISTORY_LENSES = [
+  "biblical_event_history",
+  "ancient_near_east",
+  "second_temple",
+  "roman_era",
+  "church_history",
+  "manuscript_history",
+  "canon_formation",
+  "archaeology_material_culture",
+  "israel_judah_timeline",
+  "intertestamental_history"
+];
+
+const CONCORDANCE_TYPES = [
+  "strongs",
+  "hebrew_root",
+  "greek_root",
+  "topical",
+  "cross_reference",
+  "person_place",
+  "prophecy",
+  "thematic",
+  "word_frequency"
+];
+
+function inferPlacesByVerse(verse) {
+  const book = normalizedString(verse.book);
+  if (book === "genesis") {
+    return ["Eden", "Canaan"];
+  }
+  if (book === "exodus") {
+    return ["Egypt", "Goshen"];
+  }
+  if (book === "psalms") {
+    return ["Jerusalem", "Zion"];
+  }
+  if (book === "john") {
+    return ["Judea", "Galilee"];
+  }
+  if (book === "romans") {
+    return ["Rome"];
+  }
+  if (book === "1 corinthians") {
+    return ["Corinth"];
+  }
+  if (book === "revelation") {
+    return ["Patmos", "Asia Minor"];
+  }
+  return [];
+}
+
+function uniqueStrings(items) {
+  return Array.from(new Set(items.filter(Boolean)));
+}
+
+function buildContextRibbon(verse) {
+  const lower = normalizedString(verse.book);
+
+  const defaults = [
+    "Version",
+    "Canon",
+    "Book",
+    "Concordance",
+    "History",
+    "Timeline",
+    "Maps",
+    "Compare",
+    "Notes",
+    "Cross References",
+    "Unlock"
+  ];
+
+  if (lower === "genesis") {
+    return defaults.concat(["Creation Timeline", "Patriarch Map", "Hebrew Tools"]);
+  }
+  if (lower === "daniel") {
+    return defaults.concat(["Empire Timeline", "Prophecy Focus", "Historical Context"]);
+  }
+  if (lower === "revelation") {
+    return defaults.concat(["Symbolic Study", "Timeline Overlay", "Prophecy Links"]);
+  }
+  if (lower === "isaiah") {
+    return defaults.concat(["Kings of Judah", "Assyrian Context", "Prophetic Era"]);
+  }
+  if (lower === "acts") {
+    return defaults.concat(["Missionary Journeys", "Roman Context", "Church Expansion"]);
+  }
+
+  return defaults;
+}
+
+function buildBookCatalogFromLoadedVerses() {
+  const byBook = new Map();
+
+  scriptureData.verses.forEach((verse) => {
+    if (!byBook.has(verse.book)) {
+      const testament = ["Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "Revelation"].includes(verse.book)
+        ? "New Testament"
+        : "Old Testament";
+
+      let section = "Historical Books";
+      if (["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"].includes(verse.book)) {
+        section = "Torah";
+      }
+      if (["Psalms", "Proverbs", "Job", "Ecclesiastes", "Song of Solomon"].includes(verse.book)) {
+        section = "Wisdom Books";
+      }
+      if (["Isaiah", "Jeremiah", "Ezekiel", "Daniel"].includes(verse.book)) {
+        section = "Major Prophets";
+      }
+      if (["Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"].includes(verse.book)) {
+        section = "Minor Prophets";
+      }
+      if (["Matthew", "Mark", "Luke", "John"].includes(verse.book)) {
+        section = "Gospels";
+      }
+      if (["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon"].includes(verse.book)) {
+        section = "Letters";
+      }
+      if (["James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Hebrews"].includes(verse.book)) {
+        section = "General Epistles";
+      }
+
+      byBook.set(verse.book, {
+        book: verse.book,
+        testament,
+        section,
+        canonicalTraditions: Object.keys(CANON_TRADITIONS).filter((key) => CANON_TRADITIONS[key].includes(verse.book)),
+        timelinePeriod: testament === "Old Testament" ? "Ancient Israel Era" : "Second Temple and Early Church Era"
+      });
+    }
+  });
+
+  return Array.from(byBook.values()).sort((a, b) => a.book.localeCompare(b.book));
+}
+
+const BOOK_CATALOG = buildBookCatalogFromLoadedVerses();
+
 app.get("/api/v1/scripture", (req, res) => {
   const summaries = scriptureData.verses.map(mapSummary);
   res.json({ verses: summaries });
+});
+
+app.get("/api/v1/system/catalog", (req, res) => {
+  return res.json({
+    concordanceTypes: CONCORDANCE_TYPES,
+    historyLenses: HISTORY_LENSES,
+    timelineTypes: TIMELINE_TYPES,
+    canonTraditions: Object.keys(CANON_TRADITIONS),
+    studyModes: ["reader", "study", "scholar", "devotional", "timeline", "connection"]
+  });
+});
+
+app.get("/api/v1/books", (req, res) => {
+  const mode = String(req.query.mode || "standard");
+  const canonTradition = String(req.query.canonTradition || "protestant");
+
+  if (mode === "canon") {
+    return res.json({
+      mode,
+      tradition: canonTradition,
+      books: BOOK_CATALOG.filter((item) => item.canonicalTraditions.includes(canonTradition))
+    });
+  }
+
+  if (mode === "timeline") {
+    const byPeriod = {};
+    BOOK_CATALOG.forEach((book) => {
+      if (!byPeriod[book.timelinePeriod]) {
+        byPeriod[book.timelinePeriod] = [];
+      }
+      byPeriod[book.timelinePeriod].push(book);
+    });
+
+    return res.json({ mode, groups: byPeriod });
+  }
+
+  const bySection = {};
+  BOOK_CATALOG.forEach((book) => {
+    if (!bySection[book.section]) {
+      bySection[book.section] = [];
+    }
+    bySection[book.section].push(book);
+  });
+
+  return res.json({ mode, groups: bySection });
+});
+
+app.get("/api/v1/search/advanced", (req, res) => {
+  const q = normalizedString(req.query.q);
+  if (!q) {
+    return res.json({
+      verses: [],
+      books: [],
+      people: [],
+      places: [],
+      themes: [],
+      events: [],
+      prophecyLinks: [],
+      originalWords: [],
+      timelines: []
+    });
+  }
+
+  const matchedVerses = scriptureData.verses.filter((verse) => {
+    return (
+      normalizedString(verse.reference).includes(q) ||
+      normalizedString(verse.text).includes(q) ||
+      verse.themes.some((item) => normalizedString(item).includes(q)) ||
+      verse.people.some((item) => normalizedString(item).includes(q)) ||
+      verse.events.some((item) => normalizedString(item).includes(q))
+    );
+  });
+
+  const books = BOOK_CATALOG.filter((book) => normalizedString(book.book).includes(q));
+  const people = uniqueStrings(matchedVerses.flatMap((verse) => verse.people)).filter((item) => normalizedString(item).includes(q));
+  const places = uniqueStrings(matchedVerses.flatMap((verse) => inferPlacesByVerse(verse))).filter((item) => normalizedString(item).includes(q));
+  const themes = uniqueStrings(matchedVerses.flatMap((verse) => verse.themes)).filter((item) => normalizedString(item).includes(q));
+  const events = uniqueStrings(matchedVerses.flatMap((verse) => verse.events)).filter((item) => normalizedString(item).includes(q));
+  const prophecyLinks = uniqueStrings(matchedVerses.flatMap((verse) => verse.keyLayers.connections || [])).filter((item) => normalizedString(item).includes(q));
+  const originalWords = uniqueStrings(
+    matchedVerses.flatMap((verse) => (verse.original.strongs || []).map((entry) => `${entry.number} ${entry.lemma}`))
+  ).filter((item) => normalizedString(item).includes(q));
+  const timelines = uniqueStrings(matchedVerses.flatMap((verse) => verse.contextTimeline || [])).filter((item) => normalizedString(item).includes(q));
+
+  return res.json({
+    verses: matchedVerses.map(mapSummary),
+    books,
+    people,
+    places,
+    themes,
+    events,
+    prophecyLinks,
+    originalWords,
+    timelines
+  });
+});
+
+app.get("/api/v1/context/ribbon/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) {
+    return res.status(404).json({ error: "Verse not found" });
+  }
+
+  return res.json({
+    verseId: verse.id,
+    reference: verse.reference,
+    tools: buildContextRibbon(verse)
+  });
 });
 
 app.get("/api/v1/versions", (req, res) => {

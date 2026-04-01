@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scripture Key | Phase 2</title>
+    <title>Scripture Key | Reader Core</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,122 +15,124 @@
   <body>
     <div class="background-glow"></div>
 
-    <header class="topbar">
-      <div>
+    <header class="app-header">
+      <div class="brand-wrap">
         <p class="eyebrow">Scripture Key</p>
         <h1>Unlock the Word. Explore the Living Structure.</h1>
       </div>
-      <div class="header-controls">
-        <div class="mode-controls">
-          <label for="modeSelect">Insight Mode</label>
-          <select id="modeSelect">
-            <option value="beginner">Beginner</option>
-            <option value="study" selected>Study</option>
-            <option value="deep">Deep / Theological</option>
-            <option value="devotional">Devotional</option>
-          </select>
+      <div class="search-wrap">
+        <label for="globalSearchInput">Intelligence Search</label>
+        <div class="search-row">
+          <input
+            id="globalSearchInput"
+            type="search"
+            placeholder="Search verses, books, people, places, themes, prophecy, Hebrew/Greek"
+          />
+          <button id="globalSearchBtn">Search</button>
         </div>
+        <div id="globalSearchResults" class="search-results"></div>
+      </div>
+      <div class="header-actions">
+        <button id="quickSavedBtn">Saved Studies</button>
+        <button id="themeToggleBtn">Theme</button>
+        <button id="notificationsBtn">Activity</button>
       </div>
     </header>
 
-    <main class="layout">
-      <aside class="panel panel-verse-list">
+    <section class="command-ribbon">
+      <div class="ribbon-controls">
+        <select id="modeSelect"></select>
+        <select id="ribbonVersion"></select>
+        <select id="ribbonCanon"></select>
+        <select id="ribbonHistory"></select>
+        <select id="ribbonConcordance"></select>
+        <select id="ribbonTimeline"></select>
+      </div>
+      <div id="contextualTools" class="ribbon-tools"></div>
+    </section>
+
+    <main class="reader-shell">
+      <aside class="sidebar left-sidebar panel">
         <div class="panel-head">
-          <h2>Scripture Viewer</h2>
+          <h2>Book Explorer</h2>
         </div>
-        <div class="mode-controls viewer-search">
-          <label for="searchInput">Search Reference</label>
-          <input id="searchInput" type="search" placeholder="Search reference or text" />
+        <div class="inline-actions">
+          <button id="bookModeStandardBtn">Standard Grid</button>
+          <button id="bookModeCanonBtn">Canon Mode</button>
+          <button id="bookModeTimelineBtn">Timeline Mode</button>
         </div>
-        <ul id="verseList" class="verse-list"></ul>
+        <div class="mode-controls">
+          <label for="canonTraditionSelect">Canon Tradition</label>
+          <select id="canonTraditionSelect"></select>
+        </div>
+        <div id="bookExplorerResults" class="book-grid"></div>
+        <h3>Guided Study Trails</h3>
+        <ul id="trailsList" class="pattern-list"></ul>
       </aside>
 
-      <section class="panel panel-split">
-        <div class="split-col">
-          <h3>Verse</h3>
-          <p id="verseRef" class="verse-ref">Select a verse</p>
-          <p id="verseText" class="verse-text">Verse text appears here.</p>
-          <div id="crossRefs" class="chips"></div>
-        </div>
-
-        <div class="split-col">
-          <h3>Commentary + Context</h3>
-          <p id="commentaryText">Commentary appears here.</p>
-          <h4>Context Timeline</h4>
-          <ul id="timelineList" class="timeline"></ul>
-        </div>
-
-        <div class="split-col">
-          <h3>Original Language + Strong's</h3>
-          <p id="originalLang" class="meta"></p>
-          <p id="originalText" class="original"></p>
-          <ul id="strongList" class="strong-list"></ul>
-        </div>
-      </section>
-
-      <aside class="panel panel-unlock">
+      <section class="center-reader panel">
         <div class="panel-head">
-          <h2>Key Mode</h2>
+          <h2 id="verseRef">Select a Verse</h2>
           <button id="unlockBtn" class="unlock">Unlock</button>
         </div>
-        <p id="modeGuidance" class="meta">Select a verse and press Unlock.</p>
+        <div class="mode-controls viewer-search">
+          <label for="searchInput">Scripture Viewer Search</label>
+          <input id="searchInput" type="search" placeholder="Search loaded scripture text" />
+        </div>
+        <p id="modeGuidance" class="meta">Select a verse to begin.</p>
+        <div id="verseTextContainer" class="verse-body"></div>
+        <div id="crossRefs" class="chips"></div>
+        <div class="reader-split">
+          <article class="split-col">
+            <h3>Commentary Summary</h3>
+            <p id="commentaryText"></p>
+            <h4>Timeline Placement</h4>
+            <ul id="timelineList" class="timeline"></ul>
+          </article>
+          <article class="split-col">
+            <h3>Original Language</h3>
+            <p id="originalLang" class="meta"></p>
+            <p id="originalText" class="original"></p>
+            <ul id="strongList" class="strong-list"></ul>
+          </article>
+        </div>
+
+        <section class="parallel-block">
+          <div class="panel-head">
+            <h3>Compare Pane</h3>
+            <button id="runCrossVersionBtn">Compare Versions</button>
+          </div>
+          <div class="parallel-controls">
+            <select id="parallelVersion1"></select>
+            <select id="parallelVersion2"></select>
+            <select id="parallelVersion3"></select>
+            <select id="parallelVersion4"></select>
+          </div>
+          <div class="inline-actions">
+            <button id="loadParallelBtn">Load Verse Parallel</button>
+            <input id="chapterParallelRef" placeholder="Book:Chapter e.g. Genesis:1" />
+            <button id="loadChapterParallelBtn">Load Chapter Parallel</button>
+          </div>
+          <p id="crossVersionSummary" class="meta">Cross-version summary appears here.</p>
+          <div id="crossVersionShared" class="chips"></div>
+          <div id="parallelGrid" class="parallel-grid"></div>
+          <div id="chapterParallelGrid" class="parallel-grid"></div>
+          <ul id="crossVersionTextList" class="pattern-list"></ul>
+        </section>
+      </section>
+
+      <aside class="sidebar right-sidebar panel">
+        <div class="panel-head">
+          <h2>Smart Sidebar</h2>
+        </div>
+        <h3>Verse Layers</h3>
         <div id="layerStack" class="layer-stack"></div>
         <h4>Related Verses</h4>
         <ul id="relatedList" class="related-list"></ul>
         <h4>Lattice Signals</h4>
         <div id="latticeSignals" class="chips"></div>
-      </aside>
-    </main>
 
-    <section class="parallel-layout">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Parallel Bible Reader (4 Panels)</h2>
-          <button id="loadParallelBtn">Load Parallel View</button>
-        </div>
-        <div class="parallel-controls">
-          <div class="mode-controls">
-            <label for="parallelVersion1">Panel 1 Version</label>
-            <select id="parallelVersion1"></select>
-          </div>
-          <div class="mode-controls">
-            <label for="parallelVersion2">Panel 2 Version</label>
-            <select id="parallelVersion2"></select>
-          </div>
-          <div class="mode-controls">
-            <label for="parallelVersion3">Panel 3 Version</label>
-            <select id="parallelVersion3"></select>
-          </div>
-          <div class="mode-controls">
-            <label for="parallelVersion4">Panel 4 Version</label>
-            <select id="parallelVersion4"></select>
-          </div>
-        </div>
-        <div id="parallelGrid" class="parallel-grid"></div>
-        <div class="inline-actions">
-          <input id="chapterParallelRef" placeholder="Chapter ref e.g. Genesis:1" />
-          <button id="loadChapterParallelBtn">Load Chapter Parallel</button>
-        </div>
-        <div id="chapterParallelGrid" class="parallel-grid"></div>
-      </article>
-
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Cross-Version References</h2>
-          <button id="runCrossVersionBtn">Compare Versions</button>
-        </div>
-        <p id="crossVersionSummary" class="meta">Select a verse and compare up to 4 versions.</p>
-        <div id="crossVersionShared" class="chips"></div>
-        <ul id="crossVersionTextList" class="pattern-list"></ul>
-      </article>
-    </section>
-
-    <section class="phase2-layout">
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Pattern Lab</h2>
-          <button id="runPatternBtn">Analyze Patterns</button>
-        </div>
+        <h3>Concordance and Pattern Tools</h3>
         <div class="pattern-controls">
           <label for="patternScopeType">Scope Type</label>
           <select id="patternScopeType">
@@ -139,59 +141,47 @@
             <option value="book">Book</option>
             <option value="corpus">Corpus</option>
           </select>
-
           <label for="patternScopeRef">Scope Ref</label>
-          <input id="patternScopeRef" placeholder="For chapter use: Genesis:1" />
+          <input id="patternScopeRef" placeholder="Genesis:1" />
+          <button id="runPatternBtn">Pattern Lab</button>
         </div>
         <ul id="patternFindings" class="pattern-list"></ul>
-      </article>
 
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Accordance Bridge</h2>
-          <button id="refreshLibraryBtn">Refresh Library</button>
-        </div>
-        <p class="meta">
-          Import your own Accordance export JSON to map Bible listings, historical resources, and
-          package modules into Scripture Key.
-        </p>
-        <label for="accordanceImportInput">Accordance Export JSON</label>
+        <h3>Accordance Bridge</h3>
         <textarea
           id="accordanceImportInput"
           class="command-input"
-          rows="5"
+          rows="4"
           placeholder='{"bibleListings":[],"modules":[],"historicResources":[]}'
         ></textarea>
-        <label for="accordanceFileInput">Import Export File (JSON)</label>
         <input id="accordanceFileInput" type="file" accept="application/json" />
         <div id="accordanceDropzone" class="dropzone">Drop Accordance JSON file here</div>
         <div class="inline-actions">
           <button id="importAccordanceBtn">Import Export</button>
+          <button id="refreshLibraryBtn">Refresh Library</button>
           <select id="importModeSelect">
             <option value="merge" selected>Merge</option>
             <option value="replace">Replace</option>
           </select>
         </div>
-        <p id="accordanceStatus" class="meta">Library status: waiting</p>
-        <h4>Imported Bible Listings</h4>
+        <p id="accordanceStatus" class="meta"></p>
         <ul id="bibleListingsList" class="pattern-list"></ul>
-        <h4>Imported Modules</h4>
         <ul id="packageModulesList" class="pattern-list"></ul>
-        <h4>Historical Resources for Selected Verse</h4>
         <ul id="historicalResourcesList" class="pattern-list"></ul>
-      </article>
 
-      <article class="panel">
-        <div class="panel-head">
-          <h2>Open-Source Bible History Library</h2>
-          <button id="refreshHistoryBtn">Refresh Sources</button>
-        </div>
-        <p class="meta">
-          Curated public/open resources for historical Bible study. Links open in a new tab.
-        </p>
+        <h3>Open-Source Bible History</h3>
+        <button id="refreshHistoryBtn">Refresh Sources</button>
         <ul id="openHistoryList" class="pattern-list"></ul>
-      </article>
-    </section>
+
+        <h3>Smart Notes</h3>
+        <input id="noteTagsInput" placeholder="Tags: covenant, sermon, timeline" />
+        <textarea id="noteTextInput" class="command-input" rows="3" placeholder="Write verse-linked notes"></textarea>
+        <button id="saveNoteBtn">Save Note</button>
+        <ul id="notesList" class="pattern-list"></ul>
+      </aside>
+    </main>
+
+    <div id="hoverCard" class="hover-card"></div>
 
     <script src="app.js"></script>
   </body>
