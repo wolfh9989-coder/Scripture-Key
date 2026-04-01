@@ -672,3 +672,327 @@ button {
 .prophecy-quick-item:hover {
   color: var(--accent-gold);
 }
+
+/* ── INTELLIGENCE LAYER ─────────────────────────────────── */
+.intel-engine {
+  margin-top: 18px;
+  border: 1px solid rgba(245, 199, 123, 0.25);
+  border-radius: 14px;
+  padding: 14px 14px 16px;
+  background: rgba(8, 14, 24, 0.7);
+}
+.intel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.intel-tab {
+  background: rgba(245, 199, 123, 0.07);
+  border: 1px solid rgba(245, 199, 123, 0.25);
+  color: var(--accent-gold);
+  font-size: 0.72rem;
+  padding: 4px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.intel-tab:hover { background: rgba(245, 199, 123, 0.15); }
+.intel-tab.active {
+  background: rgba(245, 199, 123, 0.22);
+  border-color: var(--accent-gold);
+  font-weight: 600;
+}
+.intel-panel { display: none; }
+.intel-panel.active { display: block; }
+
+.trace-section {
+  margin-bottom: 12px;
+  border-left: 2px solid var(--accent-gold);
+  padding-left: 10px;
+}
+.trace-section h4 {
+  color: var(--accent-gold);
+  font-size: 0.78rem;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.trace-block {
+  background: rgba(115, 201, 255, 0.06);
+  border: 1px solid rgba(115, 201, 255, 0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.dna-card {
+  background: rgba(245, 199, 123, 0.06);
+  border: 1px solid rgba(245, 199, 123, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.dna-stat-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+.dna-stat {
+  background: rgba(115, 201, 255, 0.08);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.counsel-section {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.counsel-section h4 {
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+  margin: 0 0 4px;
+}
+.misuse-warning {
+  background: rgba(255, 120, 80, 0.1);
+  border: 1px solid rgba(255, 120, 80, 0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+.misuse-correct {
+  background: rgba(100, 255, 140, 0.07);
+  border: 1px solid rgba(100, 255, 140, 0.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+.symbol-arc-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.symbol-era-badge {
+  background: rgba(115, 201, 255, 0.12);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-size: 0.68rem;
+  color: var(--accent);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.covenant-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0;
+}
+.covenant-side {
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.covenant-side.old {
+  background: rgba(200, 160, 80, 0.08);
+  border: 1px solid rgba(200, 160, 80, 0.22);
+}
+.covenant-side.new {
+  background: rgba(115, 201, 255, 0.06);
+  border: 1px solid rgba(115, 201, 255, 0.2);
+}
+.covenant-side h5 {
+  font-size: 0.75rem;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.covenant-side.old h5 { color: var(--accent-gold); }
+.covenant-side.new h5 { color: var(--accent); }
+.arc-node {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.arc-node:last-child { border-bottom: none; }
+.arc-node-num {
+  background: var(--accent-gold);
+  color: #070b12;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.arc-node-body .arc-label { font-size: 0.78rem; font-weight: 600; color: var(--accent-gold); }
+.arc-node-body .arc-ref { font-size: 0.75rem; color: var(--accent); margin: 1px 0; }
+.arc-node-body .arc-note { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+.conflict-pair {
+  border: 1px solid rgba(255, 160, 100, 0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: rgba(18, 10, 4, 0.5);
+}
+.conflict-pair h4 { color: var(--accent-gold); font-size: 0.82rem; margin: 0 0 3px; }
+.conflict-tension { font-size: 0.75rem; color: rgba(255,255,255,0.6); font-style: italic; margin-bottom: 7px; }
+.conflict-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 7px 0; }
+.conflict-side {
+  background: rgba(115, 201, 255, 0.05);
+  border: 1px solid rgba(115, 201, 255, 0.12);
+  border-radius: 7px;
+  padding: 7px 8px;
+  font-size: 0.74rem;
+}
+.conflict-side b { color: var(--accent); }
+.conflict-resolution {
+  background: rgba(80, 255, 140, 0.06);
+  border: 1px solid rgba(80, 255, 140, 0.18);
+  border-radius: 7px;
+  padding: 7px 9px;
+  font-size: 0.75rem;
+  margin-top: 6px;
+}
+.hidden-connection {
+  border: 1px solid rgba(115, 201, 255, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: rgba(4, 12, 22, 0.5);
+}
+.hidden-connection h4 { color: var(--accent); font-size: 0.82rem; margin: 0 0 4px; }
+.hidden-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.74rem;
+}
+.hidden-pair:last-child { border-bottom: none; }
+.hidden-side { color: rgba(255,255,255,0.7); }
+.memory-card {
+  background: rgba(245, 199, 123, 0.07);
+  border: 1px solid rgba(245, 199, 123, 0.25);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 8px 0;
+  text-align: center;
+}
+.memory-queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.78rem;
+}
+.memory-due-badge {
+  background: rgba(255, 120, 80, 0.2);
+  border: 1px solid rgba(255, 120, 80, 0.4);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  color: #ff8060;
+}
+.memory-fresh-badge {
+  background: rgba(80, 255, 140, 0.12);
+  border: 1px solid rgba(80, 255, 140, 0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  color: #80ff80;
+}
+.depth-meter {
+  background: rgba(115, 201, 255, 0.05);
+  border: 1px solid rgba(115, 201, 255, 0.18);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+}
+.depth-row { display: flex; justify-content: space-between; font-size: 0.78rem; padding: 2px 0; }
+.depth-badge {
+  background: rgba(115, 201, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.depth-badge.deep { background: rgba(245, 199, 123, 0.18); color: var(--accent-gold); }
+.depth-badge.master { background: rgba(180, 100, 255, 0.2); color: #d88aff; }
+.path-node {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.78rem;
+}
+.path-node-num {
+  background: rgba(115, 201, 255, 0.15);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.slow-down-box {
+  background: rgba(245, 199, 123, 0.08);
+  border: 1px solid rgba(245, 199, 123, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.slow-down-box h4 { color: var(--accent-gold); font-size: 0.78rem; margin: 0 0 6px; }
+.weight-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.78rem;
+}
+.weight-score {
+  background: rgba(245, 199, 123, 0.15);
+  color: var(--accent-gold);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+.weight-role { color: var(--accent); font-size: 0.72rem; flex-shrink: 0; }
+.why-matters-card {
+  background: rgba(245, 199, 123, 0.06);
+  border: 1px solid rgba(245, 199, 123, 0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.why-matters-card h4 { color: var(--accent-gold); font-size: 0.78rem; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.guided-question {
+  background: rgba(115, 201, 255, 0.06);
+  border-left: 2px solid var(--accent);
+  padding: 7px 10px;
+  margin-bottom: 6px;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+

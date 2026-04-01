@@ -224,6 +224,105 @@
           </div>
         </section>
 
+        <!-- ── INTELLIGENCE LAYER ─────────────────────────────────── -->
+        <section class="intel-engine panel">
+          <div class="panel-head">
+            <h3>Intelligence Layer</h3>
+          </div>
+          <div class="intel-tabs" role="tablist">
+            <button class="intel-tab active" data-itab="truth-trace">Truth Trace</button>
+            <button class="intel-tab" data-itab="concept-dna">Concept DNA</button>
+            <button class="intel-tab" data-itab="full-counsel">Full Counsel</button>
+            <button class="intel-tab" data-itab="symbol-tracker">Symbols</button>
+            <button class="intel-tab" data-itab="cross-covenant">Cross-Covenant</button>
+            <button class="intel-tab" data-itab="narrative-flow">Narrative Flow</button>
+            <button class="intel-tab" data-itab="conflicts">Conflicts</button>
+            <button class="intel-tab" data-itab="misuse-check">Misuse Check</button>
+          </div>
+
+          <!-- Truth Trace -->
+          <div class="intel-panel active" id="intel-panel-truth-trace">
+            <p class="meta">Full evidence chain for the current verse — source, interpretation pathway, historical context, cross-links, doctrines, and weight.</p>
+            <button id="runTruthTraceBtn">Trace Current Verse</button>
+            <div id="truthTraceResult" class="disc-result"></div>
+          </div>
+
+          <!-- Concept DNA -->
+          <div class="intel-panel" id="intel-panel-concept-dna">
+            <p class="meta">Deep concept profile — first mention, era distribution, people, doctrine links, and symbolic arc for any biblical idea.</p>
+            <div class="search-row">
+              <input id="conceptDnaInput" placeholder="faith, blood, covenant, shepherd, law…" />
+              <button id="runConceptDnaBtn">Analyze DNA</button>
+            </div>
+            <div id="conceptDnaResult" class="disc-result"></div>
+          </div>
+
+          <!-- Full Counsel View -->
+          <div class="intel-panel" id="intel-panel-full-counsel">
+            <p class="meta">The complete biblical picture on any topic — core verses, supporting passages, debates, conflicts, and misuse warnings.</p>
+            <div class="search-row">
+              <input id="fullCounselInput" placeholder="Topic: grace, faith, salvation, atonement…" />
+              <button id="runFullCounselBtn">Full Counsel</button>
+            </div>
+            <div id="fullCounselResult" class="disc-result"></div>
+          </div>
+
+          <!-- Symbol Tracker -->
+          <div class="intel-panel" id="intel-panel-symbol-tracker">
+            <p class="meta">Trace a biblical symbol through Scripture — its first appearance, evolving meaning, and ultimate fulfillment.</p>
+            <div class="inline-actions">
+              <button id="loadSymbolListBtn">List All Symbols</button>
+            </div>
+            <div class="search-row">
+              <input id="symbolSearchInput" placeholder="blood, lamb, light, shepherd, seed, word…" />
+              <button id="runSymbolBtn">Track Symbol</button>
+            </div>
+            <div id="symbolResult" class="disc-result"></div>
+          </div>
+
+          <!-- Cross-Covenant Comparison -->
+          <div class="intel-panel" id="intel-panel-cross-covenant">
+            <p class="meta">Compare Old Covenant shadows with New Covenant fulfillments — see what changed and what stayed the same.</p>
+            <div class="inline-actions">
+              <button id="loadCovenantListBtn">List Concepts</button>
+            </div>
+            <div class="search-row">
+              <input id="covenantInput" placeholder="sacrifice, priesthood, atonement, righteousness…" />
+              <button id="runCovenantBtn">Compare Covenants</button>
+            </div>
+            <div id="covenantResult" class="disc-result"></div>
+          </div>
+
+          <!-- Narrative Flow Engine -->
+          <div class="intel-panel" id="intel-panel-narrative-flow">
+            <p class="meta">Walk the story arcs of Scripture — Redemptive Arc, Faith Arc, Atonement Arc, Kingdom Arc — node by node.</p>
+            <div class="inline-actions">
+              <button id="loadAllArcsBtn">Load All Arcs</button>
+              <button class="arc-select-btn" data-arc="Redemptive">Redemptive</button>
+              <button class="arc-select-btn" data-arc="Faith">Faith</button>
+              <button class="arc-select-btn" data-arc="Atonement">Atonement</button>
+              <button class="arc-select-btn" data-arc="Kingdom">Kingdom</button>
+            </div>
+            <div id="narrativeFlowResult" class="disc-result"></div>
+          </div>
+
+          <!-- Spiritual Conflicts -->
+          <div class="intel-panel" id="intel-panel-conflicts">
+            <p class="meta">Explore biblical tensions — Grace vs Law, Faith vs Works, Justice vs Mercy — and see how Scripture resolves them.</p>
+            <div class="inline-actions">
+              <button id="loadAllConflictsBtn">Load All Conflicts</button>
+            </div>
+            <div id="conflictsResult" class="disc-result"></div>
+          </div>
+
+          <!-- Misuse Check -->
+          <div class="intel-panel" id="intel-panel-misuse-check">
+            <p class="meta">Auto-checks the current verse for documented misuse patterns — incorrect context, wrong application, balancing verses.</p>
+            <button id="runMisuseCheckBtn">Check Current Verse</button>
+            <div id="misuseResult" class="disc-result"></div>
+          </div>
+        </section>
+
       </section>
 
       <aside class="sidebar right-sidebar panel">
@@ -331,6 +430,87 @@
         <p class="meta">Auto-loads surrounding context for the current verse. Flags commonly misquoted passages.</p>
         <button id="checkContextIntegrityBtn">Check Context</button>
         <div id="contextIntegrityResult" class="disc-result"></div>
+
+        <!-- ── INTELLIGENCE: WHY IT MATTERS ─────────────── -->
+        <h3>Why This Verse Matters</h3>
+        <p class="meta">Theological significance, historical weight, and practical application for the current verse.</p>
+        <button id="runWhyMattersBtn">Load Intelligence</button>
+        <div id="whyMattersResult" class="disc-result"></div>
+
+        <!-- ── INTELLIGENCE: VERSE WEIGHT ────────────────── -->
+        <h3>Verse Weight Finder</h3>
+        <p class="meta">Rank verses by theological centrality for any topic or doctrine.</p>
+        <div class="search-row">
+          <input id="verseWeightInput" placeholder="Topic: salvation, faith, grace…" />
+          <button id="runVerseWeightBtn">Rank</button>
+        </div>
+        <button id="loadAllVerseWeightsBtn">Show All Ranked</button>
+        <div id="verseWeightResult" class="disc-result"></div>
+
+        <!-- ── HIDDEN CONNECTIONS ─────────────────────────── -->
+        <h3>Hidden Connections</h3>
+        <p class="meta">Typological parallels — Joseph↔Messiah, Exodus↔Salvation, Adam↔Christ — and literary echoes across Testaments.</p>
+        <div class="inline-actions">
+          <button id="loadAllHiddenBtn">All Connections</button>
+          <button class="hidden-type-btn" data-type="typological">Typological</button>
+          <button class="hidden-type-btn" data-type="prophetic">Prophetic</button>
+          <button class="hidden-type-btn" data-type="literary">Literary</button>
+        </div>
+        <div id="hiddenConnectionsResult" class="disc-result"></div>
+
+        <!-- ── MEMORY & STUDY TOOLS ───────────────────────── -->
+        <h3>Scripture Memory</h3>
+        <p class="meta">Spaced-repetition verse memory. Add the current verse to your memory queue.</p>
+        <div class="inline-actions">
+          <button id="addToMemoryBtn">Add Current Verse</button>
+          <button id="showMemoryQueueBtn">My Memory Queue</button>
+          <button id="practiceMemoryBtn">Practice</button>
+        </div>
+        <div id="memoryQueueResult" class="disc-result"></div>
+        <div id="memoryPracticeCard" class="memory-card" style="display:none">
+          <p id="memoryCardPrompt" class="meta"></p>
+          <div id="memoryCardReveal" style="display:none"></div>
+          <div class="inline-actions">
+            <button id="memoryRevealBtn">Reveal</button>
+            <button id="memorySelfEasyBtn" style="display:none">Easy ✓</button>
+            <button id="memorySelfHardBtn" style="display:none">Hard ✗</button>
+          </div>
+        </div>
+
+        <h3>Reading Depth Meter</h3>
+        <p class="meta">Tracks your session depth — verses read, tools used, patterns analyzed.</p>
+        <div id="depthMeterDisplay" class="depth-meter">
+          <div class="depth-row"><span>Verses Read</span><span id="depthVerses">0</span></div>
+          <div class="depth-row"><span>Analyses Run</span><span id="depthAnalyses">0</span></div>
+          <div class="depth-row"><span>Depth Level</span><span id="depthLevel" class="depth-badge">Exploring</span></div>
+        </div>
+        <button id="resetDepthBtn">Reset Session</button>
+
+        <h3>Study Path Builder</h3>
+        <p class="meta">Save custom verse journeys — name a path, add verses, walk it step by step.</p>
+        <div class="search-row">
+          <input id="pathNameInput" placeholder="Path name: Atonement Deep Dive" />
+          <button id="createPathBtn">New Path</button>
+        </div>
+        <div class="inline-actions">
+          <button id="addVerseToPathBtn">Add Current Verse</button>
+          <select id="pathSelectDropdown"></select>
+          <button id="loadPathBtn">Load Path</button>
+          <button id="deletePathBtn">Delete</button>
+        </div>
+        <div id="studyPathResult" class="disc-result"></div>
+
+        <h3>Slow Down Mode</h3>
+        <p class="meta">Deep reading prompts — forces reflection before moving to the next verse.</p>
+        <div class="inline-actions">
+          <label><input id="slowDownToggle" type="checkbox" /> Enable Slow Down Mode</label>
+        </div>
+        <div id="slowDownPrompt" class="slow-down-box" style="display:none"></div>
+
+        <h3>Guided Discovery</h3>
+        <p class="meta">Receive Socratic questions that deepen engagement with the current verse.</p>
+        <button id="runGuidedDiscoveryBtn">Get Discovery Questions</button>
+        <div id="guidedDiscoveryResult" class="disc-result"></div>
 
       </aside>
     </main>

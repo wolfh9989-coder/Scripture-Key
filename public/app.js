@@ -1480,3 +1480,941 @@ async function initDiscoveryEngine() {
 }
 
 initDiscoveryEngine().catch(() => {});
+
+// ══════════════════════════════════════════════════════════════════════
+// INTELLIGENCE LAYER — app.js additions
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Intelligence tab wiring ───────────────────────────────────────────
+function bindIntelTabs() {
+  document.querySelectorAll(".intel-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".intel-tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".intel-panel").forEach((p) => p.classList.remove("active"));
+      tab.classList.add("active");
+      const key = tab.dataset.itab;
+      const panel = document.getElementById("intel-panel-" + key);
+      if (panel) panel.classList.add("active");
+    });
+  });
+}
+
+// ── TRUTH TRACE ───────────────────────────────────────────────────────
+async function runTruthTrace() {
+  if (!currentVerseId) { showResult("truthTraceResult", "<p class='meta'>Select a verse first.</p>"); return; }
+  const el = document.getElementById("truthTraceResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Tracing evidence chain…</p>";
+  try {
+    const res = await fetch(`/api/v1/truth-trace/${encodeURIComponent(currentVerseId)}`);
+    const data = await res.json();
+    let html = "";
+    html += `<div class="trace-section"><h4>Identity</h4>
+      <div class="trace-block">
+        <strong>${data.reference}</strong> · ${data.sourceVerification.translation}
+        <div class="meta" style="margin-top:4px">${data.sourceVerification.originalLanguage} — <em>${data.sourceVerification.originalText}</em></div>
+      </div></div>`;
+    if (data.verseWeight) {
+      html += `<div class="trace-section"><h4>Theological Weight</h4>
+        <div class="trace-block">
+          <span class="weight-score">${data.verseWeight.score}/10</span>
+          <span class="weight-role" style="margin-left:8px">${data.verseWeight.role}</span>
+          <div class="meta" style="margin-top:4px">${data.verseWeight.note}</div>
+        </div></div>`;
+    }
+    if (data.whyItMatters) {
+      html += `<div class="trace-section"><h4>Why It Matters</h4>
+        <div class="trace-block">${data.whyItMatters.whatItMeans}</div>
+        <div class="trace-block" style="border-color:rgba(245,199,123,0.3)">${data.whyItMatters.whyItMatters}</div></div>`;
+    }
+    if (data.doctrinesLinked && data.doctrinesLinked.length) {
+      html += `<div class="trace-section"><h4>Doctrines</h4><div class="dna-stat-row">
+        ${data.doctrinesLinked.map(d => `<span class="dna-stat">${d.name}</span>`).join("")}
+      </div></div>`;
+    }
+    if (data.symbolAppearances && data.symbolAppearances.length) {
+      html += `<div class="trace-section"><h4>Symbol Appearances</h4><div class="dna-stat-row">
+        ${data.symbolAppearances.map(s => `<span class="dna-stat chip">${s}</span>`).join("")}
+      </div></div>`;
+    }
+    if (data.prophecyLinks && data.prophecyLinks.length) {
+      html += `<div class="trace-section"><h4>Prophecy Links</h4>`;
+      data.prophecyLinks.forEach(p => {
+        html += `<div class="trace-block"><b>${p.theme}</b> — ${p.prophecyVerseId === currentVerseId ? "Prophecy" : "Fulfillment"} (${p.status})</div>`;
+      });
+      html += `</div>`;
+    }
+    if (data.contextIntegrity && data.contextIntegrity.isCommonlyMisquoted) {
+      html += `<div class="trace-section"><h4>Context Warning</h4>
+        <div class="misuse-warning">${data.contextIntegrity.contextWarning || "Commonly quoted out of context."}</div></div>`;
+    }
+    if (data.historicalContext && data.historicalContext.era) {
+      html += `<div class="trace-section"><h4>Historical Context</h4>
+        <div class="trace-block"><strong>Era:</strong> ${data.historicalContext.era}<br>
+        <strong>Timeline:</strong> ${data.historicalContext.timeline || "N/A"}</div></div>`;
+    }
+    el.innerHTML = html || "<p class='meta'>No trace data found.</p>";
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── CONCEPT DNA ───────────────────────────────────────────────────────
+async function runConceptDna() {
+  const input = document.getElementById("conceptDnaInput");
+  const el = document.getElementById("conceptDnaResult");
+  if (!input || !el) return;
+  const concept = input.value.trim();
+  if (!concept) { el.innerHTML = "<p class='meta'>Enter a concept.</p>"; return; }
+  el.innerHTML = "<p class='meta'>Analyzing concept DNA…</p>";
+  try {
+    const res = await fetch(`/api/v1/concept-dna?concept=${encodeURIComponent(concept)}`);
+    const data = await res.json();
+    const p = data.profile;
+    let html = `<div class="dna-card">
+      <h4 style="color:var(--accent-gold);margin:0 0 8px">"${data.concept}" — Concept DNA</h4>`;
+    if (p.firstAppearance) {
+      html += `<div class="trace-block"><strong>First Appearance:</strong> ${p.firstAppearance.reference} (${p.firstAppearance.era})
+        <div class="meta" style="margin-top:3px">${p.firstAppearance.text}</div></div>`;
+    }
+    html += `<div class="dna-stat-row">
+      <span class="dna-stat">Core Verses: ${p.coreVersesCount}</span>
+      <span class="dna-stat">Supporting: ${p.supportingVersesCount}</span>
+    </div>`;
+    if (p.eraDistribution && Object.keys(p.eraDistribution).length) {
+      html += `<div style="margin:6px 0"><strong style="font-size:0.75rem;color:var(--accent-gold)">Era Distribution:</strong>
+        <div class="dna-stat-row">
+          ${Object.entries(p.eraDistribution).map(([era, count]) => `<span class="dna-stat">${era}: ${count}</span>`).join("")}
+        </div></div>`;
+    }
+    if (p.keyPeople && p.keyPeople.length) {
+      html += `<div style="margin-top:5px"><strong style="font-size:0.72rem">People:</strong> <span class="meta">${p.keyPeople.join(", ")}</span></div>`;
+    }
+    if (p.symbolicMeanings && p.symbolicMeanings.length) {
+      html += `<div style="margin-top:5px"><strong style="font-size:0.72rem">Symbolic Meanings:</strong> <span class="meta">${p.symbolicMeanings.join(", ")}</span></div>`;
+    }
+    if (p.doctrineDefinition) {
+      html += `<div class="trace-block" style="margin-top:8px"><strong>Doctrine:</strong> ${p.doctrineDefinition}</div>`;
+    }
+    if (p.conflictTensions && p.conflictTensions.length) {
+      html += `<div style="margin-top:5px"><strong style="font-size:0.72rem;color:rgba(255,120,80,0.8)">Tension Points:</strong> <span class="meta">${p.conflictTensions.join(", ")}</span></div>`;
+    }
+    html += "</div>";
+    if (data.coreVerses && data.coreVerses.length) {
+      html += `<div class="trace-section"><h4>Core Verses (${data.coreVerses.length})</h4>
+        ${data.coreVerses.map(v => `<div class="trace-block"><strong>${v.reference}</strong><div class="meta">${v.text ? v.text.slice(0, 110) + (v.text.length > 110 ? "…" : "") : ""}</div></div>`).join("")}
+      </div>`;
+    }
+    if (data.symbolProfile) {
+      const sp = data.symbolProfile;
+      html += `<div class="trace-section"><h4>Symbol Profile</h4>
+        <div class="trace-block">${sp.definition}</div>
+        <div class="meta" style="margin-top:4px">Books: ${sp.bookOccurrences.join(", ")}</div>
+      </div>`;
+    }
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── FULL COUNSEL VIEW ─────────────────────────────────────────────────
+async function runFullCounsel() {
+  const input = document.getElementById("fullCounselInput");
+  const el = document.getElementById("fullCounselResult");
+  if (!input || !el) return;
+  const topic = input.value.trim();
+  if (!topic) { el.innerHTML = "<p class='meta'>Enter a topic.</p>"; return; }
+  el.innerHTML = "<p class='meta'>Assembling full counsel…</p>";
+  try {
+    const res = await fetch("/api/v1/full-counsel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic })
+    });
+    const data = await res.json();
+    if (data.error) { el.innerHTML = `<p class='meta'>${data.error}</p>`; return; }
+    let html = `<div class="dna-card">
+      <strong style="color:var(--accent-gold)">${data.summary}</strong>
+    </div>`;
+    if (data.coreVerses && data.coreVerses.length) {
+      html += `<div class="counsel-section"><h4>Core Verses</h4>
+        ${data.coreVerses.map(v => `<div class="trace-block"><strong>${v.reference}</strong><div class="meta">${v.text ? v.text.slice(0, 120) + "…" : ""}</div></div>`).join("")}
+      </div>`;
+    }
+    if (data.supportingVerses && data.supportingVerses.length) {
+      html += `<div class="counsel-section"><h4>Supporting Verses</h4>
+        ${data.supportingVerses.map(v => `<div class="trace-block"><strong>${v.reference}</strong><div class="meta">${v.text ? v.text.slice(0, 100) + "…" : ""}</div></div>`).join("")}
+      </div>`;
+    }
+    if (data.relatedConflicts && data.relatedConflicts.length) {
+      html += `<div class="counsel-section"><h4>Theological Tensions</h4>
+        ${data.relatedConflicts.map(c => `<div class="conflict-resolution"><strong>${c.title}:</strong> ${c.resolution}</div>`).join("")}
+      </div>`;
+    }
+    if (data.misusedWithinScope && data.misusedWithinScope.length) {
+      html += `<div class="counsel-section"><h4>Common Misuse Warnings</h4>
+        ${data.misusedWithinScope.map(m => `<div class="misuse-warning"><strong>${m.reference}:</strong> ${m.commonMisuse}</div>`).join("")}
+      </div>`;
+    }
+    if (data.debatedVerses && data.debatedVerses.length) {
+      html += `<div class="counsel-section"><h4>Debated Passages</h4>
+        ${data.debatedVerses.map(v => `<div class="trace-block" style="border-color:rgba(255,160,80,0.3)"><strong>${v.reference}</strong></div>`).join("")}
+      </div>`;
+    }
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── SYMBOL TRACKER ────────────────────────────────────────────────────
+async function runSymbolTrack() {
+  const input = document.getElementById("symbolSearchInput");
+  const el = document.getElementById("symbolResult");
+  if (!input || !el) return;
+  const symbol = input.value.trim();
+  if (!symbol) { el.innerHTML = "<p class='meta'>Enter a symbol name.</p>"; return; }
+  el.innerHTML = "<p class='meta'>Tracking symbol…</p>";
+  try {
+    const res = await fetch(`/api/v1/symbols?symbol=${encodeURIComponent(symbol)}`);
+    const data = await res.json();
+    if (data.error) { el.innerHTML = `<p class='meta'>${data.error}</p>`; return; }
+    let html = `<div class="dna-card">
+      <h4 style="color:var(--accent-gold);margin:0 0 6px;text-transform:capitalize">${data.symbol || symbol}</h4>
+      <p style="font-size:0.8rem;margin:0 0 8px">${data.definition}</p>
+      <div class="dna-stat-row">
+        <span class="dna-stat">First: ${data.firstBook}</span>
+        <span class="dna-stat">Books: ${(data.bookOccurrences||[]).join(", ")}</span>
+      </div>
+    </div>`;
+    if (data.symbolMeanings && data.symbolMeanings.length) {
+      html += `<div class="dna-stat-row" style="margin-bottom:10px">
+        ${data.symbolMeanings.map(m => `<span class="dna-stat">${m}</span>`).join("")}
+      </div>`;
+    }
+    if (data.developmentArc && data.developmentArc.length) {
+      html += `<div class="trace-section"><h4>Development Arc</h4>`;
+      data.developmentArc.forEach(entry => {
+        html += `<div class="symbol-arc-row">
+          <span class="symbol-era-badge">${entry.era}</span>
+          <div>
+            <div style="font-size:0.78rem;font-weight:600;color:var(--accent)">${entry.reference || entry.verseId}</div>
+            <div class="meta" style="font-size:0.72rem">${entry.note}</div>
+            ${entry.text ? `<div class="meta" style="font-size:0.7rem;font-style:italic;margin-top:2px">${entry.text.slice(0,100)}…</div>` : ""}
+          </div>
+        </div>`;
+      });
+      html += "</div>";
+    }
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+async function loadSymbolList() {
+  const el = document.getElementById("symbolResult");
+  if (!el) return;
+  try {
+    const res = await fetch("/api/v1/symbols");
+    const data = await res.json();
+    let html = `<div class="dna-card"><h4 style="color:var(--accent-gold);margin:0 0 8px">All Biblical Symbols</h4>`;
+    (data.symbols || []).forEach(s => {
+      html += `<div class="weight-row">
+        <span style="font-weight:600;color:var(--accent);text-transform:capitalize">${s.symbol}</span>
+        <span class="meta" style="font-size:0.73rem">${s.definition}</span>
+      </div>`;
+    });
+    html += "</div>";
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── CROSS-COVENANT COMPARISON ─────────────────────────────────────────
+async function runCovenantCompare() {
+  const input = document.getElementById("covenantInput");
+  const el = document.getElementById("covenantResult");
+  if (!input || !el) return;
+  const concept = input.value.trim();
+  if (!concept) { el.innerHTML = "<p class='meta'>Enter a concept.</p>"; return; }
+  el.innerHTML = "<p class='meta'>Comparing covenants…</p>";
+  try {
+    const res = await fetch(`/api/v1/cross-covenant?concept=${encodeURIComponent(concept)}`);
+    const data = await res.json();
+    if (data.error) { el.innerHTML = `<p class='meta'>${data.error}</p>`; return; }
+    let html = `<div class="dna-card">
+      <h4 style="color:var(--accent-gold);margin:0 0 8px">${data.concept}</h4>
+      <div class="covenant-compare">
+        <div class="covenant-side old">
+          <h5>Old Covenant</h5>
+          <div style="font-size:0.72rem;color:rgba(200,160,80,0.9);margin-bottom:4px">${data.oldCovenant.nature}</div>
+          <p style="font-size:0.78rem;margin:0 0 6px">${data.oldCovenant.summary}</p>
+          ${data.oldCovenant.verseObject ? `<div class="meta" style="font-size:0.73rem"><strong>${data.oldCovenant.verseObject.reference}:</strong> ${data.oldCovenant.verseObject.text ? data.oldCovenant.verseObject.text.slice(0,90) + "…" : ""}</div>` : ""}
+          <div class="meta" style="margin-top:4px;font-size:0.7rem;font-style:italic">${data.oldCovenant.limitation}</div>
+        </div>
+        <div class="covenant-side new">
+          <h5>New Covenant</h5>
+          <div style="font-size:0.72rem;color:var(--accent);margin-bottom:4px">${data.newCovenant.nature}</div>
+          <p style="font-size:0.78rem;margin:0 0 6px">${data.newCovenant.summary}</p>
+          ${data.newCovenant.verseObject ? `<div class="meta" style="font-size:0.73rem"><strong>${data.newCovenant.verseObject.reference}:</strong> ${data.newCovenant.verseObject.text ? data.newCovenant.verseObject.text.slice(0,90) + "…" : ""}</div>` : ""}
+          <div class="meta" style="margin-top:4px;font-size:0.7rem;font-style:italic">${data.newCovenant.advancement}</div>
+        </div>
+      </div>
+      <div class="conflict-resolution"><strong>Continuity:</strong> ${data.continuity}</div>
+    </div>`;
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+async function loadCovenantConcepts() {
+  const el = document.getElementById("covenantResult");
+  if (!el) return;
+  try {
+    const res = await fetch("/api/v1/cross-covenant");
+    const data = await res.json();
+    let html = `<div class="dna-card"><h4 style="color:var(--accent-gold);margin:0 0 8px">Cross-Covenant Concepts</h4>
+      <div class="dna-stat-row">
+        ${(data.concepts || []).map(c => `<span class="dna-stat" style="cursor:pointer" onclick="document.getElementById('covenantInput').value='${c}';runCovenantCompare()">${c}</span>`).join("")}
+      </div></div>`;
+    el.innerHTML = html;
+  } catch {}
+}
+
+// ── NARRATIVE FLOW ENGINE ─────────────────────────────────────────────
+async function loadNarrativeArc(arcName) {
+  const el = document.getElementById("narrativeFlowResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Loading arc…</p>";
+  try {
+    const url = arcName ? `/api/v1/narrative-flow?arc=${encodeURIComponent(arcName)}` : "/api/v1/narrative-flow";
+    const res = await fetch(url);
+    const data = await res.json();
+    const renderArc = (arc) => {
+      let html = `<div class="dna-card">
+        <h4 style="color:var(--accent-gold);margin:0 0 4px">${arc.arcName}</h4>
+        <p class="meta" style="font-size:0.75rem;margin:0 0 10px">${arc.description}</p>`;
+      (arc.nodes || []).forEach((n, i) => {
+        html += `<div class="arc-node">
+          <div class="arc-node-num">${i + 1}</div>
+          <div class="arc-node-body">
+            <div class="arc-label">${n.label}</div>
+            <div class="arc-ref">${n.reference || n.verseId}</div>
+            ${n.text ? `<div class="meta" style="font-size:0.7rem;font-style:italic;margin-top:1px">${n.text.slice(0,90)}…</div>` : ""}
+            <div class="arc-note">${n.note}</div>
+          </div>
+        </div>`;
+      });
+      html += "</div>";
+      return html;
+    };
+    if (data.arcs) {
+      el.innerHTML = data.arcs.map(renderArc).join("");
+    } else {
+      el.innerHTML = renderArc(data);
+    }
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── SPIRITUAL CONFLICTS ───────────────────────────────────────────────
+async function loadAllConflicts() {
+  const el = document.getElementById("conflictsResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Loading conflicts…</p>";
+  try {
+    const listRes = await fetch("/api/v1/conflicts");
+    const listData = await listRes.json();
+    const conflicts = listData.conflicts || [];
+    const detailPromises = conflicts.map(c => fetch(`/api/v1/conflicts?id=${c.id}`).then(r => r.json()));
+    const details = await Promise.all(detailPromises);
+    let html = "";
+    details.forEach(c => {
+      html += `<div class="conflict-pair">
+        <h4>${c.title}</h4>
+        <div class="conflict-tension">${c.tension}</div>
+        <div class="conflict-sides">
+          <div class="conflict-side">
+            <b>${c.sideA.label}</b><br>
+            <span>${c.sideA.description}</span><br>
+            <span class="meta" style="font-size:0.7rem;font-style:italic">${c.sideA.note}</span>
+          </div>
+          <div class="conflict-side">
+            <b>${c.sideB.label}</b><br>
+            <span>${c.sideB.description}</span><br>
+            <span class="meta" style="font-size:0.7rem;font-style:italic">${c.sideB.note}</span>
+          </div>
+        </div>
+        <div class="conflict-resolution"><strong>Resolution:</strong> ${c.resolution}</div>
+      </div>`;
+    });
+    el.innerHTML = html || "<p class='meta'>No conflict data.</p>";
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── MISUSE CHECK ──────────────────────────────────────────────────────
+async function runMisuseCheck() {
+  if (!currentVerseId) { showResult("misuseResult", "<p class='meta'>Select a verse first.</p>"); return; }
+  const el = document.getElementById("misuseResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Checking for misuse patterns…</p>";
+  try {
+    const res = await fetch(`/api/v1/misuse-check/${encodeURIComponent(currentVerseId)}`);
+    const data = await res.json();
+    if (!data.misuseFlagged) {
+      el.innerHTML = `<div class="misuse-correct">
+        <strong>✓ No documented misuse pattern for ${data.reference}.</strong>
+        ${data.contextWarning ? `<div class="meta" style="margin-top:4px">${data.contextWarning}</div>` : ""}
+        <div class="meta" style="margin-top:4px">Always read surrounding context for full understanding.</div>
+      </div>`;
+      return;
+    }
+    let html = `<div class="misuse-warning">
+      <strong>⚠ Misuse Pattern Detected — ${data.reference}</strong>
+      <div style="margin-top:6px"><b>Common Misuse:</b> ${data.commonMisuse}</div>
+      <div style="margin-top:4px;font-style:italic;font-size:0.76rem">${data.incorrectUsage || ""}</div>
+    </div>`;
+    html += `<div class="misuse-correct">
+      <strong>Correct Context:</strong> ${data.correctContext}
+    </div>`;
+    if (data.fullPassageNote) {
+      html += `<div class="trace-block"><strong>Full Passage Note:</strong> ${data.fullPassageNote}</div>`;
+    }
+    html += `<div class="conflict-resolution">
+      <strong>Correct Application:</strong> ${data.correctApplication}
+    </div>`;
+    if (data.balancingVerseObjects && data.balancingVerseObjects.length) {
+      html += `<div class="trace-section" style="margin-top:8px"><h4>Balancing Verses</h4>
+        ${data.balancingVerseObjects.map(v => `<div class="trace-block"><strong>${v.reference}</strong></div>`).join("")}
+      </div>`;
+    }
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── WHY IT MATTERS ────────────────────────────────────────────────────
+async function runWhyMatters() {
+  if (!currentVerseId) { showResult("whyMattersResult", "<p class='meta'>Select a verse first.</p>"); return; }
+  const el = document.getElementById("whyMattersResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Loading significance…</p>";
+  try {
+    const res = await fetch(`/api/v1/why-it-matters/${encodeURIComponent(currentVerseId)}`);
+    const data = await res.json();
+    el.innerHTML = `
+      <div class="why-matters-card">
+        <h4>What It Means</h4>
+        <p style="font-size:0.8rem;margin:0">${data.whatItMeans}</p>
+      </div>
+      <div class="why-matters-card">
+        <h4>Why It Matters</h4>
+        <p style="font-size:0.8rem;margin:0">${data.whyItMatters}</p>
+      </div>
+      <div class="why-matters-card">
+        <h4>How It Applies</h4>
+        <p style="font-size:0.8rem;margin:0">${data.howItApplies}</p>
+      </div>
+    `;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── VERSE WEIGHT FINDER ───────────────────────────────────────────────
+async function runVerseWeight() {
+  const input = document.getElementById("verseWeightInput");
+  const el = document.getElementById("verseWeightResult");
+  if (!input || !el) return;
+  const topic = input.value.trim();
+  el.innerHTML = "<p class='meta'>Ranking verses…</p>";
+  try {
+    const url = topic ? `/api/v1/verse-weight?topic=${encodeURIComponent(topic)}` : "/api/v1/verse-weight";
+    const res = await fetch(url);
+    const data = await res.json();
+    const ranked = data.ranked || [];
+    let html = `<div class="dna-card"><strong style="color:var(--accent-gold)">Ranked by Theological Centrality${topic ? ` — "${topic}"` : ""}</strong></div>`;
+    ranked.slice(0, 15).forEach(v => {
+      html += `<div class="weight-row">
+        <span class="weight-score">${v.weight.score}</span>
+        <span class="weight-role">${v.weight.role}</span>
+        <span style="flex:1;font-size:0.78rem"><strong>${v.reference}</strong></span>
+        <span class="meta" style="font-size:0.7rem">${(v.weight.doctrines||[]).join(", ")}</span>
+      </div>`;
+    });
+    el.innerHTML = html;
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── HIDDEN CONNECTIONS ────────────────────────────────────────────────
+async function loadHiddenConnections(type) {
+  const el = document.getElementById("hiddenConnectionsResult");
+  if (!el) return;
+  el.innerHTML = "<p class='meta'>Loading hidden connections…</p>";
+  try {
+    const url = type ? `/api/v1/hidden-connections?type=${encodeURIComponent(type)}` : "/api/v1/hidden-connections";
+    const res = await fetch(url);
+    const data = await res.json();
+    let html = "";
+    (data.connections || []).forEach(c => {
+      html += `<div class="hidden-connection">
+        <h4>${c.title}</h4>
+        <p class="meta" style="font-size:0.74rem;margin:0 0 8px">${c.description}</p>
+        ${(c.pairs || []).map(pair => `<div class="hidden-pair">
+          <div class="hidden-side">
+            <div style="font-size:0.7rem;color:var(--accent-gold);font-weight:600">${pair.leftReference || "OT"}</div>
+            <div>${pair.leftNote}</div>
+            ${pair.leftText ? `<div class="meta" style="font-size:0.69rem;font-style:italic">${pair.leftText.slice(0,70)}…</div>` : ""}
+          </div>
+          <div class="hidden-side">
+            <div style="font-size:0.7rem;color:var(--accent);font-weight:600">${pair.rightReference || "NT"}</div>
+            <div>${pair.rightNote}</div>
+            ${pair.rightText ? `<div class="meta" style="font-size:0.69rem;font-style:italic">${pair.rightText.slice(0,70)}…</div>` : ""}
+          </div>
+        </div>`).join("")}
+      </div>`;
+    });
+    el.innerHTML = html || "<p class='meta'>No connections found for that type.</p>";
+    trackDepth("analysis");
+  } catch (e) {
+    el.innerHTML = `<p class='meta'>Error: ${e.message}</p>`;
+  }
+}
+
+// ── SCRIPTURE MEMORY (Spaced Repetition) ─────────────────────────────
+const MEMORY_STORE_KEY = "sk_memory_queue";
+
+function getMemoryQueue() {
+  try { return JSON.parse(localStorage.getItem(MEMORY_STORE_KEY)) || []; } catch { return []; }
+}
+function saveMemoryQueue(queue) {
+  localStorage.setItem(MEMORY_STORE_KEY, JSON.stringify(queue));
+}
+
+function addToMemory() {
+  if (!currentVerseId) {
+    showResult("memoryQueueResult", "<p class='meta'>Select a verse first.</p>");
+    return;
+  }
+  const queue = getMemoryQueue();
+  if (queue.find(i => i.verseId === currentVerseId)) {
+    showResult("memoryQueueResult", `<p class='meta'>${currentVerseId} is already in your memory queue.</p>`);
+    return;
+  }
+  queue.push({
+    verseId: currentVerseId,
+    reference: document.getElementById("verseRef")?.textContent || currentVerseId,
+    addedAt: Date.now(),
+    nextReview: Date.now(),
+    interval: 1,
+    easeFactor: 2.5
+  });
+  saveMemoryQueue(queue);
+  showMemoryQueue();
+}
+
+function showMemoryQueue() {
+  const el = document.getElementById("memoryQueueResult");
+  if (!el) return;
+  const queue = getMemoryQueue();
+  if (!queue.length) { el.innerHTML = "<p class='meta'>Memory queue is empty. Add verses to begin.</p>"; return; }
+  const now = Date.now();
+  let html = `<div class="dna-card"><strong style="color:var(--accent-gold)">Memory Queue (${queue.length} verses)</strong></div>`;
+  queue.forEach(item => {
+    const isDue = item.nextReview <= now;
+    html += `<div class="memory-queue-item">
+      <span>${item.reference}</span>
+      ${isDue ? `<span class="memory-due-badge">Due</span>` : `<span class="memory-fresh-badge">Review in ${Math.ceil((item.nextReview - now) / 86400000)}d</span>`}
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function practiceMemory() {
+  const queue = getMemoryQueue();
+  const now = Date.now();
+  const due = queue.filter(i => i.nextReview <= now);
+  const card = document.getElementById("memoryPracticeCard");
+  const prompt = document.getElementById("memoryCardPrompt");
+  const reveal = document.getElementById("memoryCardReveal");
+  const revealBtn = document.getElementById("memoryRevealBtn");
+  const easyBtn = document.getElementById("memorySelfEasyBtn");
+  const hardBtn = document.getElementById("memorySelfHardBtn");
+  if (!card || !prompt) return;
+  if (!due.length) {
+    card.style.display = "block";
+    prompt.textContent = "No verses due for review! Add more or check back later.";
+    if (reveal) reveal.style.display = "none";
+    if (revealBtn) revealBtn.style.display = "none";
+    if (easyBtn) easyBtn.style.display = "none";
+    if (hardBtn) hardBtn.style.display = "none";
+    return;
+  }
+  const item = due[0];
+  card.style.display = "block";
+  prompt.textContent = `Try to recall: ${item.reference}`;
+  if (reveal) { reveal.style.display = "none"; reveal.innerHTML = ""; }
+  if (revealBtn) { revealBtn.style.display = "inline-block"; }
+  if (easyBtn) easyBtn.style.display = "none";
+  if (hardBtn) hardBtn.style.display = "none";
+  card.dataset.activeVerseId = item.verseId;
+
+  if (revealBtn) {
+    revealBtn.onclick = async () => {
+      revealBtn.style.display = "none";
+      if (easyBtn) easyBtn.style.display = "inline-block";
+      if (hardBtn) hardBtn.style.display = "inline-block";
+      if (reveal) {
+        reveal.style.display = "block";
+        try {
+          const res = await fetch(`/api/v1/scripture/${encodeURIComponent(item.verseId)}`);
+          const v = await res.json();
+          reveal.innerHTML = `<p style="font-style:italic">"${v.text}"</p><p class="meta">${v.reference} — ${v.translation}</p>`;
+        } catch { reveal.innerHTML = `<p class="meta">${item.verseId}</p>`; }
+      }
+    };
+  }
+  if (easyBtn) {
+    easyBtn.onclick = () => updateMemoryItem(item.verseId, true);
+  }
+  if (hardBtn) {
+    hardBtn.onclick = () => updateMemoryItem(item.verseId, false);
+  }
+}
+
+function updateMemoryItem(verseId, easy) {
+  const queue = getMemoryQueue();
+  const idx = queue.findIndex(i => i.verseId === verseId);
+  if (idx === -1) return;
+  const item = queue[idx];
+  if (easy) {
+    item.interval = Math.round(item.interval * item.easeFactor);
+    item.easeFactor = Math.min(item.easeFactor + 0.1, 3.0);
+  } else {
+    item.interval = 1;
+    item.easeFactor = Math.max(item.easeFactor - 0.2, 1.3);
+  }
+  item.nextReview = Date.now() + item.interval * 86400000;
+  queue[idx] = item;
+  saveMemoryQueue(queue);
+  showMemoryQueue();
+  practiceMemory();
+}
+
+// ── READING DEPTH METER ───────────────────────────────────────────────
+const DEPTH_KEY = "sk_reading_depth";
+function getDepthData() {
+  try { return JSON.parse(localStorage.getItem(DEPTH_KEY)) || { verses: 0, analyses: 0 }; } catch { return { verses: 0, analyses: 0 }; }
+}
+function saveDepthData(d) { localStorage.setItem(DEPTH_KEY, JSON.stringify(d)); }
+
+function trackDepth(type) {
+  const d = getDepthData();
+  if (type === "verse") d.verses++;
+  if (type === "analysis") d.analyses++;
+  saveDepthData(d);
+  updateDepthDisplay();
+}
+
+function updateDepthDisplay() {
+  const d = getDepthData();
+  const total = d.verses + d.analyses * 2;
+  let level = "Exploring";
+  let cls = "";
+  if (total >= 50) { level = "Master"; cls = "master"; }
+  else if (total >= 20) { level = "Deep Study"; cls = "deep"; }
+  else if (total >= 8) { level = "Engaged"; cls = ""; }
+  const versesEl = document.getElementById("depthVerses");
+  const analysesEl = document.getElementById("depthAnalyses");
+  const levelEl = document.getElementById("depthLevel");
+  if (versesEl) versesEl.textContent = d.verses;
+  if (analysesEl) analysesEl.textContent = d.analyses;
+  if (levelEl) { levelEl.textContent = level; levelEl.className = "depth-badge " + cls; }
+}
+
+function resetDepth() {
+  saveDepthData({ verses: 0, analyses: 0 });
+  updateDepthDisplay();
+}
+
+// ── STUDY PATH BUILDER ────────────────────────────────────────────────
+const PATHS_KEY = "sk_study_paths";
+function getAllPaths() { try { return JSON.parse(localStorage.getItem(PATHS_KEY)) || {}; } catch { return {}; } }
+function savePaths(paths) { localStorage.setItem(PATHS_KEY, JSON.stringify(paths)); }
+
+function refreshPathDropdown() {
+  const sel = document.getElementById("pathSelectDropdown");
+  if (!sel) return;
+  const paths = getAllPaths();
+  sel.innerHTML = Object.keys(paths).map(name => `<option value="${name}">${name}</option>`).join("") || `<option value="">No paths yet</option>`;
+}
+
+function createStudyPath() {
+  const nameInput = document.getElementById("pathNameInput");
+  if (!nameInput) return;
+  const name = nameInput.value.trim();
+  if (!name) return;
+  const paths = getAllPaths();
+  if (!paths[name]) paths[name] = [];
+  savePaths(paths);
+  nameInput.value = "";
+  refreshPathDropdown();
+  showStudyPath(name);
+}
+
+function addVerseToPath() {
+  if (!currentVerseId) { showResult("studyPathResult", "<p class='meta'>Select a verse first.</p>"); return; }
+  const sel = document.getElementById("pathSelectDropdown");
+  if (!sel || !sel.value) { showResult("studyPathResult", "<p class='meta'>Create or select a path first.</p>"); return; }
+  const paths = getAllPaths();
+  const name = sel.value;
+  if (!paths[name]) paths[name] = [];
+  if (!paths[name].find(v => v.verseId === currentVerseId)) {
+    paths[name].push({
+      verseId: currentVerseId,
+      reference: document.getElementById("verseRef")?.textContent || currentVerseId,
+      addedAt: Date.now()
+    });
+    savePaths(paths);
+  }
+  showStudyPath(name);
+}
+
+function showStudyPath(name) {
+  const el = document.getElementById("studyPathResult");
+  if (!el) return;
+  const paths = getAllPaths();
+  const path = paths[name];
+  if (!path) { el.innerHTML = "<p class='meta'>Path not found.</p>"; return; }
+  let html = `<div class="dna-card"><strong style="color:var(--accent-gold)">${name}</strong> <span class="meta">(${path.length} verses)</span></div>`;
+  path.forEach((v, i) => {
+    html += `<div class="path-node"><span class="path-node-num">${i + 1}</span><span>${v.reference}</span></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function loadSelectedPath() {
+  const sel = document.getElementById("pathSelectDropdown");
+  if (!sel || !sel.value) return;
+  showStudyPath(sel.value);
+}
+
+function deleteSelectedPath() {
+  const sel = document.getElementById("pathSelectDropdown");
+  if (!sel || !sel.value) return;
+  const paths = getAllPaths();
+  delete paths[sel.value];
+  savePaths(paths);
+  refreshPathDropdown();
+  showResult("studyPathResult", "<p class='meta'>Path deleted.</p>");
+}
+
+// ── SLOW DOWN MODE ────────────────────────────────────────────────────
+const SLOW_DOWN_PROMPTS = [
+  "What single word in this verse carries the most weight? Why?",
+  "Who was the original audience? How does that change what this means?",
+  "What would have to be true about God for this verse to be trustworthy?",
+  "What is this verse NOT saying? (Define the boundary.)",
+  "How does this verse connect to the verses around it?",
+  "What personal assumption does this verse challenge or confirm?",
+  "If this were the only verse in the Bible, what would you learn about God?",
+  "What action, if any, does this verse require from you today?",
+  "What Old Testament pattern or person does this verse echo?",
+  "In one sentence: what is the irreducible core of what this says?"
+];
+
+function updateSlowDownPrompt() {
+  const checkbox = document.getElementById("slowDownToggle");
+  const box = document.getElementById("slowDownPrompt");
+  if (!checkbox || !box) return;
+  if (checkbox.checked && currentVerseId) {
+    const prompt = SLOW_DOWN_PROMPTS[Math.floor(Math.random() * SLOW_DOWN_PROMPTS.length)];
+    box.style.display = "block";
+    box.innerHTML = `<h4>Slow Down — Reflect</h4><p>${prompt}</p>`;
+  } else if (!checkbox.checked) {
+    box.style.display = "none";
+  }
+}
+
+// ── GUIDED DISCOVERY ──────────────────────────────────────────────────
+const GUIDED_QUESTIONS = {
+  default: [
+    "What does this verse assume you already believe about God?",
+    "What problem does this verse solve?",
+    "What would change in your daily life if you fully believed this?",
+    "Find one word in this verse that is doing more work than it appears to be."
+  ],
+  "GEN.1.1": [
+    "If God existed before creation, what does that tell us about God's nature?",
+    "What does 'created' (bara) imply — creation from nothing, or from pre-existing material?",
+    "How does 'in the beginning' set up the entire Bible's storyline?",
+    "Why do you think Scripture starts here, not with the fall or the covenant?"
+  ],
+  "ROM.8.1": [
+    "What would it mean for your inner life if condemnation is truly gone?",
+    "Who does 'those in Christ Jesus' refer to — and what makes someone 'in Christ'?",
+    "Paul wrote this from conflict and pressure. Does that change how you read it?",
+    "What is the opposite of 'no condemnation' — and who does Scripture say is in that state?"
+  ],
+  "JHN.3.16": [
+    "The verse says 'so loved' — what does the 'so' (houtōs) actually mean grammatically?",
+    "What does 'perish' (apollymi) mean — annihilation, or something else?",
+    "Why is 'whoever believes' the condition, not 'whoever is good' or 'whoever tries'?",
+    "If this verse is true, what does it demand of someone who hears it?"
+  ]
+};
+
+function runGuidedDiscovery() {
+  const el = document.getElementById("guidedDiscoveryResult");
+  if (!el) return;
+  const questions = (currentVerseId && GUIDED_QUESTIONS[currentVerseId]) || GUIDED_QUESTIONS.default;
+  const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, 4);
+  let html = `<div class="dna-card"><strong style="color:var(--accent-gold)">Discovery Questions${currentVerseId ? ` — ${document.getElementById("verseRef")?.textContent || ""}` : ""}</strong></div>`;
+  shuffled.forEach((q, i) => {
+    html += `<div class="guided-question">${i + 1}. ${q}</div>`;
+  });
+  el.innerHTML = html;
+  trackDepth("analysis");
+}
+
+// ── Patch selectVerse to track depth + slow down ──────────────────────
+const _origSelectVerse = typeof selectVerse === "function" ? selectVerse : null;
+
+// ── Wire all Intelligence Layer events ───────────────────────────────
+function bindIntelligenceEvents() {
+  // Intelligence tabs
+  bindIntelTabs();
+
+  // Center reader intelligence panel buttons
+  const runTruthTraceBtn = document.getElementById("runTruthTraceBtn");
+  if (runTruthTraceBtn) runTruthTraceBtn.addEventListener("click", () => runTruthTrace().catch(() => {}));
+
+  const runConceptDnaBtn = document.getElementById("runConceptDnaBtn");
+  if (runConceptDnaBtn) runConceptDnaBtn.addEventListener("click", () => runConceptDna().catch(() => {}));
+  const conceptDnaInput = document.getElementById("conceptDnaInput");
+  if (conceptDnaInput) conceptDnaInput.addEventListener("keydown", e => { if (e.key === "Enter") runConceptDna().catch(() => {}); });
+
+  const runFullCounselBtn = document.getElementById("runFullCounselBtn");
+  if (runFullCounselBtn) runFullCounselBtn.addEventListener("click", () => runFullCounsel().catch(() => {}));
+  const fullCounselInput = document.getElementById("fullCounselInput");
+  if (fullCounselInput) fullCounselInput.addEventListener("keydown", e => { if (e.key === "Enter") runFullCounsel().catch(() => {}); });
+
+  const loadSymbolListBtn = document.getElementById("loadSymbolListBtn");
+  if (loadSymbolListBtn) loadSymbolListBtn.addEventListener("click", () => loadSymbolList().catch(() => {}));
+  const runSymbolBtn = document.getElementById("runSymbolBtn");
+  if (runSymbolBtn) runSymbolBtn.addEventListener("click", () => runSymbolTrack().catch(() => {}));
+  const symbolSearchInput = document.getElementById("symbolSearchInput");
+  if (symbolSearchInput) symbolSearchInput.addEventListener("keydown", e => { if (e.key === "Enter") runSymbolTrack().catch(() => {}); });
+
+  const loadCovenantListBtn = document.getElementById("loadCovenantListBtn");
+  if (loadCovenantListBtn) loadCovenantListBtn.addEventListener("click", () => loadCovenantConcepts().catch(() => {}));
+  const runCovenantBtn = document.getElementById("runCovenantBtn");
+  if (runCovenantBtn) runCovenantBtn.addEventListener("click", () => runCovenantCompare().catch(() => {}));
+
+  const loadAllArcsBtn = document.getElementById("loadAllArcsBtn");
+  if (loadAllArcsBtn) loadAllArcsBtn.addEventListener("click", () => loadNarrativeArc(null).catch(() => {}));
+  document.querySelectorAll(".arc-select-btn").forEach(btn => {
+    btn.addEventListener("click", () => loadNarrativeArc(btn.dataset.arc).catch(() => {}));
+  });
+
+  const loadAllConflictsBtn = document.getElementById("loadAllConflictsBtn");
+  if (loadAllConflictsBtn) loadAllConflictsBtn.addEventListener("click", () => loadAllConflicts().catch(() => {}));
+
+  const runMisuseCheckBtn = document.getElementById("runMisuseCheckBtn");
+  if (runMisuseCheckBtn) runMisuseCheckBtn.addEventListener("click", () => runMisuseCheck().catch(() => {}));
+
+  // Right sidebar intelligence
+  const runWhyMattersBtn = document.getElementById("runWhyMattersBtn");
+  if (runWhyMattersBtn) runWhyMattersBtn.addEventListener("click", () => runWhyMatters().catch(() => {}));
+
+  const runVerseWeightBtn = document.getElementById("runVerseWeightBtn");
+  if (runVerseWeightBtn) runVerseWeightBtn.addEventListener("click", () => runVerseWeight().catch(() => {}));
+  const loadAllVerseWeightsBtn = document.getElementById("loadAllVerseWeightsBtn");
+  if (loadAllVerseWeightsBtn) loadAllVerseWeightsBtn.addEventListener("click", () => { document.getElementById("verseWeightInput").value = ""; runVerseWeight().catch(() => {}); });
+
+  const loadAllHiddenBtn = document.getElementById("loadAllHiddenBtn");
+  if (loadAllHiddenBtn) loadAllHiddenBtn.addEventListener("click", () => loadHiddenConnections(null).catch(() => {}));
+  document.querySelectorAll(".hidden-type-btn").forEach(btn => {
+    btn.addEventListener("click", () => loadHiddenConnections(btn.dataset.type).catch(() => {}));
+  });
+
+  // Scripture Memory
+  const addToMemoryBtn = document.getElementById("addToMemoryBtn");
+  if (addToMemoryBtn) addToMemoryBtn.addEventListener("click", addToMemory);
+  const showMemoryQueueBtn = document.getElementById("showMemoryQueueBtn");
+  if (showMemoryQueueBtn) showMemoryQueueBtn.addEventListener("click", showMemoryQueue);
+  const practiceMemoryBtn = document.getElementById("practiceMemoryBtn");
+  if (practiceMemoryBtn) practiceMemoryBtn.addEventListener("click", practiceMemory);
+
+  // Depth Meter
+  const resetDepthBtn = document.getElementById("resetDepthBtn");
+  if (resetDepthBtn) resetDepthBtn.addEventListener("click", resetDepth);
+  updateDepthDisplay();
+
+  // Study Paths
+  const createPathBtn = document.getElementById("createPathBtn");
+  if (createPathBtn) createPathBtn.addEventListener("click", createStudyPath);
+  const addVerseToPathBtn = document.getElementById("addVerseToPathBtn");
+  if (addVerseToPathBtn) addVerseToPathBtn.addEventListener("click", addVerseToPath);
+  const loadPathBtn = document.getElementById("loadPathBtn");
+  if (loadPathBtn) loadPathBtn.addEventListener("click", loadSelectedPath);
+  const deletePathBtn = document.getElementById("deletePathBtn");
+  if (deletePathBtn) deletePathBtn.addEventListener("click", deleteSelectedPath);
+  refreshPathDropdown();
+
+  // Slow Down Mode
+  const slowDownToggle = document.getElementById("slowDownToggle");
+  if (slowDownToggle) slowDownToggle.addEventListener("change", updateSlowDownPrompt);
+
+  // Guided Discovery
+  const runGuidedDiscoveryBtn = document.getElementById("runGuidedDiscoveryBtn");
+  if (runGuidedDiscoveryBtn) runGuidedDiscoveryBtn.addEventListener("click", runGuidedDiscovery);
+}
+
+// ── Helper: showResult ───────────────────────────────────────────────
+function showResult(elementId, html) {
+  const el = document.getElementById(elementId);
+  if (el) el.innerHTML = html;
+}
+
+// ── Init Intelligence Layer ──────────────────────────────────────────
+function initIntelligenceLayer() {
+  bindIntelligenceEvents();
+}
+
+initIntelligenceLayer();
+
+// ── Augment selectVerse to track depth and trigger slow down ──────────
+(function patchSelectVerse() {
+  const allVerseLinks = () => document.querySelectorAll("[data-verse-id]");
+  document.addEventListener("click", (e) => {
+    const target = e.target.closest("[data-verse-id]");
+    if (target) {
+      trackDepth("verse");
+      setTimeout(() => {
+        updateSlowDownPrompt();
+      }, 400);
+    }
+  });
+})();
+

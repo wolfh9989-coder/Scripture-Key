@@ -2035,6 +2035,1002 @@ app.get("/api/v1/visual-network", (req, res) => {
   return res.json({ seed: seed || null, nodes: uniqueNodes, edges });
 });
 
+// ── INTELLIGENCE LAYER DATA ────────────────────────────────────────────
+
+const WHY_IT_MATTERS_MAP = {
+  "GEN.1.1": {
+    whatItMeans: "God is the sovereign, uncaused first cause of all that exists — creation is intentional, not accidental.",
+    whyItMatters: "Every worldview question — purpose, value, morality — depends on whether existence is designed or random. This verse is the load-bearing foundation.",
+    howItApplies: "When facing meaninglessness: existence is not accidental. When facing ethical questions: there is a creator whose character defines good. When studying redemption: the same God who created is the one who redeems."
+  },
+  "GEN.3.15": {
+    whatItMeans: "God announces a coming victor who will defeat the enemy through his own suffering — the first messianic promise.",
+    whyItMatters: "It explains why evil was not immediately destroyed — grace delays judgment to accomplish redemption. Sets the entire biblical plot in motion.",
+    howItApplies: "Suffering in the world is not evidence against God's plan; it is the arena in which it unfolds. The wound in the heel is the price of the crushed head."
+  },
+  "GEN.15.6": {
+    whatItMeans: "Abraham's faith — not his actions — was the act God credited as righteousness, establishing the pattern for all covenant relationship.",
+    whyItMatters: "Written before circumcision and 430 years before the Mosaic Law — Paul's linchpin argument that justification is always by faith, always by grace.",
+    howItApplies: "No amount of religious activity can earn standing before God. The posture of trust — not achievement — is the covenant relationship."
+  },
+  "EXO.12.13": {
+    whatItMeans: "Blood on the doorpost marked households for divine protection — a covenant boundary sign in history.",
+    whyItMatters: "Establishes the principle that protection from divine judgment requires a blood-marked identification — the Passover typology that Paul and the NT authors explicitly connect to Messiah.",
+    howItApplies: "The pattern: deliverance comes through a substitute's blood, not through personal merit. The Passover is designed to be remembered and re-interpreted."
+  },
+  "LEV.17.11": {
+    whatItMeans: "Life resides in blood; therefore blood given on the altar accomplishes atonement because life is being offered for life.",
+    whyItMatters: "This is the theological foundation of the entire sacrificial system. Without this principle, the crucifixion is just a death — with it, it is the ultimate exchange of life for life.",
+    howItApplies: "God's provision for sin is costly — it requires life. This should produce reverence, not casual treatment of forgiveness."
+  },
+  "PSA.23.1": {
+    whatItMeans: "God governs with the intimacy and competency of a shepherd — personally providing and protecting those under his care.",
+    whyItMatters: "Pastoral imagery bridges personal devotion and royal theology — the king who cares individually. Jesus explicitly claims this identity in John 10.",
+    howItApplies: "Worry is the opposite of this verse. David wrote it after years of conflict — not from a place of ease, but of proven covenant trust."
+  },
+  "PRO.3.5": {
+    whatItMeans: "The command to trust with the whole heart deliberately contrasts human rationalism — the 'own understanding' — with covenantal reliance on God.",
+    whyItMatters: "Wisdom literature consistently describes wisdom not as intelligence but as moral alignment with divine reality. This is the posture that produces it.",
+    howItApplies: "Decision-making: hold conclusions loosely when they haven't been tested against Scripture and counsel. 'Lean not' is active — it requires resisting the default."
+  },
+  "ISA.41.10": {
+    whatItMeans: "God's command not to fear is grounded in his presence ('I am with you') and his identity ('I am your God') — two separate covenant guarantees.",
+    whyItMatters: "Fear is not just an emotion — it reveals what we believe is most real and powerful. This verse addresses the belief beneath the feeling.",
+    howItApplies: "The antidote to fear is not willpower but a reordering of what one believes is most real. The command is effective because it comes with the promise."
+  },
+  "ISA.53.5": {
+    whatItMeans: "The servant absorbs our sin's penalty — pierced for our rebellion, crushed for our moral failure — and in doing so produces our shalom and healing.",
+    whyItMatters: "Written 700 years in advance. The specificity — piercing, crushing, chastisement, wounds, healing — is not generic suffering but precise substitution.",
+    howItApplies: "Guilt is not something to manage or suppress — it can be definitively resolved through the one who absorbed its full weight on our behalf."
+  },
+  "MIC.5.2": {
+    whatItMeans: "The coming ruler's birthplace is named precisely along with his eternal pre-existence — two facts in one verse.",
+    whyItMatters: "The prophecy is doubly remarkable: geographic precision centuries before the event, and a claim of eternal origins that cannot describe any ordinary human.",
+    howItApplies: "The reliability of Scripture's fulfilled prophecy is the foundation for trusting its unfulfilled prophecy."
+  },
+  "JHN.1.1": {
+    whatItMeans: "The Word is placed before creation, in relationship with God, and identified as God — eternal, relational, divine.",
+    whyItMatters: "John deliberately echoes Genesis 1:1 ('In the beginning') to signal that Messiah is not a part of creation but the agent of it. Identity comes before mission.",
+    howItApplies: "Who Jesus is determines what his actions mean. The crucifixion's significance depends entirely on who is doing the dying — hence John 1 precedes John 19."
+  },
+  "JHN.1.29": {
+    whatItMeans: "John identifies Jesus as the sacrificial lamb who removes the sin of the entire world — not a nation, but the cosmos.",
+    whyItMatters: "It connects the entire Levitical sacrificial system to one person in one moment. The 'world' (kosmos) signals universal scope.",
+    howItApplies: "No one is beyond the scope of the atonement's provision — only outside its application by unbelief."
+  },
+  "JHN.3.16": {
+    whatItMeans: "Love is the divine motivation; giving the Son is the divine act; belief is the human response; life is the promised outcome.",
+    whyItMatters: "The gospel in structural form. Every element is load-bearing: remove the love and it becomes transaction; remove the gift and it becomes self-help; remove belief and it becomes universalism.",
+    howItApplies: "Evangelism: the invitation is to believe, not to perform. Assurance: the basis of life is God's love and gift, not one's consistency."
+  },
+  "ROM.3.23": {
+    whatItMeans: "The universal human verdict — every person, regardless of background, has sinned and consequently lacks God's glory.",
+    whyItMatters: "It dismantles every hierarchy of moral self-sufficiency before the gospel is offered. The diagnosis must precede the prescription.",
+    howItApplies: "No one enters the gospel through pride. This verse levels the ground — it applies to the religious and irreligious alike."
+  },
+  "ROM.6.23": {
+    whatItMeans: "Sin pays its employee what is earned (death); God gives what is not earned (life). Wages versus gift — the sharpest contrast in Paul.",
+    whyItMatters: "The military term 'opsonia' (soldier's pay) makes the point: sin is an employer, and death is what it owes you. The gift line is pure grace — unprompted, unearned.",
+    howItApplies: "Stop trying to earn what can only be received. The posture of grace is open hands, not clenched fists."
+  },
+  "ROM.8.1": {
+    whatItMeans: "The legal sentence of condemnation — the verdict that should have stood against every sinner — is dismissed for those identified with Messiah.",
+    whyItMatters: "This is not psychological reassurance — it is a courtroom verdict reversal. The same word (katakrima) used for guilty sentence is now declared null.",
+    howItApplies: "Shame and guilt lose their grip not through willpower but through understanding one's legal standing. Condemnation has been absorbed elsewhere."
+  },
+  "1CO.5.7": {
+    whatItMeans: "Paul declares the Passover typology complete — Christ is the Passover lamb, which means the type has met its fulfillment.",
+    whyItMatters: "Typological reading validates that the entire Mosaic sacrificial system was anticipatory, not ultimate. The shadow has met the substance.",
+    howItApplies: "Christians are no longer in the type; they live in the fulfillment. This shapes how to read Exodus — as preview, not prescription for today."
+  },
+  "1CO.15.3": {
+    whatItMeans: "The earliest creedal summary of the gospel: Christ died for sins according to Scripture — not an improvised rescue but a predetermined plan.",
+    whyItMatters: "Scholars date this creed to within 2-5 years of the resurrection — making it the earliest documented Christian theology. 'According to the Scriptures' anchors it in OT fulfillment.",
+    howItApplies: "The gospel is not invented — it was announced. Its validity comes from its scriptural grounding, not from its emotional appeal."
+  },
+  "EPH.2.8": {
+    whatItMeans: "Grace is the source (originating cause), faith is the channel (receiving instrument), and the whole package — including the faith — is God's gift.",
+    whyItMatters: "Even faith itself is not meritorious — it is the hand that opens to receive what God freely extends. Removes all basis for religious pride.",
+    howItApplies: "Assurance of salvation should be grounded in the giver's character and commitment, not in the receiver's consistency."
+  },
+  "EPH.2.9": {
+    whatItMeans: "Works are explicitly excluded from the basis of salvation — specifically to prevent the human impulse toward spiritual boasting.",
+    whyItMatters: "The exclusion of works is not incidental — Paul names the reason: so no one may boast. Grace by design eliminates the grounds for pride.",
+    howItApplies: "Religious accomplishment is not spiritual currency. Every person stands before God on identical ground — the worth of another."
+  },
+  "HEB.11.1": {
+    whatItMeans: "Faith is substantive, not vague — it is the present reality of future hope and the evidential conviction of what cannot yet be seen.",
+    whyItMatters: "Greek 'hypostasis' (title deed/substance) and 'elegchos' (legal proof/evidence) give faith forensic force — it is not emotion but certainty grounded in God's character.",
+    howItApplies: "Faith is not the absence of questions — it is confidence calibrated to the reliability of the one trusted, not the quality of one's feelings."
+  },
+  "JAS.2.17": {
+    whatItMeans: "Faith that produces no visible change in behavior is not alive — it is the doctrinal profession without the covenantal reality behind it.",
+    whyItMatters: "James faces the opposite problem from Paul — not people trusting works for salvation, but people claiming faith while living unchanged. Both are wrong.",
+    howItApplies: "The question is not 'Do I believe the right things?' but 'Is what I believe actually shaping how I live?' Live faith has a pulse."
+  },
+  "REV.21.1": {
+    whatItMeans: "The original creation is renewed and elevated — not destroyed and replaced, but transformed and restored to its intended purpose under God's direct reign.",
+    whyItMatters: "The Bible opens with creation (Gen 1:1) and closes with new creation — meaning the storyline is not escape from matter but its redemption.",
+    howItApplies: "Physical creation matters. Bodies matter. History matters. The trajectory is not evacuation but transformation — this shapes how we treat the material world."
+  },
+  "2TI.1.7": {
+    whatItMeans: "The Spirit God gave believers does not produce timidity — it produces power (capacity), love (motivation), and self-discipline (direction).",
+    whyItMatters: "Paul writes from prison, facing execution — this is not theoretical courage. The Spirit's character is the antidote to fear-driven paralysis.",
+    howItApplies: "Courage is not the absence of fear — it is action taken in the Spirit's enabling, despite fear. The Spirit's presence changes what fear has access to."
+  }
+};
+
+const SPIRITUAL_CONFLICTS = [
+  {
+    id: "grace-vs-law",
+    title: "Grace vs. Law",
+    tension: "The law reveals sin and demands obedience; grace declares righteousness freely. Can they coexist?",
+    sideA: {
+      label: "Law",
+      description: "God's righteous standard that exposes sin and requires perfect obedience.",
+      keyVerses: ["ROM.3.23"],
+      note: "The law is holy (Romans 7:12) — its purpose is to diagnose, not to cure."
+    },
+    sideB: {
+      label: "Grace",
+      description: "God's unmerited provision that accomplishes what the law could only demand.",
+      keyVerses: ["EPH.2.8", "ROM.8.1"],
+      note: "Grace does not abolish the law's standard — it fulfills it through a substitute."
+    },
+    resolution: "The law is the standard; grace is the provision that meets it. Messiah fulfilled the law fully so that grace could be extended justly. Romans 8:3-4: 'what the law could not do... God did.'",
+    resolutionVerseId: "ROM.8.1"
+  },
+  {
+    id: "faith-vs-works",
+    title: "Faith vs. Works",
+    tension: "Paul says salvation is not by works (Eph 2:9); James says faith without works is dead (Jas 2:17). Direct contradiction?",
+    sideA: {
+      label: "Faith Alone (Paul)",
+      description: "Justification before God is through faith alone — works cannot earn or contribute to it.",
+      keyVerses: ["EPH.2.8", "EPH.2.9", "GEN.15.6"],
+      note: "Paul addresses the root of salvation — what establishes right standing before God."
+    },
+    sideB: {
+      label: "Faith Demonstrated (James)",
+      description: "Genuine faith necessarily produces visible obedience — a faith that produces nothing is not real.",
+      keyVerses: ["JAS.2.17"],
+      note: "James addresses the evidence of genuine faith — what proves its existence to others."
+    },
+    resolution: "Different questions, not contradictory answers. Paul: How is one justified before God? (faith). James: How is faith proven genuine? (works). A tree is not made alive by fruit — but a living tree produces fruit.",
+    resolutionVerseId: "JAS.2.17"
+  },
+  {
+    id: "justice-vs-mercy",
+    title: "Justice vs. Mercy",
+    tension: "God is perfectly just (must punish sin) and perfectly merciful (loves the sinner). How can both be true at the cross?",
+    sideA: {
+      label: "Justice",
+      description: "God's nature demands that sin be punished — moral categories cannot be ignored without dishonesty.",
+      keyVerses: ["ROM.3.23", "ROM.6.23"],
+      note: "The wages of sin must be paid — God does not simply overlook moral failure."
+    },
+    sideB: {
+      label: "Mercy",
+      description: "God's love sends a substitute so that justice is satisfied while the sinner is freed.",
+      keyVerses: ["JHN.3.16", "ISA.53.5"],
+      note: "Mercy is not the absence of justice — it is justice redirected to a willing substitute."
+    },
+    resolution: "At the cross, justice and mercy meet: the penalty is fully paid (justice satisfied) but paid by Another (mercy extended). Romans 3:26: God is 'just and the justifier.'",
+    resolutionVerseId: "ROM.8.1"
+  },
+  {
+    id: "flesh-vs-spirit",
+    title: "Flesh vs. Spirit",
+    tension: "The flesh pulls toward self-will and sin; the Spirit pulls toward obedience and life. Every believer feels this war.",
+    sideA: {
+      label: "Flesh",
+      description: "The human nature apart from divine renewal — inclined toward self-sufficiency and moral failure.",
+      keyVerses: ["ROM.3.23"],
+      note: "Flesh is not the body — it is the self-governing orientation that resists submission to God."
+    },
+    sideB: {
+      label: "Spirit",
+      description: "The indwelling Spirit of God who enables, motivates, and empowers covenant faithfulness.",
+      keyVerses: ["2TI.1.7", "ROM.8.1"],
+      note: "Paul's Spirit-of-power (2 Tim 1:7) is given precisely for this conflict."
+    },
+    resolution: "The conflict is real and ongoing, but the outcome is decided — 'no condemnation' (Rom 8:1) is the foundation that enables Spirit-led living rather than fear-driven striving.",
+    resolutionVerseId: "ROM.8.1"
+  },
+  {
+    id: "shadow-vs-fulfillment",
+    title: "Shadow vs. Fulfillment",
+    tension: "The Old Testament system of sacrifices, laws, and ceremonies — was it valid? Was it replaced? Do both covenants have equal authority?",
+    sideA: {
+      label: "Shadow (Old Covenant)",
+      description: "The Mosaic system was genuine and divinely given, but prophetically anticipatory — pointing forward.",
+      keyVerses: ["EXO.12.13", "LEV.17.11"],
+      note: "Typological: the shadow is not the substance but is still meaningful — it reveals the substance's shape."
+    },
+    sideB: {
+      label: "Fulfillment (New Covenant)",
+      description: "Messiah is the substance that every type, symbol, and prophecy was pointing toward.",
+      keyVerses: ["1CO.5.7", "1CO.15.3"],
+      note: "Fulfillment does not invalidate the type — it completes and explains it."
+    },
+    resolution: "Hebrews 10:1 — 'the law is a shadow of the good things to come.' The Mosaic system was the blueprint; Christ is the building. Both are real; one is preparatory, one is final.",
+    resolutionVerseId: "JHN.1.29"
+  }
+];
+
+const MISUSE_DETECTION_DATA = {
+  "ISA.41.10": {
+    commonMisuse: "Used as a blanket promise that God will prevent all suffering, difficulty, or hard circumstances.",
+    incorrectUsage: "Cherry-picked as a personal prosperity guarantee — 'God won't let anything bad happen to me.'",
+    correctContext: "God's covenant assurance to Israel in a context of impending Babylonian threat. 'Fear not' is a command to trust, not a promise of ease. Verse 10 continues: 'I will strengthen you, I will help you' — implying there is something to face.",
+    fullPassageNote: "Isaiah 41:8-14 addresses a people facing real, severe threat — not comfort from a distance but strengthening to face difficulty.",
+    balancingVerses: ["2TI.1.7", "PSA.23.1"],
+    correctApplication: "God's presence does not eliminate hardship — it transforms our capacity within hardship. The promise is presence and strengthening, not exemption."
+  },
+  "PRO.3.5": {
+    commonMisuse: "Used to justify not thinking, reasoning, or planning — 'I just trust God' as a substitute for wisdom and discernment.",
+    incorrectUsage: "Anti-intellectualism dressed in spiritual language. Or: used to dismiss someone else's counsel — 'I lean on God, not human advice.'",
+    correctContext: "Proverbs is a book about wisdom — careful, discerning, attentive engagement with reality. The contrast is not between thinking and trusting, but between autonomous pride-driven conclusions and humble, God-anchored discernment.",
+    fullPassageNote: "Proverbs 3:5-6 — 'in all your ways acknowledge him and he will make your paths straight.' Acknowledgment is active, not passive.",
+    balancingVerses: ["PRO.3.5"],
+    correctApplication: "Think carefully, plan wisely, seek counsel — and hold your conclusions with open hands before God rather than as absolute truths derived from your own analysis alone."
+  },
+  "JHN.3.16": {
+    commonMisuse: "Used in isolation to imply universal salvation — 'God loves everyone, so everyone will be saved in the end.'",
+    incorrectUsage: "The 'whoever believes' condition is removed, leaving only 'God so loved the world' as the entire theological statement.",
+    correctContext: "The verse has four components: love (motivation), gift (act), belief (condition), life (result for believers) / perish (result for non-believers). The condition of belief is structurally essential.",
+    fullPassageNote: "John 3:17-18 immediately follows: 'whoever does not believe is condemned already.' The universal love does not produce universal salvation without the response of faith.",
+    balancingVerses: ["EPH.2.8", "ROM.3.23"],
+    correctApplication: "The scope of God's love is universal; the application of its benefit is conditioned on belief. Both truths must be held."
+  },
+  "ROM.8.1": {
+    commonMisuse: "Used to claim that sin has no consequences for believers — 'no condemnation means I can live however I want.'",
+    incorrectUsage: "Moral antinomianism — using grace as license rather than foundation.",
+    correctContext: "Romans 8:1 follows Romans 7's war with sin and precedes Romans 8:4's call to walk in the Spirit. It is the foundation of sanctified living, not a bypass of it.",
+    fullPassageNote: "Romans 8:1 in full context (chapters 6-8) argues: because we are freed from condemnation, we are freed to live by the Spirit — not freed to ignore righteousness.",
+    balancingVerses: ["JAS.2.17", "EPH.2.9"],
+    correctApplication: "No condemnation is the assurance that empowers holy living — not the excuse that bypasses it."
+  },
+  "EPH.2.8": {
+    commonMisuse: "Used to argue that how one lives is irrelevant — 'saved by grace alone means behavior doesn't matter.'",
+    incorrectUsage: "Separates Ephesians 2:8-9 from Ephesians 2:10 ('created for good works') and from James 2:17.",
+    correctContext: "Grace produces a new creation aimed at good works (Eph 2:10). Saved by grace is the root; good works are the fruit. The fruit does not produce the root.",
+    fullPassageNote: "Ephesians 2:8-10 is a three-verse unit: grace saves → through faith → unto good works prepared in advance. The good works are the trajectory, not the basis.",
+    balancingVerses: ["JAS.2.17", "EPH.2.9"],
+    correctApplication: "Grace saves — and grace produces. The same grace that justifies also sanctifies. A life unchanged by grace should prompt examination, not reassurance."
+  },
+  "1CO.15.3": {
+    commonMisuse: "Reduced to a proof text without reading 'according to the Scriptures' — treating the gospel as self-contained rather than fulfillment of OT promises.",
+    incorrectUsage: "Used without context to present a gospel disconnected from its Old Testament roots, making it seem like a new invention.",
+    correctContext: "Paul's point is precisely that Christ's death and resurrection were not improvised — they were 'according to the Scriptures.' The OT arc is intrinsic.",
+    fullPassageNote: "1 Corinthians 15:3-4 is a formal creedal summary ('I received... I delivered') — Paul is passing on fixed tradition, not his own teaching.",
+    balancingVerses: ["ISA.53.5", "EXO.12.13"],
+    correctApplication: "The gospel has deep OT roots. Presenting the crucifixion without Isaiah 53 or the Passover pattern strips it of its scriptural explanatory power."
+  }
+};
+
+const SYMBOL_MAP = {
+  blood: {
+    definition: "Life offered as price — covenant marking, atonement, and redemptive cost.",
+    firstAppearance: "EXO.12.13",
+    firstBook: "Exodus",
+    symbolMeanings: ["life", "atonement", "covenant boundary", "redemptive cost"],
+    developmentArc: [
+      { era: "Torah & Law", verseId: "EXO.12.13", note: "Blood as covenant protection boundary in Passover" },
+      { era: "Torah & Law", verseId: "LEV.17.11", note: "Life is in the blood — the atonement principle" },
+      { era: "Gospels", verseId: "JHN.1.29", note: "The Lamb of God — ultimate blood offering" },
+      { era: "Apostolic Letters", verseId: "1CO.5.7", note: "Christ our Passover — blood as fulfillment" },
+      { era: "Apocalyptic", verseId: "REV.21.1", note: "New creation where the blood-cost is complete" }
+    ],
+    bookOccurrences: ["Exodus", "Leviticus", "John", "1 Corinthians", "Revelation"]
+  },
+  lamb: {
+    definition: "Innocent substitute offered in place of the guilty — purity, sacrifice, and covenant peace.",
+    firstAppearance: "EXO.12.13",
+    firstBook: "Exodus",
+    symbolMeanings: ["innocence", "substitution", "sacrifice", "passover"],
+    developmentArc: [
+      { era: "Torah & Law", verseId: "EXO.12.13", note: "Passover lamb — substitute for the firstborn" },
+      { era: "Major Prophets", verseId: "ISA.53.5", note: "Servant like a lamb led to slaughter (Isaiah 53:7)" },
+      { era: "Gospels", verseId: "JHN.1.29", note: "The Lamb of God who takes away sin of the world" },
+      { era: "Apostolic Letters", verseId: "1CO.5.7", note: "Christ our Passover lamb sacrificed" },
+      { era: "Apocalyptic", verseId: "REV.21.1", note: "The Lamb on the throne — Revelation's central image" }
+    ],
+    bookOccurrences: ["Exodus", "Leviticus", "Isaiah", "John", "1 Corinthians", "Revelation"]
+  },
+  light: {
+    definition: "Divine presence, revelation, and moral clarity — that which makes the invisible visible.",
+    firstAppearance: "GEN.1.1",
+    firstBook: "Genesis",
+    symbolMeanings: ["revelation", "presence", "truth", "life"],
+    developmentArc: [
+      { era: "Creation & Patriarchs", verseId: "GEN.1.1", note: "God speaks light into creation — first creative act" },
+      { era: "Wisdom Literature", verseId: "PSA.23.1", note: "The Lord's presence as safe passage through darkness" },
+      { era: "Gospels", verseId: "JHN.1.1", note: "The Word is the light of humanity — John 1:4-9" },
+      { era: "Apocalyptic", verseId: "REV.21.1", note: "New Jerusalem has no need of sun — the Lamb is its light" }
+    ],
+    bookOccurrences: ["Genesis", "Psalms", "Proverbs", "John", "Revelation"]
+  },
+  word: {
+    definition: "God's self-expression and creative power — spoken decrees that accomplish reality.",
+    firstAppearance: "GEN.1.1",
+    firstBook: "Genesis",
+    symbolMeanings: ["divine expression", "creation power", "revelation", "person of Christ"],
+    developmentArc: [
+      { era: "Creation & Patriarchs", verseId: "GEN.1.1", note: "God speaks — word as creative force" },
+      { era: "Major Prophets", verseId: "ISA.53.5", note: "The prophetic word accomplishes God's purpose" },
+      { era: "Gospels", verseId: "JHN.1.1", note: "The Word becomes personal — logos as divine person" },
+      { era: "Apostolic Letters", verseId: "HEB.11.1", note: "Faith rests on the word spoken — invisible things made certain" }
+    ],
+    bookOccurrences: ["Genesis", "Isaiah", "Psalms", "John", "Hebrews"]
+  },
+  shepherd: {
+    definition: "Intimate governance, provision, and protection — leadership through care rather than power.",
+    firstAppearance: "PSA.23.1",
+    firstBook: "Psalms",
+    symbolMeanings: ["provision", "guidance", "protection", "intimate care", "covenant leadership"],
+    developmentArc: [
+      { era: "Wisdom Literature", verseId: "PSA.23.1", note: "The Lord as personal shepherd — Davidic intimacy with God" },
+      { era: "Major Prophets", verseId: "ISA.41.10", note: "God as tender comforter — gathering the scattered" },
+      { era: "Gospels", verseId: "JHN.1.29", note: "Good Shepherd who lays down his life for the sheep (John 10:11)" },
+      { era: "Apostolic Letters", verseId: "HEB.11.1", note: "The great shepherd of the sheep (Hebrews 13:20)" }
+    ],
+    bookOccurrences: ["Psalms", "Isaiah", "Ezekiel", "John", "Hebrews", "1 Peter"]
+  },
+  covenant: {
+    definition: "A binding relational framework established by God — not contract (equal parties) but covenant (initiated by the stronger to benefit the weaker).",
+    firstAppearance: "GEN.1.1",
+    firstBook: "Genesis",
+    symbolMeanings: ["relationship", "promise", "commitment", "identity", "obligation"],
+    developmentArc: [
+      { era: "Creation & Patriarchs", verseId: "GEN.3.15", note: "First covenant promise — seed will crush the serpent" },
+      { era: "Creation & Patriarchs", verseId: "GEN.15.6", note: "Abrahamic covenant — faith and righteousness pattern" },
+      { era: "Torah & Law", verseId: "EXO.12.13", note: "Blood covenant — Passover as covenant boundary marker" },
+      { era: "Gospels", verseId: "JHN.3.16", note: "New covenant in the Son — universal scope" },
+      { era: "Apostolic Letters", verseId: "EPH.2.8", note: "Covenant gift of grace — not earned, freely given" }
+    ],
+    bookOccurrences: ["Genesis", "Exodus", "Leviticus", "Isaiah", "Jeremiah", "Matthew", "John", "Hebrews"]
+  },
+  seed: {
+    definition: "Offspring/descendant — especially the promised line through which redemption comes.",
+    firstAppearance: "GEN.3.15",
+    firstBook: "Genesis",
+    symbolMeanings: ["promise", "continuity", "messianic hope", "covenant heir"],
+    developmentArc: [
+      { era: "Creation & Patriarchs", verseId: "GEN.3.15", note: "The seed of the woman — first messianic promise" },
+      { era: "Creation & Patriarchs", verseId: "GEN.15.6", note: "Abraham's seed — the faith lineage" },
+      { era: "Apostolic Letters", verseId: "EPH.2.8", note: "The promise to Abraham received through faith/grace" },
+      { era: "Apocalyptic", verseId: "REV.21.1", note: "New creation — the seed's promise fully realized" }
+    ],
+    bookOccurrences: ["Genesis", "Isaiah", "Galatians", "Revelation"]
+  }
+};
+
+const CROSS_COVENANT_DATA = [
+  {
+    concept: "Sacrifice",
+    oldCovenant: {
+      summary: "Repeated animal sacrifices covering sin temporarily — requiring annual repetition (Yom Kippur).",
+      keyVerseId: "LEV.17.11",
+      keyReference: "Leviticus 17:11",
+      nature: "Shadow / Ongoing",
+      limitation: "Could not permanently remove sin — only cover it year by year."
+    },
+    newCovenant: {
+      summary: "One final sacrifice — Messiah's death — permanently removing sin and requiring no repetition.",
+      keyVerseId: "1CO.5.7",
+      keyReference: "1 Corinthians 5:7",
+      nature: "Fulfillment / Once for All",
+      advancement: "Hebrews 10:14 — 'by a single offering he has perfected for all time those who are being sanctified.'"
+    },
+    continuity: "The principle: sin requires life as payment. The change: animal life → divine life.",
+    connectingVerseId: "JHN.1.29"
+  },
+  {
+    concept: "Priesthood",
+    oldCovenant: {
+      summary: "Levitical priests — mortal, fallible, required daily offerings for their own sins and for the people.",
+      keyVerseId: "EXO.12.13",
+      keyReference: "Exodus 12:13",
+      nature: "Shadow / Ongoing",
+      limitation: "Priests died and needed successors; their own sin required atonement."
+    },
+    newCovenant: {
+      summary: "Messiah as eternal high priest — sinless, permanent, interceding continuously.",
+      keyVerseId: "HEB.11.1",
+      keyReference: "Hebrews 11:1",
+      nature: "Fulfillment / Eternal",
+      advancement: "Hebrews 7:24-25 — 'because he remains forever, he holds his priesthood permanently... always living to intercede.'"
+    },
+    continuity: "The role of mediator between God and humanity. The change: mortal → eternal; imperfect → sinless.",
+    connectingVerseId: "ISA.53.5"
+  },
+  {
+    concept: "Atonement",
+    oldCovenant: {
+      summary: "Yom Kippur — annual covering of sin through blood, with the nation's guilt ceremonially transferred to the scapegoat.",
+      keyVerseId: "LEV.17.11",
+      keyReference: "Leviticus 17:11",
+      nature: "Shadow / Annual",
+      limitation: "Covered but did not remove sin — needed to be repeated, indicating incompleteness."
+    },
+    newCovenant: {
+      summary: "Christ's once-for-all atonement — not covering but removing sin permanently.",
+      keyVerseId: "ROM.8.1",
+      keyReference: "Romans 8:1",
+      nature: "Fulfillment / Permanent",
+      advancement: "Romans 8:1 — 'no condemnation' is the new covenant verdict replacing annual repeated atonement."
+    },
+    continuity: "The necessity: sin must be addressed for relationship with God to continue. The change: temporary → permanent.",
+    connectingVerseId: "JHN.1.29"
+  },
+  {
+    concept: "Righteousness",
+    oldCovenant: {
+      summary: "Righteousness through covenant obedience to the Mosaic law — an external standard requiring constant moral performance.",
+      keyVerseId: "ROM.3.23",
+      keyReference: "Romans 3:23",
+      nature: "Shadow / External",
+      limitation: "'All have sinned and fall short' — universal failure confirms no one achieves it consistently."
+    },
+    newCovenant: {
+      summary: "Righteousness credited through faith — received as gift rather than earned through performance.",
+      keyVerseId: "GEN.15.6",
+      keyReference: "Genesis 15:6",
+      nature: "Fulfillment / Imputed",
+      advancement: "Romans 4:5 — 'to the one who does not work but believes... his faith is counted as righteousness.' The OT pattern is confirmed, not invented."
+    },
+    continuity: "God is righteous and requires righteousness. The change: self-produced → gift-received.",
+    connectingVerseId: "EPH.2.8"
+  },
+  {
+    concept: "Promise & Fulfillment",
+    oldCovenant: {
+      summary: "Prophetic promises of a coming redeemer, king, and servant — building expectation over centuries.",
+      keyVerseId: "GEN.3.15",
+      keyReference: "Genesis 3:15",
+      nature: "Promise / Anticipatory",
+      limitation: "The promise was real but its full shape was not yet seen — 'seen from afar' (Hebrews 11:13)."
+    },
+    newCovenant: {
+      summary: "The fulfillment of every OT covenant promise in the person and work of Messiah.",
+      keyVerseId: "1CO.15.3",
+      keyReference: "1 Corinthians 15:3",
+      nature: "Fulfillment / Realized",
+      advancement: "'According to the Scriptures' — the creed explicitly states that the NT events are OT promises accomplished."
+    },
+    continuity: "One God, one plan, one storyline. The change: anticipated → actualized.",
+    connectingVerseId: "MIC.5.2"
+  }
+];
+
+const NARRATIVE_FLOW_DATA = [
+  {
+    arcName: "The Redemptive Arc",
+    description: "The single storyline of Scripture from creation's rupture to new creation's completion.",
+    nodes: [
+      { label: "Creation", verseId: "GEN.1.1", note: "God creates — everything is very good." },
+      { label: "The Fall & First Promise", verseId: "GEN.3.15", note: "Sin enters — but the Seed is promised." },
+      { label: "Faith Covenant", verseId: "GEN.15.6", note: "Abraham trusts — the covenant pattern is set." },
+      { label: "Passover Deliverance", verseId: "EXO.12.13", note: "Blood provides rescue — the exodus picture." },
+      { label: "Blood Principle", verseId: "LEV.17.11", note: "Life is in the blood — atonement explained." },
+      { label: "Prophetic Vision", verseId: "ISA.53.5", note: "Suffering servant foreseen — 700 years ahead." },
+      { label: "Bethlehem Birth", verseId: "MIC.5.2", note: "King's origin predicted — precise location." },
+      { label: "Word Made Flesh", verseId: "JHN.1.1", note: "The eternal Word enters creation." },
+      { label: "Lamb Revealed", verseId: "JHN.1.29", note: "John the Baptist points to Messiah." },
+      { label: "Diagnosis", verseId: "ROM.3.23", note: "All have sinned — universal need established." },
+      { label: "The Price", verseId: "ROM.6.23", note: "Wages of sin is death — gift is life." },
+      { label: "No Condemnation", verseId: "ROM.8.1", note: "In Christ — the verdict is reversed." },
+      { label: "New Creation", verseId: "REV.21.1", note: "All things made new — the arc complete." }
+    ]
+  },
+  {
+    arcName: "The Faith Arc",
+    description: "How trust in God's word is the consistent covenant posture across all ages.",
+    nodes: [
+      { label: "Abraham's Trust", verseId: "GEN.15.6", note: "First explicit faith-righteousness equation." },
+      { label: "Trust Over Understanding", verseId: "PRO.3.5", note: "Wisdom posture: lean on God not self." },
+      { label: "Fear Replaced by Trust", verseId: "ISA.41.10", note: "Covenant people commanded to trust God's presence." },
+      { label: "God's Love Act", verseId: "JHN.3.16", note: "Belief is the response to the gift." },
+      { label: "Saved Through Faith", verseId: "EPH.2.8", note: "Faith as the receiving instrument of grace." },
+      { label: "Faith Defined", verseId: "HEB.11.1", note: "The substance and evidence of unseen realities." },
+      { label: "Faith That Lives", verseId: "JAS.2.17", note: "Real faith has visibly alive expression." }
+    ]
+  },
+  {
+    arcName: "The Atonement Arc",
+    description: "Blood, sacrifice, and substitution from the first Passover to the final Lamb.",
+    nodes: [
+      { label: "Passover Blood", verseId: "EXO.12.13", note: "Blood as covenant boundary — death passes over." },
+      { label: "Blood Principle", verseId: "LEV.17.11", note: "Life for life — foundational atonement logic." },
+      { label: "Suffering Servant", verseId: "ISA.53.5", note: "Pierced for transgressions — vicarious suffering." },
+      { label: "Lamb of God", verseId: "JHN.1.29", note: "John identifies Jesus as the atonement fulfillment." },
+      { label: "Our Passover", verseId: "1CO.5.7", note: "Paul makes the Passover → Christ connection explicit." },
+      { label: "Gospel Summary", verseId: "1CO.15.3", note: "Died for sins according to the Scriptures." },
+      { label: "No Condemnation", verseId: "ROM.8.1", note: "Atonement's legal outcome: guilt removed." }
+    ]
+  },
+  {
+    arcName: "The Kingdom Arc",
+    description: "God's sovereign rule — promised, expected, arriving, expanding, consummating.",
+    nodes: [
+      { label: "Creation Order", verseId: "GEN.1.1", note: "God reigns over all he made — original kingdom." },
+      { label: "Kingdom Promised", verseId: "GEN.3.15", note: "Enmity will end — the ruler will come." },
+      { label: "King's Birthplace", verseId: "MIC.5.2", note: "Ruler from Bethlehem — humble origins, eternal origins." },
+      { label: "King Arrives", verseId: "JHN.1.1", note: "The Word enters — the kingdom takes flesh." },
+      { label: "Kingdom Applied", verseId: "ROM.8.1", note: "The Spirit's reign — no condemnation in the King." },
+      { label: "Kingdom Completed", verseId: "REV.21.1", note: "New heaven and earth — God reigns forever." }
+    ]
+  }
+];
+
+const VERSE_CENTRALITY = {
+  "GEN.1.1": { score: 10.0, role: "Foundation", doctrines: ["creation", "sovereignty"], note: "The load-bearing first statement of all Scripture." },
+  "GEN.3.15": { score: 9.5, role: "Protoevangelium", doctrines: ["redemption", "covenant", "messianic"], note: "First messianic promise — launches the entire redemptive plot." },
+  "GEN.15.6": { score: 9.0, role: "Justification Pattern", doctrines: ["faith", "righteousness", "covenant"], note: "Paul's entire Romans 4 argument rests on this verse." },
+  "EXO.12.13": { score: 8.5, role: "Sacrificial Type", doctrines: ["atonement", "passover", "blood"], note: "Passover pattern that Paul makes explicit in 1 Cor 5:7." },
+  "LEV.17.11": { score: 8.0, role: "Atonement Principle", doctrines: ["blood", "atonement", "sacrifice"], note: "Foundational logic for why blood accomplishes forgiveness." },
+  "ISA.53.5": { score: 9.8, role: "Suffering Servant", doctrines: ["atonement", "substitution", "messianic"], note: "Most cited OT passage in NT — precise prophetic fulfillment." },
+  "MIC.5.2": { score: 8.0, role: "Birthplace Prophecy", doctrines: ["prophecy", "incarnation", "messianic"], note: "Geographic precision 700 years before fulfillment." },
+  "JHN.1.1": { score: 9.5, role: "Logos Prologue", doctrines: ["divinity", "word", "creation"], note: "Establishes Messiah's eternal divine identity." },
+  "JHN.1.29": { score: 9.0, role: "Lamb Identification", doctrines: ["atonement", "typology", "messianic"], note: "Explicitly connects the Levitical lamb system to Jesus." },
+  "JHN.3.16": { score: 10.0, role: "Gospel Summary", doctrines: ["love", "salvation", "faith"], note: "The most recognizable verse — structural gospel summary." },
+  "ROM.3.23": { score: 8.5, role: "Universal Diagnosis", doctrines: ["sin", "judgment", "need"], note: "Paul's universal verdict — the problem before the solution." },
+  "ROM.6.23": { score: 8.5, role: "Wages vs Gift", doctrines: ["sin", "death", "grace", "life"], note: "The sharpest contrast: what sin earns vs what grace gives." },
+  "ROM.8.1": { score: 9.5, role: "No Condemnation", doctrines: ["justification", "freedom", "covenant"], note: "The legal verdict of the gospel — standing not striving." },
+  "1CO.5.7": { score: 8.0, role: "Passover Fulfillment", doctrines: ["typology", "atonement", "passover"], note: "Paul's explicit typological connection: Passover → Christ." },
+  "1CO.15.3": { score: 9.0, role: "Gospel Creed", doctrines: ["atonement", "resurrection", "scripture"], note: "Earliest recorded gospel summary — pre-Pauline creed." },
+  "EPH.2.8": { score: 9.5, role: "Grace by Faith", doctrines: ["grace", "faith", "salvation"], note: "Clearest statement of salvation's basis — not works, gift." },
+  "EPH.2.9": { score: 8.5, role: "Works Excluded", doctrines: ["works", "grace", "boasting"], note: "Works explicitly excluded from salvation's basis." },
+  "HEB.11.1": { score: 8.5, role: "Faith Definition", doctrines: ["faith", "hope", "assurance"], note: "The Bible's own definition of faith." },
+  "JAS.2.17": { score: 8.0, role: "Living Faith", doctrines: ["faith", "works", "evidence"], note: "The evidence test for genuine faith." },
+  "REV.21.1": { score: 9.0, role: "New Creation", doctrines: ["restoration", "eschatology", "hope"], note: "The completion of the Genesis 1 arc — creation renewed." },
+  "PSA.23.1": { score: 8.5, role: "Shepherd Intimacy", doctrines: ["guidance", "provision", "trust"], note: "Most memorized verse — shepherd-covenant intimacy." },
+  "PRO.3.5": { score: 7.5, role: "Trust Command", doctrines: ["trust", "wisdom", "guidance"], note: "Core wisdom posture: lean on God not self." },
+  "ISA.41.10": { score: 8.0, role: "Fear Not Promise", doctrines: ["fear", "courage", "presence"], note: "God's covenant assurance in threat." },
+  "2TI.1.7": { score: 7.5, role: "Spirit of Power", doctrines: ["fear", "power", "spirit"], note: "Discipleship posture — not timidity but courageous love." },
+  "GEN.15.6": { score: 9.0, role: "Faith Righteousness", doctrines: ["faith", "righteousness", "covenant"], note: "OT foundation for NT justification by faith." }
+};
+
+const HIDDEN_CONNECTIONS_DATA = [
+  {
+    title: "Joseph ↔ Messiah",
+    type: "typological",
+    description: "Joseph's life mirrors the messianic pattern in striking structural parallels.",
+    pairs: [
+      { leftNote: "Joseph beloved of his father, sent to his brothers", rightNote: "Messiah sent from the Father to his own people", leftVerseId: null, rightVerseId: "JHN.1.1" },
+      { leftNote: "Joseph rejected and sold for silver by his own brothers", rightNote: "Messiah rejected by his people, betrayed for 30 pieces", leftVerseId: null, rightVerseId: "ISA.53.5" },
+      { leftNote: "Joseph goes down into the pit, appears dead", rightNote: "Messiah descends into death, buried", leftVerseId: null, rightVerseId: "1CO.15.3" },
+      { leftNote: "Joseph raised to second highest throne, brings salvation to the nations", rightNote: "Messiah raised, seated at right hand, saves all nations", leftVerseId: null, rightVerseId: "ROM.8.1" }
+    ]
+  },
+  {
+    title: "Exodus ↔ Salvation Pattern",
+    type: "structural",
+    description: "The Exodus from Egypt is the structural template for spiritual salvation.",
+    pairs: [
+      { leftNote: "Israel enslaved in Egypt — bondage they cannot escape", rightNote: "Humanity enslaved to sin — cannot self-liberate", leftVerseId: "EXO.12.13", rightVerseId: "ROM.3.23" },
+      { leftNote: "Passover blood on doorposts — protection through blood", rightNote: "Messiah's blood — the final Passover covering", leftVerseId: "EXO.12.13", rightVerseId: "JHN.1.29" },
+      { leftNote: "Exodus into freedom through the Red Sea", rightNote: "Resurrection: death passed through into life", leftVerseId: "EXO.12.13", rightVerseId: "ROM.6.23" },
+      { leftNote: "Mosaic covenant at Sinai — law given to the redeemed", rightNote: "New covenant — Spirit written on hearts", leftVerseId: "LEV.17.11", rightVerseId: "ROM.8.1" }
+    ]
+  },
+  {
+    title: "First Adam ↔ Last Adam",
+    type: "typological",
+    description: "Romans 5 and 1 Corintians 15 explicitly use Adam as the type of Messiah — the first and last Adam.",
+    pairs: [
+      { leftNote: "Adam in a garden — faced a test from the enemy", rightNote: "Messiah in Gethsemane/wilderness — faced the same test", leftVerseId: "GEN.3.15", rightVerseId: "JHN.1.1" },
+      { leftNote: "Adam's disobedience brought sin and death to all", rightNote: "Messiah's obedience brings righteousness and life to all who believe", leftVerseId: "GEN.3.15", rightVerseId: "ROM.8.1" },
+      { leftNote: "Through one man's failure — all enter condemnation", rightNote: "Through one man's gift — grace abounds to the many", leftVerseId: "ROM.3.23", rightVerseId: "ROM.8.1" }
+    ]
+  },
+  {
+    title: "Genesis 1 ↔ John 1 Echo",
+    type: "literary",
+    description: "John opens his gospel with a deliberate echo of Genesis 1 — 'In the beginning.' The parallel is architecturally intentional.",
+    pairs: [
+      { leftNote: "Genesis 1:1 — 'In the beginning God created'", rightNote: "John 1:1 — 'In the beginning was the Word'", leftVerseId: "GEN.1.1", rightVerseId: "JHN.1.1" },
+      { leftNote: "God spoke — word brought light into darkness", rightNote: "The Word is the light of humanity — the same creative force", leftVerseId: "GEN.1.1", rightVerseId: "JHN.1.1" },
+      { leftNote: "First creation — heaven and earth called into being", rightNote: "New creation — new heaven and earth promised", leftVerseId: "GEN.1.1", rightVerseId: "REV.21.1" }
+    ]
+  },
+  {
+    title: "Isaiah 53 ↔ Gospel Passion",
+    type: "prophetic",
+    description: "Isaiah 53 reads like an eyewitness account of the crucifixion — yet written 700 years before.",
+    pairs: [
+      { leftNote: "Isaiah 53:3 — despised and rejected of men", rightNote: "John 1:11 — 'He came to his own and his own did not receive him'", leftVerseId: "ISA.53.5", rightVerseId: "JHN.1.29" },
+      { leftNote: "Isaiah 53:5 — pierced for our transgressions", rightNote: "Romans 5:8 — 'God shows his love: while we were sinners, Christ died'", leftVerseId: "ISA.53.5", rightVerseId: "1CO.15.3" },
+      { leftNote: "Isaiah 53:10 — when his soul makes an offering for guilt", rightNote: "1 Corinthians 15:3 — 'Christ died for our sins according to the Scriptures'", leftVerseId: "ISA.53.5", rightVerseId: "1CO.15.3" }
+    ]
+  }
+];
+
+// ── INTELLIGENCE LAYER ENDPOINTS ──────────────────────────────────────
+
+app.get("/api/v1/truth-trace/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) return res.status(404).json({ error: "Verse not found" });
+
+  const whyItMatters = WHY_IT_MATTERS_MAP[verse.id] || null;
+  const contextIntegrity = buildContextIntegrityPayload(verse);
+  const misuse = MISUSE_DETECTION_DATA[verse.id] || null;
+  const weight = VERSE_CENTRALITY[verse.id] || null;
+  const parallelLinks = findParallelPassagesForVerse(verse.id);
+  const prophecyLinks = PROPHECY_FULFILLMENT_PAIRS.filter(
+    (p) => p.prophecyVerseId === verse.id || p.fulfillmentVerseId === verse.id
+  );
+
+  const doctrinesLinked = [];
+  Object.entries(DOCTRINE_MAP).forEach(([key, doc]) => {
+    const allIds = [...doc.keyVerses, ...doc.supportingVerses, ...doc.debatedPassages];
+    if (allIds.includes(verse.id)) {
+      doctrinesLinked.push({ key, name: doc.name });
+    }
+  });
+
+  const symbolAppearances = [];
+  Object.entries(SYMBOL_MAP).forEach(([symbol, data]) => {
+    const appears = data.developmentArc.some((entry) => entry.verseId === verse.id);
+    if (appears) symbolAppearances.push(symbol);
+  });
+
+  return res.json({
+    verseId: verse.id,
+    reference: verse.reference,
+    text: verse.text,
+    sourceVerification: {
+      translation: verse.translation,
+      originalLanguage: verse.original.language,
+      originalText: verse.original.text,
+      strongsEntries: verse.original.strongs || []
+    },
+    interpretationPathway: verse.keyLayers,
+    historicalContext: {
+      timeline: verse.contextTimeline,
+      era: BIBLICAL_ERA_MAP[verse.book] || "Unknown"
+    },
+    crossReferences: verse.crossReferences,
+    whyItMatters,
+    misuse,
+    parallelLinks,
+    prophecyLinks,
+    doctrinesLinked,
+    symbolAppearances,
+    verseWeight: weight,
+    contextIntegrity: {
+      isCommonlyMisquoted: contextIntegrity.isCommonlyMisquoted,
+      contextWarning: contextIntegrity.contextWarning,
+      bookPurpose: contextIntegrity.bookPurpose
+    }
+  });
+});
+
+app.get("/api/v1/why-it-matters/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) return res.status(404).json({ error: "Verse not found" });
+
+  const data = WHY_IT_MATTERS_MAP[verse.id];
+  const fallback = {
+    whatItMeans: verse.keyLayers.literal,
+    whyItMatters: verse.keyLayers.historical,
+    howItApplies: verse.keyLayers.symbolic
+  };
+
+  return res.json({
+    verseId: verse.id,
+    reference: verse.reference,
+    text: verse.text,
+    ...(data || fallback)
+  });
+});
+
+app.get("/api/v1/concept-dna", (req, res) => {
+  const concept = String(req.query.concept || "").trim();
+  if (!concept) return res.status(400).json({ error: "concept parameter is required" });
+
+  const normalized = normalizedString(concept);
+
+  const coreVerses = scriptureData.verses.filter(
+    (v) => v.themes.some((t) => normalizedString(t) === normalized)
+  );
+
+  const supportingVerses = scriptureData.verses.filter(
+    (v) =>
+      !coreVerses.includes(v) &&
+      (normalizedString(v.text).includes(normalized) ||
+        v.themes.some((t) => normalizedString(t).includes(normalized)))
+  );
+
+  const firstAppearance = sortedCanonicalVerses().find(
+    (v) =>
+      v.themes.some((t) => normalizedString(t).includes(normalized)) ||
+      normalizedString(v.text).includes(normalized)
+  );
+
+  const allPeople = uniqueStrings(coreVerses.flatMap((v) => v.people));
+  const allEvents = uniqueStrings(coreVerses.flatMap((v) => v.events));
+
+  const symbolData = SYMBOL_MAP[normalized] || null;
+  const doctrineKey = Object.keys(DOCTRINE_MAP).find(
+    (k) => normalizedString(k) === normalized || normalizedString(DOCTRINE_MAP[k].name) === normalized
+  );
+  const doctrineData = doctrineKey ? DOCTRINE_MAP[doctrineKey] : null;
+
+  const eraBreakdown = {};
+  coreVerses.forEach((v) => {
+    const era = BIBLICAL_ERA_MAP[v.book] || "Unknown";
+    if (!eraBreakdown[era]) eraBreakdown[era] = 0;
+    eraBreakdown[era]++;
+  });
+
+  const conflictsLinked = SPIRITUAL_CONFLICTS.filter(
+    (c) =>
+      normalizedString(c.sideA.label).includes(normalized) ||
+      normalizedString(c.sideB.label).includes(normalized) ||
+      normalizedString(c.title).includes(normalized)
+  );
+
+  return res.json({
+    concept,
+    profile: {
+      firstAppearance: firstAppearance
+        ? { reference: firstAppearance.reference, text: firstAppearance.text, book: firstAppearance.book, era: BIBLICAL_ERA_MAP[firstAppearance.book] || "Unknown" }
+        : null,
+      coreVersesCount: coreVerses.length,
+      supportingVersesCount: supportingVerses.length,
+      eraDistribution: eraBreakdown,
+      keyPeople: allPeople.slice(0, 6),
+      keyEvents: allEvents.slice(0, 6),
+      symbolicMeanings: symbolData ? symbolData.symbolMeanings : [],
+      doctrineDefinition: doctrineData ? doctrineData.definition : null,
+      conflictTensions: conflictsLinked.map((c) => c.title)
+    },
+    coreVerses: coreVerses.map(mapSummary),
+    supportingVerses: supportingVerses.slice(0, 5).map(mapSummary),
+    symbolProfile: symbolData
+  });
+});
+
+app.get("/api/v1/conflicts", (req, res) => {
+  const id = String(req.query.id || "").trim();
+  if (id) {
+    const conflict = SPIRITUAL_CONFLICTS.find((c) => c.id === id);
+    if (!conflict) return res.status(404).json({ error: `Conflict "${id}" not found.` });
+    const enrichSide = (side) => ({
+      ...side,
+      verseObjects: (side.keyVerses || []).map((vid) => getVerseById(vid)).filter(Boolean).map(mapSummary)
+    });
+    return res.json({
+      ...conflict,
+      sideA: enrichSide(conflict.sideA),
+      sideB: enrichSide(conflict.sideB),
+      resolutionVerse: getVerseById(conflict.resolutionVerseId) ? mapSummary(getVerseById(conflict.resolutionVerseId)) : null
+    });
+  }
+  return res.json({
+    conflicts: SPIRITUAL_CONFLICTS.map((c) => ({
+      id: c.id, title: c.title, tension: c.tension
+    }))
+  });
+});
+
+app.get("/api/v1/misuse-check/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) return res.status(404).json({ error: "Verse not found" });
+
+  const data = MISUSE_DETECTION_DATA[verse.id];
+  if (!data) {
+    return res.json({
+      verseId: verse.id,
+      reference: verse.reference,
+      misuseFlagged: false,
+      message: "No common misuse pattern detected for this verse.",
+      contextWarning: COMMONLY_MISQUOTED.has(verse.id)
+        ? `${verse.reference} is frequently quoted outside its context.`
+        : null
+    });
+  }
+
+  return res.json({
+    verseId: verse.id,
+    reference: verse.reference,
+    text: verse.text,
+    misuseFlagged: true,
+    ...data,
+    balancingVerseObjects: (data.balancingVerses || []).map((id) => getVerseById(id)).filter(Boolean).map(mapSummary)
+  });
+});
+
+app.get("/api/v1/verse-weight", (req, res) => {
+  const topic = normalizedString(req.query.topic || "");
+
+  if (topic) {
+    const doctrineKey = Object.keys(DOCTRINE_MAP).find(
+      (k) => normalizedString(k).includes(topic) || normalizedString(DOCTRINE_MAP[k].name).includes(topic)
+    );
+    const relevantIds = doctrineKey
+      ? [...new Set([...DOCTRINE_MAP[doctrineKey].keyVerses, ...DOCTRINE_MAP[doctrineKey].supportingVerses])]
+      : scriptureData.verses
+          .filter((v) => v.themes.some((t) => normalizedString(t).includes(topic)))
+          .map((v) => v.id);
+
+    const ranked = relevantIds
+      .map((id) => {
+        const verse = getVerseById(id);
+        const weight = VERSE_CENTRALITY[id];
+        return verse && weight ? { ...mapSummary(verse), weight } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.weight.score - a.weight.score);
+
+    return res.json({ topic, ranked });
+  }
+
+  const all = Object.entries(VERSE_CENTRALITY)
+    .map(([id, weight]) => {
+      const verse = getVerseById(id);
+      return verse ? { ...mapSummary(verse), weight } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.weight.score - a.weight.score);
+
+  return res.json({ topic: null, ranked: all });
+});
+
+app.post("/api/v1/full-counsel", (req, res) => {
+  const { topic = "" } = req.body || {};
+  const normalized = normalizedString(topic);
+  if (!normalized) return res.status(400).json({ error: "topic required" });
+
+  const allVerses = scriptureData.verses;
+
+  const coreVerses = allVerses.filter((v) =>
+    v.themes.some((t) => normalizedString(t) === normalized)
+  );
+
+  const supportingVerses = allVerses.filter(
+    (v) =>
+      !coreVerses.includes(v) &&
+      (normalizedString(v.text).includes(normalized) ||
+        v.themes.some((t) => normalizedString(t).includes(normalized)))
+  );
+
+  const relatedConflicts = SPIRITUAL_CONFLICTS.filter(
+    (c) =>
+      normalizedString(c.title).includes(normalized) ||
+      normalizedString(c.sideA.label).includes(normalized) ||
+      normalizedString(c.sideB.label).includes(normalized)
+  );
+
+  const relatedDoctrines = Object.entries(DOCTRINE_MAP)
+    .filter(([k, d]) => {
+      const allIds = [...d.keyVerses, ...d.supportingVerses, ...d.debatedPassages];
+      return (
+        normalizedString(d.name).includes(normalized) ||
+        d.timeline.some((t) => allIds.some((id) => coreVerses.find((v) => v.id === id)))
+      );
+    })
+    .map(([key, d]) => ({ key, name: d.name, definition: d.definition }));
+
+  const debatedVerses = allVerses.filter((v) =>
+    Object.values(DOCTRINE_MAP).some((d) => d.debatedPassages.includes(v.id) && coreVerses.some((cv) => cv.id !== v.id))
+  );
+
+  const misusedWithinScope = coreVerses
+    .filter((v) => MISUSE_DETECTION_DATA[v.id])
+    .map((v) => ({ reference: v.reference, commonMisuse: MISUSE_DETECTION_DATA[v.id].commonMisuse }));
+
+  return res.json({
+    topic,
+    summary: `Full biblical counsel on "${topic}" — ${coreVerses.length} core verses, ${supportingVerses.length} supporting verses across ${[...new Set(coreVerses.map((v) => v.book))].length} books.`,
+    coreVerses: coreVerses.map(mapSummary),
+    supportingVerses: supportingVerses.slice(0, 8).map(mapSummary),
+    debatedVerses: debatedVerses.map(mapSummary),
+    relatedConflicts: relatedConflicts.map((c) => ({ id: c.id, title: c.title, resolution: c.resolution })),
+    relatedDoctrines,
+    misusedWithinScope,
+    balancingPerspective: relatedConflicts.length > 0
+      ? relatedConflicts.map((c) => `${c.sideA.label} vs ${c.sideB.label}: ${c.resolution}`).join(" | ")
+      : null
+  });
+});
+
+app.get("/api/v1/cross-covenant", (req, res) => {
+  const concept = normalizedString(req.query.concept || "");
+  if (!concept) {
+    return res.json({
+      concepts: CROSS_COVENANT_DATA.map((c) => c.concept)
+    });
+  }
+  const entry = CROSS_COVENANT_DATA.find((c) => normalizedString(c.concept).includes(concept));
+  if (!entry) return res.status(404).json({ error: `No cross-covenant data for "${concept}".` });
+
+  const enriched = {
+    ...entry,
+    oldCovenant: {
+      ...entry.oldCovenant,
+      verseObject: getVerseById(entry.oldCovenant.keyVerseId) ? mapSummary(getVerseById(entry.oldCovenant.keyVerseId)) : null
+    },
+    newCovenant: {
+      ...entry.newCovenant,
+      verseObject: getVerseById(entry.newCovenant.keyVerseId) ? mapSummary(getVerseById(entry.newCovenant.keyVerseId)) : null
+    },
+    connectingVerse: getVerseById(entry.connectingVerseId) ? mapSummary(getVerseById(entry.connectingVerseId)) : null
+  };
+  return res.json(enriched);
+});
+
+app.get("/api/v1/narrative-flow", (req, res) => {
+  const arcName = String(req.query.arc || "").trim();
+
+  const enrichArc = (arc) => ({
+    ...arc,
+    nodes: arc.nodes.map((n) => {
+      const verse = getVerseById(n.verseId);
+      return { ...n, reference: verse ? verse.reference : n.verseId, text: verse ? verse.text : null };
+    })
+  });
+
+  if (arcName) {
+    const arc = NARRATIVE_FLOW_DATA.find((a) => a.arcName.toLowerCase().includes(arcName.toLowerCase()));
+    if (!arc) return res.status(404).json({ error: `Arc "${arcName}" not found.` });
+    return res.json(enrichArc(arc));
+  }
+
+  return res.json({ arcs: NARRATIVE_FLOW_DATA.map(enrichArc) });
+});
+
+app.get("/api/v1/symbols", (req, res) => {
+  const symbol = normalizedString(req.query.symbol || "");
+  if (!symbol) {
+    return res.json({
+      symbols: Object.keys(SYMBOL_MAP).map((s) => ({
+        symbol: s,
+        definition: SYMBOL_MAP[s].definition,
+        firstBook: SYMBOL_MAP[s].firstBook
+      }))
+    });
+  }
+  const data = SYMBOL_MAP[symbol] || Object.entries(SYMBOL_MAP).find(([k]) => k.includes(symbol))?.[1];
+  if (!data) return res.status(404).json({ error: `Symbol "${symbol}" not found.` });
+
+  const enriched = {
+    ...data,
+    developmentArc: data.developmentArc.map((entry) => {
+      const verse = getVerseById(entry.verseId);
+      return { ...entry, reference: verse ? verse.reference : entry.verseId, text: verse ? verse.text : null };
+    })
+  };
+  return res.json({ symbol, ...enriched });
+});
+
+app.get("/api/v1/hidden-connections", (req, res) => {
+  const type = String(req.query.type || "").trim();
+  let data = HIDDEN_CONNECTIONS_DATA;
+  if (type) {
+    data = HIDDEN_CONNECTIONS_DATA.filter((c) => c.type === type || c.title.toLowerCase().includes(type.toLowerCase()));
+  }
+
+  const enriched = data.map((connection) => ({
+    ...connection,
+    pairs: connection.pairs.map((pair) => {
+      const leftVerse = pair.leftVerseId ? getVerseById(pair.leftVerseId) : null;
+      const rightVerse = pair.rightVerseId ? getVerseById(pair.rightVerseId) : null;
+      return {
+        ...pair,
+        leftReference: leftVerse ? leftVerse.reference : null,
+        leftText: leftVerse ? leftVerse.text : null,
+        rightReference: rightVerse ? rightVerse.reference : null,
+        rightText: rightVerse ? rightVerse.text : null
+      };
+    })
+  }));
+
+  return res.json({ connections: enriched });
+});
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
