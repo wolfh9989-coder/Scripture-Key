@@ -378,3 +378,297 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── DISCOVERY ENGINE ─────────────────────────────────────────────── */
+
+.discovery-engine {
+  margin-top: 14px;
+  border-top: 1px solid rgba(115, 201, 255, 0.2);
+  padding-top: 12px;
+}
+
+.discovery-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.disc-tab {
+  padding: 7px 11px;
+  font-size: 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(115, 201, 255, 0.35);
+  background: rgba(10, 18, 32, 0.7);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+
+.disc-tab:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.disc-tab.active {
+  background: rgba(115, 201, 255, 0.14);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.disc-panel {
+  display: none;
+}
+
+.disc-panel.active {
+  display: block;
+}
+
+.disc-result {
+  margin-top: 10px;
+}
+
+.disc-card {
+  border: 1px solid rgba(115, 201, 255, 0.24);
+  border-radius: 10px;
+  padding: 11px;
+  background: rgba(6, 13, 22, 0.78);
+  margin-bottom: 8px;
+}
+
+.disc-card h4 {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 0.88rem;
+}
+
+.disc-card .era-badge {
+  display: inline-block;
+  font-size: 0.69rem;
+  background: rgba(245, 199, 123, 0.15);
+  border: 1px solid rgba(245, 199, 123, 0.35);
+  color: var(--accent-gold);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+
+.disc-card .disc-text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.disc-card .disc-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.prophecy-pair {
+  border: 1px solid rgba(115, 201, 255, 0.24);
+  border-radius: 10px;
+  padding: 11px;
+  background: rgba(6, 13, 22, 0.78);
+  margin-bottom: 10px;
+}
+
+.prophecy-pair .pair-title {
+  color: var(--accent-gold);
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.prophecy-pair .pair-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.prophecy-pair .pair-text {
+  font-size: 0.86rem;
+  border-left: 2px solid var(--accent);
+  padding-left: 7px;
+  margin: 4px 0 8px;
+  line-height: 1.5;
+}
+
+.fulfillment-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.fulfillment-badge.complete {
+  background: rgba(100, 220, 140, 0.18);
+  border: 1px solid rgba(100, 220, 140, 0.4);
+  color: #a3f0b5;
+}
+
+.fulfillment-badge.partial {
+  background: rgba(245, 199, 123, 0.18);
+  border: 1px solid rgba(245, 199, 123, 0.4);
+  color: var(--accent-gold);
+}
+
+.doctrine-section {
+  margin-bottom: 10px;
+}
+
+.doctrine-section h4 {
+  color: var(--accent);
+  margin: 8px 0 4px;
+  font-size: 0.84rem;
+}
+
+.era-timeline .era-row {
+  border-left: 2px solid rgba(115, 201, 255, 0.3);
+  padding: 5px 0 5px 10px;
+  margin-bottom: 4px;
+}
+
+.era-timeline .era-row .era-name {
+  color: var(--accent-gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.era-timeline .era-row .era-note {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.interpretation-view {
+  border: 1px solid rgba(115, 201, 255, 0.24);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(6, 13, 22, 0.78);
+  margin-bottom: 8px;
+}
+
+.interpretation-view .view-tradition {
+  color: var(--accent-gold);
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.interpretation-view .view-summary {
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.interpretation-view .view-agreement {
+  color: var(--muted);
+  font-size: 0.79rem;
+  margin-top: 5px;
+}
+
+.contradiction-block {
+  border: 1px solid rgba(255, 140, 100, 0.35);
+  border-radius: 10px;
+  padding: 11px;
+  background: rgba(30, 10, 6, 0.6);
+  margin-bottom: 8px;
+}
+
+.contradiction-block .cont-q {
+  color: #fca888;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.contradiction-block .cont-resolution {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  border-left: 2px solid rgba(100, 220, 140, 0.5);
+  padding-left: 8px;
+  margin: 6px 0;
+}
+
+.contradiction-block .cont-agreement {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.first-mention-header {
+  background: rgba(115, 201, 255, 0.08);
+  border: 1px solid rgba(115, 201, 255, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.first-mention-header strong {
+  color: var(--accent);
+}
+
+.context-warning-box {
+  border: 1px solid rgba(255, 200, 60, 0.5);
+  background: rgba(40, 28, 4, 0.7);
+  border-radius: 10px;
+  padding: 10px;
+  color: #fde68a;
+  font-size: 0.86rem;
+  margin-bottom: 8px;
+}
+
+.context-safe-box {
+  border: 1px solid rgba(100, 220, 140, 0.4);
+  background: rgba(6, 22, 12, 0.6);
+  border-radius: 10px;
+  padding: 10px;
+  color: #a3f0b5;
+  font-size: 0.86rem;
+  margin-bottom: 8px;
+}
+
+.network-canvas {
+  width: 100%;
+  border: 1px solid rgba(115, 201, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(5, 10, 20, 0.9);
+  margin-top: 8px;
+  cursor: grab;
+}
+
+.network-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.sermon-outline {
+  border: 1px solid rgba(115, 201, 255, 0.24);
+  border-radius: 10px;
+  padding: 11px;
+  background: rgba(6, 13, 22, 0.78);
+}
+
+.sermon-outline h4 {
+  color: var(--accent-gold);
+  margin: 0 0 8px;
+}
+
+.sermon-outline .sermon-point {
+  border-left: 2px solid rgba(115, 201, 255, 0.4);
+  padding: 4px 0 4px 10px;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+}
+
+.prophecy-quick-item {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.prophecy-quick-item:hover {
+  color: var(--accent-gold);
+}

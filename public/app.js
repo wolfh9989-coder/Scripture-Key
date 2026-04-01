@@ -793,3 +793,690 @@ async function init() {
 init().catch(() => {
   modeGuidanceEl.textContent = "Initialization failed. Check API and reload.";
 });
+
+// ══════════════════════════════════════════════════════════════════════
+// DISCOVERY ENGINE
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Element refs ──────────────────────────────────────────────────────
+const firstMentionInputEl = document.getElementById("firstMentionInput");
+const runFirstMentionBtnEl = document.getElementById("runFirstMentionBtn");
+const firstMentionResultEl = document.getElementById("firstMentionResult");
+
+const themeEvolInputEl = document.getElementById("themeEvolInput");
+const runThemeEvolBtnEl = document.getElementById("runThemeEvolBtn");
+const themeEvolResultEl = document.getElementById("themeEvolResult");
+
+const loadAllProphecyBtnEl = document.getElementById("loadAllProphecyBtn");
+const checkFulfillmentBtnEl = document.getElementById("checkFulfillmentBtn");
+const prophecyResultEl = document.getElementById("prophecyResult");
+
+const doctrineSelectEl = document.getElementById("doctrineSelect");
+const loadDoctrineBtnEl = document.getElementById("loadDoctrineBtn");
+const doctrineResultEl = document.getElementById("doctrineResult");
+
+const findParallelBtnEl = document.getElementById("findParallelBtn");
+const parallelPassageResultEl = document.getElementById("parallelPassageResult");
+
+const interpretationSelectEl = document.getElementById("interpretationSelect");
+const loadInterpretationBtnEl = document.getElementById("loadInterpretationBtn");
+const interpretationResultEl = document.getElementById("interpretationResult");
+
+const contradictionInputEl = document.getElementById("contradictionInput");
+const resolveContradictionBtnEl = document.getElementById("resolveContradictionBtn");
+const contradictionResultEl = document.getElementById("contradictionResult");
+
+const networkSeedInputEl = document.getElementById("networkSeedInput");
+const runNetworkBtnEl = document.getElementById("runNetworkBtn");
+const networkCanvasEl = document.getElementById("scriptureNetworkCanvas");
+const networkLegendEl = document.getElementById("networkLegend");
+
+const prophecyQuickListEl = document.getElementById("prophecyQuickList");
+const doctrineQuickSelectEl = document.getElementById("doctrineQuickSelect");
+const doctrineQuickLoadBtnEl = document.getElementById("doctrineQuickLoadBtn");
+const doctrineQuickResultEl = document.getElementById("doctrineQuickResult");
+
+const buildSermonBtnEl = document.getElementById("buildSermonBtn");
+const sermonThemeInputEl = document.getElementById("sermonThemeInput");
+const sermonOutlineResultEl = document.getElementById("sermonOutlineResult");
+
+const checkContextIntegrityBtnEl = document.getElementById("checkContextIntegrityBtn");
+const contextIntegrityResultEl = document.getElementById("contextIntegrityResult");
+
+// ── Tab switching ─────────────────────────────────────────────────────
+document.querySelectorAll(".disc-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".disc-tab").forEach((t) => t.classList.remove("active"));
+    document.querySelectorAll(".disc-panel").forEach((p) => p.classList.remove("active"));
+    tab.classList.add("active");
+    const panelEl = document.getElementById(`disc-panel-${tab.dataset.tab}`);
+    if (panelEl) panelEl.classList.add("active");
+  });
+});
+
+// ── First Mention Engine ──────────────────────────────────────────────
+async function runFirstMention() {
+  const term = firstMentionInputEl.value.trim();
+  if (!term) return;
+  clearChildren(firstMentionResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/first-mention?term=${encodeURIComponent(term)}`);
+  } catch {
+    firstMentionResultEl.textContent = `No mentions of "${term}" found in the current dataset.`;
+    return;
+  }
+
+  const header = document.createElement("div");
+  header.className = "first-mention-header";
+  header.innerHTML = `
+    <strong>"${data.term}"</strong> first appears at <strong>${data.firstMention.reference}</strong><br/>
+    <span class="era-badge">${data.firstMention.era}</span>
+    <p class="disc-text">${data.firstMention.text}</p>
+    <p class="disc-note">${data.note}</p>
+    <p class="disc-note">Total occurrences in dataset: <strong>${data.totalOccurrences}</strong></p>
+  `;
+  firstMentionResultEl.appendChild(header);
+
+  const subhead = document.createElement("h4");
+  subhead.textContent = "Development Arc";
+  subhead.style.cssText = "margin:10px 0 6px; color:var(--accent)";
+  firstMentionResultEl.appendChild(subhead);
+
+  (data.developments || []).forEach((dev) => {
+    const card = document.createElement("div");
+    card.className = "disc-card";
+    card.innerHTML = `
+      <span class="era-badge">${dev.era}</span>
+      <div class="disc-text"><strong>${dev.primaryVerse}</strong> (${dev.occurrences} verse${dev.occurrences !== 1 ? "s" : ""})</div>
+      <div class="disc-note">${dev.note}</div>
+      <div class="chips" style="margin-top:5px">${(dev.themes || []).map((t) => `<span class="chip">${t}</span>`).join("")}</div>
+    `;
+    firstMentionResultEl.appendChild(card);
+  });
+}
+
+// ── Theme Evolution Timeline ──────────────────────────────────────────
+async function runThemeEvolution() {
+  const theme = themeEvolInputEl.value.trim();
+  if (!theme) return;
+  clearChildren(themeEvolResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/theme-evolution?theme=${encodeURIComponent(theme)}`);
+  } catch {
+    themeEvolResultEl.textContent = `No theme matches for "${theme}" found.`;
+    return;
+  }
+
+  if (data.evolutionSummary) {
+    const summary = document.createElement("div");
+    summary.className = "disc-card";
+    summary.innerHTML = `<div class="disc-text" style="color:var(--accent-gold)">${data.evolutionSummary}</div>`;
+    themeEvolResultEl.appendChild(summary);
+  }
+
+  if (data.doctrineArc && data.doctrineArc.length > 0) {
+    const arcHead = document.createElement("h4");
+    arcHead.textContent = "Doctrine Development Arc";
+    arcHead.style.cssText = "margin:10px 0 5px; color:var(--accent);";
+    themeEvolResultEl.appendChild(arcHead);
+
+    const arcEl = document.createElement("div");
+    arcEl.className = "era-timeline";
+    data.doctrineArc.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = "era-row";
+      row.innerHTML = `
+        <div class="era-name">${entry.era}</div>
+        <div class="era-note">${entry.note}</div>
+        ${entry.reference ? `<div class="disc-note">${entry.reference}: ${entry.text || ""}</div>` : ""}
+      `;
+      arcEl.appendChild(row);
+    });
+    themeEvolResultEl.appendChild(arcEl);
+  }
+
+  const devHead = document.createElement("h4");
+  devHead.textContent = "Dataset Occurrences by Era";
+  devHead.style.cssText = "margin:10px 0 5px; color:var(--accent);";
+  themeEvolResultEl.appendChild(devHead);
+
+  (data.developments || []).forEach((dev) => {
+    const card = document.createElement("div");
+    card.className = "disc-card";
+    card.innerHTML = `
+      <span class="era-badge">${dev.era}</span>
+      <div class="disc-text"><strong>${dev.primaryVerse}</strong> — ${dev.occurrences} verse${dev.occurrences !== 1 ? "s" : ""}</div>
+      <div class="disc-note">${dev.note}</div>
+    `;
+    themeEvolResultEl.appendChild(card);
+  });
+}
+
+// ── Prophecy → Fulfillment Engine ────────────────────────────────────
+function renderProphecyPairs(pairs, container) {
+  clearChildren(container);
+  if (!pairs || pairs.length === 0) {
+    container.textContent = "No prophecy pairs found.";
+    return;
+  }
+  pairs.forEach((pair) => {
+    const block = document.createElement("div");
+    block.className = "prophecy-pair";
+    block.innerHTML = `
+      <p class="pair-title">${pair.shortTitle}</p>
+      <span class="fulfillment-badge ${pair.fulfillmentStatus}">${pair.fulfillmentStatus}</span>
+      <div style="margin-top:8px">
+        <div class="pair-label">Prophecy · ${pair.prophecyReference}</div>
+        <p class="pair-text">"${pair.prophecyText}"</p>
+        <div class="pair-label">Fulfillment · ${pair.fulfillmentReference}</div>
+        <p class="pair-text">"${pair.fulfillmentText}"</p>
+      </div>
+      ${pair.partialFulfillment ? `<p class="disc-note"><strong>Partial:</strong> ${pair.partialFulfillment}</p>` : ""}
+      ${pair.futureImplication ? `<p class="disc-note"><strong>Future:</strong> ${pair.futureImplication}</p>` : ""}
+      ${pair.notes ? `<p class="disc-note">${pair.notes}</p>` : ""}
+    `;
+    container.appendChild(block);
+  });
+}
+
+async function loadAllProphecy() {
+  clearChildren(prophecyResultEl);
+  const data = await fetchJson("/api/v1/prophecy/all");
+  renderProphecyPairs(data.pairs, prophecyResultEl);
+}
+
+async function checkCurrentVerseFulfillment() {
+  if (!selectedVerseId) {
+    prophecyResultEl.textContent = "Select a verse first.";
+    return;
+  }
+  clearChildren(prophecyResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/prophecy/${encodeURIComponent(selectedVerseId)}`);
+  } catch {
+    prophecyResultEl.textContent = "No prophecy/fulfillment link found for the current verse.";
+    return;
+  }
+  renderProphecyPairs(data.links, prophecyResultEl);
+}
+
+// ── Doctrine Mapping System ───────────────────────────────────────────
+async function loadDoctrineList() {
+  const data = await fetchJson("/api/v1/doctrine/list");
+  [doctrineSelectEl, doctrineQuickSelectEl].forEach((sel) => {
+    clearChildren(sel);
+    data.doctrines.forEach((doc) => {
+      const opt = document.createElement("option");
+      opt.value = doc.key;
+      opt.textContent = doc.name;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function renderDoctrineData(data, container) {
+  clearChildren(container);
+
+  const defCard = document.createElement("div");
+  defCard.className = "disc-card";
+  defCard.innerHTML = `<h4>${data.name}</h4><p class="disc-text">${data.definition}</p>`;
+  container.appendChild(defCard);
+
+  if (data.timeline && data.timeline.length > 0) {
+    const arcHead = document.createElement("h4");
+    arcHead.textContent = "Development Arc";
+    arcHead.style.cssText = "margin:10px 0 5px; color:var(--accent)";
+    container.appendChild(arcHead);
+
+    const arcEl = document.createElement("div");
+    arcEl.className = "era-timeline doctrine-section";
+    data.timeline.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = "era-row";
+      row.innerHTML = `
+        <div class="era-name">${entry.era}</div>
+        <div class="era-note">${entry.note}</div>
+        ${entry.reference && entry.text ? `<div class="disc-note" style="margin-top:3px"><em>${entry.reference}</em> — "${entry.text}"</div>` : ""}
+      `;
+      arcEl.appendChild(row);
+    });
+    container.appendChild(arcEl);
+  }
+
+  const keyHead = document.createElement("h4");
+  keyHead.textContent = "Key Verses";
+  keyHead.style.cssText = "margin:10px 0 5px; color:var(--accent)";
+  container.appendChild(keyHead);
+  const keyChips = document.createElement("div");
+  keyChips.className = "chips";
+  (data.keyVerses || []).forEach((id) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    chip.textContent = id;
+    chip.style.cursor = "pointer";
+    chip.addEventListener("click", () => {
+      selectVerse(id).catch(() => {});
+    });
+    keyChips.appendChild(chip);
+  });
+  container.appendChild(keyChips);
+
+  if (data.debatedPassages && data.debatedPassages.length > 0) {
+    const debateHead = document.createElement("h4");
+    debateHead.textContent = "Debated Passages";
+    debateHead.style.cssText = "margin:10px 0 5px; color:#fca888";
+    container.appendChild(debateHead);
+    const debChips = document.createElement("div");
+    debChips.className = "chips";
+    data.debatedPassages.forEach((id) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.style.borderColor = "#fca888";
+      chip.style.color = "#fca888";
+      chip.textContent = id;
+      chip.style.cursor = "pointer";
+      chip.addEventListener("click", () => selectVerse(id).catch(() => {}));
+      debChips.appendChild(chip);
+    });
+    container.appendChild(debChips);
+  }
+}
+
+async function loadDoctrine(selectEl, resultEl) {
+  const name = selectEl.value;
+  if (!name) return;
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/doctrine?name=${encodeURIComponent(name)}`);
+  } catch {
+    resultEl.textContent = "Doctrine not found.";
+    return;
+  }
+  renderDoctrineData(data, resultEl);
+}
+
+// ── Parallel Passage Detector ─────────────────────────────────────────
+async function findParallelPassages() {
+  if (!selectedVerseId) {
+    parallelPassageResultEl.textContent = "Select a verse first.";
+    return;
+  }
+  clearChildren(parallelPassageResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/parallel-passages/${encodeURIComponent(selectedVerseId)}`);
+  } catch {
+    parallelPassageResultEl.textContent = "No parallel passages found for the current verse.";
+    return;
+  }
+
+  (data.parallels || []).forEach((parallel) => {
+    const card = document.createElement("div");
+    card.className = "disc-card";
+    card.innerHTML = `
+      <div class="era-badge">${parallel.theme}</div>
+      <div class="disc-text" style="margin-top:5px">
+        <strong class="prophecy-quick-item" style="cursor:pointer" data-id="${parallel.parallelVerseId}">${parallel.parallelReference}</strong>
+      </div>
+      ${parallel.parallelText ? `<p class="disc-text">"${parallel.parallelText}"</p>` : ""}
+      <div class="disc-note">${parallel.note}</div>
+    `;
+    card.querySelector("[data-id]").addEventListener("click", () => {
+      selectVerse(parallel.parallelVerseId).catch(() => {});
+    });
+    parallelPassageResultEl.appendChild(card);
+  });
+}
+
+// ── Interpretation Comparison ─────────────────────────────────────────
+async function loadInterpretationTopics() {
+  const data = await fetchJson("/api/v1/interpretations");
+  clearChildren(interpretationSelectEl);
+  (data.topics || []).forEach((item) => {
+    const opt = document.createElement("option");
+    opt.value = item.key;
+    opt.textContent = item.topic;
+    interpretationSelectEl.appendChild(opt);
+  });
+}
+
+async function loadInterpretation() {
+  const topic = interpretationSelectEl.value;
+  if (!topic) return;
+  clearChildren(interpretationResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/interpretations?topic=${encodeURIComponent(topic)}`);
+  } catch {
+    interpretationResultEl.textContent = "Interpretation data not found.";
+    return;
+  }
+
+  const qCard = document.createElement("div");
+  qCard.className = "disc-card";
+  qCard.innerHTML = `<h4>${data.topic}</h4><p class="disc-note">${data.question}</p>`;
+  interpretationResultEl.appendChild(qCard);
+
+  (data.views || []).forEach((view) => {
+    const block = document.createElement("div");
+    block.className = "interpretation-view";
+    const verseChips = (view.verseObjects || [])
+      .map((v) => `<span class="chip" style="cursor:pointer" data-id="${v.id}">${v.reference}</span>`)
+      .join("");
+    block.innerHTML = `
+      <div class="view-tradition">${view.tradition}</div>
+      <div class="view-summary">${view.summary}</div>
+      ${verseChips ? `<div class="chips" style="margin-top:6px">${verseChips}</div>` : ""}
+      <div class="view-agreement">Agreement: ${view.agreementPoint}</div>
+    `;
+    block.querySelectorAll("[data-id]").forEach((chip) => {
+      chip.addEventListener("click", () => selectVerse(chip.dataset.id).catch(() => {}));
+    });
+    interpretationResultEl.appendChild(block);
+  });
+}
+
+// ── Contradiction Resolver ────────────────────────────────────────────
+async function resolveContradiction() {
+  const passage = contradictionInputEl.value.trim();
+  if (!passage) return;
+  clearChildren(contradictionResultEl);
+  let data;
+  try {
+    data = await fetchJson("/api/v1/contradiction-resolver", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ passage })
+    });
+  } catch {
+    contradictionResultEl.textContent = "Error contacting server.";
+    return;
+  }
+
+  if (!data.found && data.suggestion) {
+    const suggest = document.createElement("div");
+    suggest.className = "disc-card";
+    suggest.innerHTML = `<div class="disc-note">${data.suggestion}</div>`;
+    contradictionResultEl.appendChild(suggest);
+
+    if (data.available) {
+      const avail = document.createElement("div");
+      avail.className = "disc-card";
+      avail.innerHTML = `<h4>Available</h4>` +
+        (data.available || []).map((a) => `<div class="disc-note" style="cursor:pointer" class="prophecy-quick-item">${a.question}</div>`).join("");
+      contradictionResultEl.appendChild(avail);
+    }
+
+    if (data.example) renderContradictionItem(data.example, contradictionResultEl);
+    return;
+  }
+
+  renderContradictionItem(data, contradictionResultEl);
+}
+
+function renderContradictionItem(item, container) {
+  const block = document.createElement("div");
+  block.className = "contradiction-block";
+  const verseChips = (item.verseObjects || [])
+    .map((v) => `<span class="chip" style="cursor:pointer" data-id="${v.id}">${v.reference}</span>`)
+    .join("");
+  block.innerHTML = `
+    <p class="cont-q">${item.question}</p>
+    ${verseChips ? `<div class="chips" style="margin-bottom:8px">${verseChips}</div>` : ""}
+    <div class="cont-resolution">${item.resolution}</div>
+    <div class="cont-agreement">Scriptural Agreement: ${item.agreementPoint}</div>
+  `;
+  block.querySelectorAll("[data-id]").forEach((chip) => {
+    chip.addEventListener("click", () => selectVerse(chip.dataset.id).catch(() => {}));
+  });
+  container.appendChild(block);
+}
+
+// ── Visual Scripture Network ──────────────────────────────────────────
+let networkData = null;
+
+function eraColor(era) {
+  const colors = {
+    "Creation & Patriarchs": "#f5c77b",
+    "Torah & Law": "#7bdff5",
+    "Wisdom Literature": "#c87bf5",
+    "Major Prophets": "#f57b7b",
+    "Minor Prophets": "#f5a07b",
+    "Gospels": "#7bf5a0",
+    "Apostolic Letters": "#7bbff5",
+    "General Epistles": "#a0a0f5",
+    "Apocalyptic": "#f57bc0",
+    "Early Church": "#b0f57b"
+  };
+  return colors[era] || "#73c9ff";
+}
+
+async function runVisualNetwork() {
+  const seed = networkSeedInputEl.value.trim();
+  clearChildren(networkLegendEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/visual-network?seed=${encodeURIComponent(seed)}`);
+  } catch {
+    networkLegendEl.textContent = "Failed to load network data.";
+    return;
+  }
+  networkData = data;
+  drawNetwork(data);
+
+  const eras = [...new Set((data.nodes || []).map((n) => n.era))];
+  eras.forEach((era) => {
+    const dot = document.createElement("span");
+    dot.innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${eraColor(era)};margin-right:4px"></span>${era}`;
+    networkLegendEl.appendChild(dot);
+  });
+}
+
+function drawNetwork(data) {
+  if (!networkCanvasEl) return;
+  const ctx = networkCanvasEl.getContext("2d");
+  const W = networkCanvasEl.width;
+  const H = networkCanvasEl.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const nodes = data.nodes || [];
+  const edges = data.edges || [];
+  if (nodes.length === 0) return;
+
+  const positions = {};
+  const cx = W / 2;
+  const cy = H / 2;
+  const radius = Math.min(W, H) * 0.38;
+
+  nodes.forEach((node, i) => {
+    const angle = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
+    const r = node.isSeed ? radius * 0.5 : radius;
+    positions[node.id] = {
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+      node
+    };
+  });
+
+  ctx.lineWidth = 0.7;
+  edges.forEach((edge) => {
+    const from = positions[edge.from];
+    const to = positions[edge.to];
+    if (!from || !to) return;
+    ctx.strokeStyle = edge.type === "PARALLEL" ? "rgba(245,199,123,0.45)" : "rgba(115,201,255,0.22)";
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  });
+
+  nodes.forEach((node) => {
+    const pos = positions[node.id];
+    if (!pos) return;
+    const color = eraColor(node.era);
+    const r = node.isSeed ? 9 : 6;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(236,246,255,0.9)";
+    ctx.font = `${node.isSeed ? "9px" : "8px"} Orbitron, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText(node.label, pos.x, pos.y - r - 3);
+  });
+}
+
+// ── Context Integrity ─────────────────────────────────────────────────
+async function checkContextIntegrity() {
+  if (!selectedVerseId) {
+    contextIntegrityResultEl.textContent = "Select a verse first.";
+    return;
+  }
+  clearChildren(contextIntegrityResultEl);
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/context-integrity/${encodeURIComponent(selectedVerseId)}`);
+  } catch {
+    contextIntegrityResultEl.textContent = "Could not load context integrity data.";
+    return;
+  }
+
+  if (data.contextWarning) {
+    const warn = document.createElement("div");
+    warn.className = "context-warning-box";
+    warn.innerHTML = `⚠️ ${data.contextWarning}`;
+    contextIntegrityResultEl.appendChild(warn);
+  } else {
+    const safe = document.createElement("div");
+    safe.className = "context-safe-box";
+    safe.textContent = `✓ ${data.reference} — no common misquotation pattern detected.`;
+    contextIntegrityResultEl.appendChild(safe);
+  }
+
+  if (data.bookPurpose) {
+    const purp = document.createElement("div");
+    purp.className = "disc-card";
+    purp.innerHTML = `<h4>Book Purpose</h4><p class="disc-text">${data.bookPurpose}</p>`;
+    contextIntegrityResultEl.appendChild(purp);
+  }
+
+  if (data.surroundingContext && data.surroundingContext.length > 0) {
+    const ctxHead = document.createElement("h4");
+    ctxHead.textContent = "Surrounding Context";
+    ctxHead.style.cssText = "margin:10px 0 5px; color:var(--accent)";
+    contextIntegrityResultEl.appendChild(ctxHead);
+
+    data.surroundingContext.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = "disc-card";
+      row.innerHTML = `<strong>${entry.reference}</strong><p class="disc-text">"${entry.text}"</p>`;
+      if (entry.reference === data.reference) {
+        row.style.borderColor = "var(--accent)";
+      }
+      contextIntegrityResultEl.appendChild(row);
+    });
+  }
+}
+
+// ── Prophecy Quick List (left sidebar) ───────────────────────────────
+async function loadProphecyQuickList() {
+  let data;
+  try {
+    data = await fetchJson("/api/v1/prophecy/all");
+  } catch {
+    return;
+  }
+  renderList(prophecyQuickListEl, (data.pairs || []).slice(0, 6), (pair) => {
+    return `<span class="prophecy-quick-item" data-prop="${pair.prophecyVerseId}" data-ful="${pair.fulfillmentVerseId}">${pair.shortTitle}</span>`;
+  }, "No prophecy pairs.");
+  prophecyQuickListEl.querySelectorAll(".prophecy-quick-item[data-prop]").forEach((item) => {
+    item.addEventListener("click", () => {
+      selectVerse(item.dataset.prop).catch(() => {});
+    });
+  });
+}
+
+// ── Sermon Builder ────────────────────────────────────────────────────
+async function buildSermonOutline() {
+  const theme = sermonThemeInputEl.value.trim();
+  if (!theme) return;
+  clearChildren(sermonOutlineResultEl);
+
+  let data;
+  try {
+    data = await fetchJson(`/api/v1/theme-evolution?theme=${encodeURIComponent(theme)}`);
+  } catch {
+    sermonOutlineResultEl.textContent = `No data found for theme "${theme}".`;
+    return;
+  }
+
+  const container = document.createElement("div");
+  container.className = "sermon-outline";
+  container.innerHTML = `<h4>Outline: "${data.term}"</h4>`;
+
+  const intro = document.createElement("div");
+  intro.className = "sermon-point";
+  intro.innerHTML = `<strong>I. Introduction — First Occurrence</strong><br/>${data.firstMention.reference}: "${data.firstMention.text}"`;
+  container.appendChild(intro);
+
+  (data.developments || []).slice(0, 4).forEach((dev, i) => {
+    const point = document.createElement("div");
+    point.className = "sermon-point";
+    point.innerHTML = `<strong>${["II.", "III.", "IV.", "V."][i] || `${i + 2}.`} ${dev.era}</strong><br/>${dev.note}<br/><em>${dev.primaryVerse}</em>`;
+    container.appendChild(point);
+  });
+
+  const conc = document.createElement("div");
+  conc.className = "sermon-point";
+  conc.innerHTML = `<strong>Conclusion — Canonical Arc</strong><br/>${data.evolutionSummary || "This theme moves progressively through Scripture, building toward its final expression."}`;
+  container.appendChild(conc);
+
+  sermonOutlineResultEl.appendChild(container);
+}
+
+// ── Bind all new events ───────────────────────────────────────────────
+function bindDiscoveryEvents() {
+  runFirstMentionBtnEl.addEventListener("click", () => runFirstMention().catch(() => {}));
+  firstMentionInputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runFirstMention().catch(() => {}); });
+
+  runThemeEvolBtnEl.addEventListener("click", () => runThemeEvolution().catch(() => {}));
+  themeEvolInputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runThemeEvolution().catch(() => {}); });
+
+  loadAllProphecyBtnEl.addEventListener("click", () => loadAllProphecy().catch(() => {}));
+  checkFulfillmentBtnEl.addEventListener("click", () => checkCurrentVerseFulfillment().catch(() => {}));
+
+  loadDoctrineBtnEl.addEventListener("click", () => loadDoctrine(doctrineSelectEl, doctrineResultEl).catch(() => {}));
+  doctrineQuickLoadBtnEl.addEventListener("click", () => loadDoctrine(doctrineQuickSelectEl, doctrineQuickResultEl).catch(() => {}));
+
+  findParallelBtnEl.addEventListener("click", () => findParallelPassages().catch(() => {}));
+
+  loadInterpretationBtnEl.addEventListener("click", () => loadInterpretation().catch(() => {}));
+
+  resolveContradictionBtnEl.addEventListener("click", () => resolveContradiction().catch(() => {}));
+  contradictionInputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") resolveContradiction().catch(() => {}); });
+
+  runNetworkBtnEl.addEventListener("click", () => runVisualNetwork().catch(() => {}));
+  networkSeedInputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runVisualNetwork().catch(() => {}); });
+
+  checkContextIntegrityBtnEl.addEventListener("click", () => checkContextIntegrity().catch(() => {}));
+  buildSermonBtnEl.addEventListener("click", () => buildSermonOutline().catch(() => {}));
+  sermonThemeInputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") buildSermonOutline().catch(() => {}); });
+}
+
+async function initDiscoveryEngine() {
+  bindDiscoveryEvents();
+  await Promise.all([
+    loadDoctrineList(),
+    loadInterpretationTopics(),
+    loadProphecyQuickList()
+  ]);
+}
+
+initDiscoveryEngine().catch(() => {});

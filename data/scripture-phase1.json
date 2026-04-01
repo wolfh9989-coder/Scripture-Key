@@ -434,6 +434,323 @@
         "connections": ["Ephesians 2:8", "Ephesians 2:9", "Matthew 7:20"]
       },
       "relatedVerseIds": ["EPH.2.8", "EPH.2.9"]
+    },
+    {
+      "id": "GEN.3.15",
+      "reference": "Genesis 3:15",
+      "book": "Genesis",
+      "chapter": 3,
+      "verse": 15,
+      "text": "I will put enmity between you and the woman, and between your offspring and her offspring; he shall bruise your head, and you shall bruise his heel.",
+      "translation": "ESV",
+      "crossReferences": ["John 1:29", "Romans 16:20", "Revelation 12:17"],
+      "commentary": "The Protoevangelium — the first messianic promise in Scripture, anticipating the cosmic conflict and ultimate victory of the Seed.",
+      "original": {
+        "language": "Hebrew",
+        "text": "vehu yeshufkha rosh veattah teshufenu akev",
+        "strongs": [
+          { "number": "H7896", "lemma": "shuph", "definition": "to bruise, strike" },
+          { "number": "H2233", "lemma": "zera", "definition": "seed, offspring" }
+        ]
+      },
+      "contextTimeline": ["The Fall", "First Prophecy", "Covenant Promise Initiated"],
+      "themes": ["redemption", "prophecy", "covenant", "messiah"],
+      "people": ["God", "Adam", "Eve"],
+      "events": ["The Fall", "First Messianic Promise"],
+      "keyLayers": {
+        "literal": "God declares enmity between the serpent and the woman's descendant, with the Seed ultimately victorious.",
+        "historical": "Delivered in the context of the primal covenant rupture — the first word of grace after sin.",
+        "prophetic": "Points forward to Messiah's victory over sin, death, and the enemy through his own suffering.",
+        "symbolic": "The bruised heel and crushed head reveal substitutionary victory through suffering.",
+        "connections": ["John 1:29", "1 Corinthians 15:3", "Revelation 12:9"]
+      },
+      "relatedVerseIds": ["JHN.1.29", "REV.21.1"]
+    },
+    {
+      "id": "LEV.17.11",
+      "reference": "Leviticus 17:11",
+      "book": "Leviticus",
+      "chapter": 17,
+      "verse": 11,
+      "text": "For the life of the flesh is in the blood, and I have given it for you on the altar to make atonement for your souls, for it is the blood that makes atonement by the life.",
+      "translation": "ESV",
+      "crossReferences": ["Exodus 12:13", "Hebrews 9:22", "John 1:29"],
+      "commentary": "Establishes the theological principle that blood = life, and that atonement requires its offering.",
+      "original": {
+        "language": "Hebrew",
+        "text": "ki nefesh habasar badam hi vaani netattiv lakhem",
+        "strongs": [
+          { "number": "H1818", "lemma": "dam", "definition": "blood" },
+          { "number": "H5315", "lemma": "nefesh", "definition": "soul, life" },
+          { "number": "H3722", "lemma": "kaphar", "definition": "to atone, cover" }
+        ]
+      },
+      "contextTimeline": ["Mosaic Covenant", "Levitical Priesthood", "Atonement Principle"],
+      "themes": ["blood", "atonement", "sacrifice", "life"],
+      "people": ["Moses", "Aaron"],
+      "events": ["Levitical Law Given"],
+      "keyLayers": {
+        "literal": "Blood represents life; giving blood on the altar effects atonement.",
+        "historical": "Central principle of the entire Levitical sacrificial system.",
+        "prophetic": "Explains why Messiah's blood specifically accomplishes what no animal sacrifice could ultimately complete.",
+        "symbolic": "Blood as life poured out is the ultimate covenant currency for reconciliation.",
+        "connections": ["Hebrews 9:22", "John 1:29", "1 Corinthians 5:7"]
+      },
+      "relatedVerseIds": ["EXO.12.13", "JHN.1.29"]
+    },
+    {
+      "id": "ISA.53.5",
+      "reference": "Isaiah 53:5",
+      "book": "Isaiah",
+      "chapter": 53,
+      "verse": 5,
+      "text": "But he was pierced for our transgressions; he was crushed for our iniquities; upon him was the chastisement that brought us peace, and with his wounds we are healed.",
+      "translation": "ESV",
+      "crossReferences": ["John 1:29", "Romans 5:8", "1 Peter 2:24"],
+      "commentary": "The prophetic pinnacle of the Suffering Servant passage — the most quoted OT text in the New Testament.",
+      "original": {
+        "language": "Hebrew",
+        "text": "vehu mecholal mipesha'enu medukka me'avonoteinu",
+        "strongs": [
+          { "number": "H2490", "lemma": "chalal", "definition": "to pierce, wound" },
+          { "number": "H6588", "lemma": "pesha", "definition": "transgression, rebellion" },
+          { "number": "H7495", "lemma": "rapha", "definition": "to heal, restore" }
+        ]
+      },
+      "contextTimeline": ["Prophetic Vision", "Assyrian-Babylonian Era", "Messianic Foreshadowing"],
+      "themes": ["atonement", "suffering", "healing", "prophecy", "messiah"],
+      "people": ["Isaiah", "The Servant"],
+      "events": ["Suffering Servant Vision"],
+      "keyLayers": {
+        "literal": "The servant suffers vicariously — our transgressions become his wounds.",
+        "historical": "Written 700+ years before Messiah, in a context of national sin and impending judgment.",
+        "prophetic": "Directly fulfilled in the passion and crucifixion of Jesus.",
+        "symbolic": "Piercing and healing form the paradox of substitutionary atonement.",
+        "connections": ["John 1:29", "Romans 5:8", "1 Peter 2:24"]
+      },
+      "relatedVerseIds": ["JHN.1.29", "EXO.12.13"]
+    },
+    {
+      "id": "MIC.5.2",
+      "reference": "Micah 5:2",
+      "book": "Micah",
+      "chapter": 5,
+      "verse": 2,
+      "text": "But you, O Bethlehem Ephrathah, who are too little to be among the clans of Judah, from you shall come forth for me one who is to be ruler in Israel, whose coming forth is from of old, from ancient days.",
+      "translation": "ESV",
+      "crossReferences": ["Matthew 2:6", "John 7:42", "Genesis 3:15"],
+      "commentary": "A precise geographical and eternal-origins prophecy of Messiah's birth, delivered 700 years before the event.",
+      "original": {
+        "language": "Hebrew",
+        "text": "uveyt lechem ephratah tzair lihyot bealfei yehuda",
+        "strongs": [
+          { "number": "H4296", "lemma": "motsa'ah", "definition": "going forth, origin" },
+          { "number": "H5769", "lemma": "olam", "definition": "ancient days, eternity" }
+        ]
+      },
+      "contextTimeline": ["Divided Kingdom Decline", "Minor Prophet Era", "Prophetic Precision"],
+      "themes": ["prophecy", "messiah", "kingdom", "eternity"],
+      "people": ["Micah", "Messianic King"],
+      "events": ["Bethlehem Prophecy"],
+      "keyLayers": {
+        "literal": "Bethlehem — a small, insignificant town — is named as Messiah's birthplace.",
+        "historical": "Spoken to a small province under threat; the divine reversal of the despised becoming great.",
+        "prophetic": "Fulfilled at the nativity; the 'ancient days' clause affirms Messiah's pre-existence.",
+        "symbolic": "Smallness as divine vehicle — God consistently works through the humble and overlooked.",
+        "connections": ["Isaiah 7:14", "Genesis 3:15", "Revelation 21:1"]
+      },
+      "relatedVerseIds": ["GEN.3.15", "JHN.1.1"]
+    },
+    {
+      "id": "GEN.15.6",
+      "reference": "Genesis 15:6",
+      "book": "Genesis",
+      "chapter": 15,
+      "verse": 6,
+      "text": "And he believed the LORD, and he counted it to him as righteousness.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 4:3", "Galatians 3:6", "James 2:23"],
+      "commentary": "The foundational justification-by-faith text — the pattern Paul builds his entire Romans 4 argument from.",
+      "original": {
+        "language": "Hebrew",
+        "text": "veheamin bayhwh vayachshevehah lo tzedakah",
+        "strongs": [
+          { "number": "H539", "lemma": "aman", "definition": "to believe, trust, be firm" },
+          { "number": "H6666", "lemma": "tzedakah", "definition": "righteousness, justice" }
+        ]
+      },
+      "contextTimeline": ["Abrahamic Covenant", "Patriarch Era", "Promise Land Covenant"],
+      "themes": ["faith", "righteousness", "covenant", "justification"],
+      "people": ["Abraham", "God"],
+      "events": ["Abrahamic Covenant"],
+      "keyLayers": {
+        "literal": "Abraham trusted God's promise and this trust was credited as righteousness — not his works.",
+        "historical": "Occurs before circumcision (Genesis 17) — Paul's key argument that faith, not ritual, justifies.",
+        "prophetic": "The pattern of faith-righteousness defines the covenant basis for all of Scripture.",
+        "symbolic": "Belief as the act of spiritual embrace — receiving what one cannot earn.",
+        "connections": ["Romans 4:3", "Ephesians 2:8", "Hebrews 11:1"]
+      },
+      "relatedVerseIds": ["EPH.2.8", "HEB.11.1"]
+    },
+    {
+      "id": "HEB.11.1",
+      "reference": "Hebrews 11:1",
+      "book": "Hebrews",
+      "chapter": 11,
+      "verse": 1,
+      "text": "Now faith is the assurance of things hoped for, the conviction of things not seen.",
+      "translation": "ESV",
+      "crossReferences": ["Genesis 15:6", "Romans 8:24", "2 Corinthians 5:7"],
+      "commentary": "The Bible's most precise definition of faith — not mere opinion, but certainty about unseen realities.",
+      "original": {
+        "language": "Greek",
+        "text": "estin de pistis elpizomenon hypostasis pragmaton elegchos ou blepomenon",
+        "strongs": [
+          { "number": "G4102", "lemma": "pistis", "definition": "faith, trust" },
+          { "number": "G5287", "lemma": "hypostasis", "definition": "substance, assurance, confidence" },
+          { "number": "G1650", "lemma": "elegchos", "definition": "conviction, proof, evidence" }
+        ]
+      },
+      "contextTimeline": ["Hall of Faith Chapter", "Second Temple Context", "Covenant Perseverance"],
+      "themes": ["faith", "hope", "trust", "assurance"],
+      "people": ["Author of Hebrews"],
+      "events": ["Hall of Faith"],
+      "keyLayers": {
+        "literal": "Faith is the substance of hope and the proof of unseen realities — not wishful thinking.",
+        "historical": "Written to Jewish Christians tempted to abandon faith under pressure.",
+        "prophetic": "Points forward to the full revelation of what faith now perceives dimly.",
+        "symbolic": "Hypostasis (substance/title deed) — faith is the legal reality of future promise.",
+        "connections": ["Genesis 15:6", "Ephesians 2:8", "Galatians 3:6"]
+      },
+      "relatedVerseIds": ["GEN.15.6", "EPH.2.8"]
+    },
+    {
+      "id": "JHN.3.16",
+      "reference": "John 3:16",
+      "book": "John",
+      "chapter": 3,
+      "verse": 16,
+      "text": "For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 5:8", "Ephesians 2:4", "1 John 4:9"],
+      "commentary": "The gospel in a single verse — divine motivation (love), divine act (gave), human response (believe), and outcome (eternal life).",
+      "original": {
+        "language": "Greek",
+        "text": "houtos gar egapesen ho theos ton kosmon hosti ton huion autou ton monogene edoken",
+        "strongs": [
+          { "number": "G25", "lemma": "agapao", "definition": "to love" },
+          { "number": "G3439", "lemma": "monogenes", "definition": "only-begotten, one of a kind" },
+          { "number": "G4100", "lemma": "pisteuo", "definition": "to believe, trust" }
+        ]
+      },
+      "contextTimeline": ["Nicodemus Discourse", "New Birth Teaching", "Covenant Culmination"],
+      "themes": ["love", "salvation", "faith", "eternal life", "grace"],
+      "people": ["Jesus", "Nicodemus"],
+      "events": ["Nicodemus Night Visit"],
+      "keyLayers": {
+        "literal": "God's love motivated the sacrifice of the Son — belief leads to life, not perishing.",
+        "historical": "Spoken to a Jewish religious leader seeking to understand the new birth.",
+        "prophetic": "Fulfills Genesis 3:15 and Isaiah 53:5 — the promised gift of life through substitution.",
+        "symbolic": "The world (kosmos) — not Israel alone — is the scope of divine redemptive love.",
+        "connections": ["Romans 5:8", "Isaiah 53:5", "Ephesians 2:8"]
+      },
+      "relatedVerseIds": ["EPH.2.8", "ROM.8.1"]
+    },
+    {
+      "id": "ROM.3.23",
+      "reference": "Romans 3:23",
+      "book": "Romans",
+      "chapter": 3,
+      "verse": 23,
+      "text": "For all have sinned and fall short of the glory of God.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 6:23", "Psalm 14:3", "Isaiah 53:6"],
+      "commentary": "Paul's universal diagnosis — no one, Jew or Gentile, stands clear of the verdict of sin.",
+      "original": {
+        "language": "Greek",
+        "text": "pantes gar hemarton kai hysterountai tes doxes tou theou",
+        "strongs": [
+          { "number": "G264", "lemma": "hamartano", "definition": "to sin, miss the mark" },
+          { "number": "G5257", "lemma": "hystereo", "definition": "to fall short, lack" },
+          { "number": "G1391", "lemma": "doxa", "definition": "glory, honor" }
+        ]
+      },
+      "contextTimeline": ["Pauline Argument", "Universal Condemnation Section", "Romans 1-3 Diagnosis"],
+      "themes": ["sin", "judgment", "humanity", "condemnation"],
+      "people": ["Paul"],
+      "events": ["Epistle to Romans"],
+      "keyLayers": {
+        "literal": "Every person has sinned and thereby forfeits the glory they were made to reflect.",
+        "historical": "Part of Paul's argued case establishing universal need for the gospel.",
+        "prophetic": "Anticipates the universal scope of redemption declared in Romans 8:1.",
+        "symbolic": "Missing glory — mankind was created to mirror divine reality; sin distorts that image.",
+        "connections": ["Romans 6:23", "Romans 8:1", "Ephesians 2:8"]
+      },
+      "relatedVerseIds": ["ROM.8.1", "EPH.2.8"]
+    },
+    {
+      "id": "ROM.6.23",
+      "reference": "Romans 6:23",
+      "book": "Romans",
+      "chapter": 6,
+      "verse": 23,
+      "text": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 3:23", "Ephesians 2:8", "John 3:16"],
+      "commentary": "The sharpest contrast in Paul: what sin earns vs. what grace freely gives — death vs. life.",
+      "original": {
+        "language": "Greek",
+        "text": "ta gar opsonia tes hamartias thanatos to de charisma tou theou zoe aionios",
+        "strongs": [
+          { "number": "G3800", "lemma": "opsonia", "definition": "wages, pay (military term)" },
+          { "number": "G2288", "lemma": "thanatos", "definition": "death" },
+          { "number": "G5486", "lemma": "charisma", "definition": "gift of grace, free gift" }
+        ]
+      },
+      "contextTimeline": ["Pauline Argument", "Sin vs Grace Contrast", "Romans 6 Sanctification"],
+      "themes": ["sin", "death", "grace", "eternal life", "gift"],
+      "people": ["Paul"],
+      "events": ["Epistle to Romans"],
+      "keyLayers": {
+        "literal": "Sin pays wages (what is owed); God gives a gift (what is unearned). The contrast is total.",
+        "historical": "Military imagery: opsonia was soldier's pay — sin is a deadly employer.",
+        "prophetic": "The free gift of life anticipates Revelation's new creation where death is no more.",
+        "symbolic": "Wages versus gift — earning versus receiving — captures the whole grace-works debate.",
+        "connections": ["Romans 3:23", "Ephesians 2:8", "John 3:16"]
+      },
+      "relatedVerseIds": ["ROM.3.23", "EPH.2.8"]
+    },
+    {
+      "id": "1CO.15.3",
+      "reference": "1 Corinthians 15:3",
+      "book": "1 Corinthians",
+      "chapter": 15,
+      "verse": 3,
+      "text": "For I delivered to you as of first importance what I also received: that Christ died for our sins in accordance with the Scriptures.",
+      "translation": "ESV",
+      "crossReferences": ["Isaiah 53:5", "1 Corinthians 15:4", "Romans 5:8"],
+      "commentary": "Paul's creedal summary — the earliest recorded statement of the gospel, explicitly anchored to Old Testament Scripture.",
+      "original": {
+        "language": "Greek",
+        "text": "paredoka gar hymin en protois ho kai parelabon hoti christos apethanen",
+        "strongs": [
+          { "number": "G599", "lemma": "apothnesko", "definition": "to die" },
+          { "number": "G266", "lemma": "hamartia", "definition": "sin" },
+          { "number": "G1124", "lemma": "graphe", "definition": "Scripture, writing" }
+        ]
+      },
+      "contextTimeline": ["Early Church Creed", "Resurrection Argument", "1 Corinthians 15 Chapter"],
+      "themes": ["atonement", "resurrection", "gospel", "scripture", "messiah"],
+      "people": ["Paul", "Jesus"],
+      "events": ["Gospel Summary"],
+      "keyLayers": {
+        "literal": "The core gospel: Messiah's death for sin is anchored to specific Old Testament promises.",
+        "historical": "Likely a pre-Pauline creed, dating very early — possibly within years of the resurrection.",
+        "prophetic": "Confirms that the cross was not an accident but the fulfillment of the scriptural plan.",
+        "symbolic": "Died 'for our sins' — substitutionary exchange is the grammar of salvation.",
+        "connections": ["Isaiah 53:5", "Exodus 12:13", "Romans 5:8"]
+      },
+      "relatedVerseIds": ["ISA.53.5", "JHN.1.29"]
     }
   ]
 }

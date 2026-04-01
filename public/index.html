@@ -68,6 +68,17 @@
         <div id="bookExplorerResults" class="book-grid"></div>
         <h3>Guided Study Trails</h3>
         <ul id="trailsList" class="pattern-list"></ul>
+
+        <h3>Prophecy Quick View</h3>
+        <p class="meta">Click a prophecy pair to load both passages.</p>
+        <ul id="prophecyQuickList" class="pattern-list"></ul>
+
+        <h3>Doctrine Quick Access</h3>
+        <div class="inline-actions">
+          <select id="doctrineQuickSelect"></select>
+          <button id="doctrineQuickLoadBtn">Load</button>
+        </div>
+        <div id="doctrineQuickResult" class="disc-result"></div>
       </aside>
 
       <section class="center-reader panel">
@@ -119,6 +130,100 @@
           <div id="chapterParallelGrid" class="parallel-grid"></div>
           <ul id="crossVersionTextList" class="pattern-list"></ul>
         </section>
+
+        <!-- ── DISCOVERY ENGINE ─────────────────────────────────── -->
+        <section class="discovery-engine panel">
+          <div class="panel-head">
+            <h3>Discovery Engine</h3>
+          </div>
+          <div class="discovery-tabs" role="tablist">
+            <button class="disc-tab active" data-tab="first-mention">First Mention</button>
+            <button class="disc-tab" data-tab="theme-evolution">Theme Evolution</button>
+            <button class="disc-tab" data-tab="prophecy">Prophecy Engine</button>
+            <button class="disc-tab" data-tab="doctrine">Doctrine Map</button>
+            <button class="disc-tab" data-tab="parallel-det">Parallel Passages</button>
+            <button class="disc-tab" data-tab="interpretations">Interpretations</button>
+            <button class="disc-tab" data-tab="contradiction">Contradiction Resolver</button>
+            <button class="disc-tab" data-tab="network">Scripture Network</button>
+          </div>
+
+          <!-- First Mention Engine -->
+          <div class="disc-panel active" id="disc-panel-first-mention">
+            <p class="meta">Track where any word, name, or concept first appears in Scripture — then follow its full development arc.</p>
+            <div class="search-row">
+              <input id="firstMentionInput" placeholder="blood, faith, covenant, kingdom, shepherd…" />
+              <button id="runFirstMentionBtn">Find</button>
+            </div>
+            <div id="firstMentionResult" class="disc-result"></div>
+          </div>
+
+          <!-- Theme Evolution Timeline -->
+          <div class="disc-panel" id="disc-panel-theme-evolution">
+            <p class="meta">See how an idea or theme grows from Genesis to Revelation — era by era.</p>
+            <div class="search-row">
+              <input id="themeEvolInput" placeholder="kingdom, covenant, blood, grace, sacrifice…" />
+              <button id="runThemeEvolBtn">Trace</button>
+            </div>
+            <div id="themeEvolResult" class="disc-result"></div>
+          </div>
+
+          <!-- Prophecy → Fulfillment Engine -->
+          <div class="disc-panel" id="disc-panel-prophecy">
+            <p class="meta">See Old Testament prophecies and their New Testament fulfillments — complete, partial, and future implications.</p>
+            <div class="inline-actions">
+              <button id="loadAllProphecyBtn">Load All Prophecy Pairs</button>
+              <button id="checkFulfillmentBtn">Check Current Verse</button>
+            </div>
+            <div id="prophecyResult" class="disc-result"></div>
+          </div>
+
+          <!-- Doctrine Mapping System -->
+          <div class="disc-panel" id="disc-panel-doctrine">
+            <p class="meta">Select a doctrine and see its key verses, supporting passages, debated texts, and historical development arc.</p>
+            <div class="search-row">
+              <select id="doctrineSelect"></select>
+              <button id="loadDoctrineBtn">Load</button>
+            </div>
+            <div id="doctrineResult" class="disc-result"></div>
+          </div>
+
+          <!-- Parallel Passage Detector -->
+          <div class="disc-panel" id="disc-panel-parallel-det">
+            <p class="meta">Automatically finds structurally parallel passages — mirrored events, repeated teachings, typological pairs.</p>
+            <button id="findParallelBtn">Find Parallels for Current Verse</button>
+            <div id="parallelPassageResult" class="disc-result"></div>
+          </div>
+
+          <!-- Interpretation Comparison -->
+          <div class="disc-panel" id="disc-panel-interpretations">
+            <p class="meta">Compare different theological interpretations side-by-side — see where they agree and differ, with supporting passages.</p>
+            <div class="search-row">
+              <select id="interpretationSelect"></select>
+              <button id="loadInterpretationBtn">Compare Views</button>
+            </div>
+            <div id="interpretationResult" class="disc-result"></div>
+          </div>
+
+          <!-- Contradiction Resolver -->
+          <div class="disc-panel" id="disc-panel-contradiction">
+            <p class="meta">Handle apparent contradictions — see both passages, full context, and scriptural reconciliation.</p>
+            <textarea id="contradictionInput" rows="2" placeholder='e.g. "faith vs works" or "fear not fear"'></textarea>
+            <button id="resolveContradictionBtn">Resolve</button>
+            <div id="contradictionResult" class="disc-result"></div>
+          </div>
+
+          <!-- Visual Scripture Network -->
+          <div class="disc-panel" id="disc-panel-network">
+            <p class="meta">A living graph of verse relationships — themes, parallels, and cross-references as a connected network.</p>
+            <div class="search-row">
+              <input id="networkSeedInput" placeholder="seed theme: blood, faith, covenant…" />
+              <button id="runNetworkBtn">Build Network</button>
+            </div>
+            <canvas id="scriptureNetworkCanvas" width="680" height="340" class="network-canvas"></canvas>
+            <div id="networkLegend" class="network-legend"></div>
+          </div>
+        </section>
+
       </section>
 
       <aside class="sidebar right-sidebar panel">
@@ -215,6 +320,18 @@
         <textarea id="noteTextInput" class="command-input" rows="3" placeholder="Write verse-linked notes"></textarea>
         <button id="saveNoteBtn">Save Note</button>
         <ul id="notesList" class="pattern-list"></ul>
+
+        <h3>Sermon / Teaching Builder</h3>
+        <p class="meta">Select a theme or verse, then build a structured outline.</p>
+        <input id="sermonThemeInput" placeholder="Theme: covenant, redemption, faith…" />
+        <button id="buildSermonBtn">Build Outline</button>
+        <div id="sermonOutlineResult" class="disc-result"></div>
+
+        <h3>Context Integrity Check</h3>
+        <p class="meta">Auto-loads surrounding context for the current verse. Flags commonly misquoted passages.</p>
+        <button id="checkContextIntegrityBtn">Check Context</button>
+        <div id="contextIntegrityResult" class="disc-result"></div>
+
       </aside>
     </main>
 

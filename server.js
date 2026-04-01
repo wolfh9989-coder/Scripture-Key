@@ -1258,6 +1258,783 @@ app.post("/api/v1/integrations/accordance/import", (req, res) => {
   });
 });
 
+// ── DISCOVERY ENGINE DATA ──────────────────────────────────────────────
+
+const CANONICAL_BOOK_ORDER = {
+  Genesis: 1, Exodus: 2, Leviticus: 3, Numbers: 4, Deuteronomy: 5,
+  Joshua: 6, Judges: 7, Ruth: 8, "1 Samuel": 9, "2 Samuel": 10,
+  "1 Kings": 11, "2 Kings": 12, "1 Chronicles": 13, "2 Chronicles": 14,
+  Ezra: 15, Nehemiah: 16, Esther: 17, Job: 18, Psalms: 19,
+  Proverbs: 20, Ecclesiastes: 21, "Song of Solomon": 22, Isaiah: 23,
+  Jeremiah: 24, Lamentations: 25, Ezekiel: 26, Daniel: 27, Hosea: 28,
+  Joel: 29, Amos: 30, Obadiah: 31, Jonah: 32, Micah: 33,
+  Nahum: 34, Habakkuk: 35, Zephaniah: 36, Haggai: 37, Zechariah: 38,
+  Malachi: 39, Matthew: 40, Mark: 41, Luke: 42, John: 43, Acts: 44,
+  Romans: 45, "1 Corinthians": 46, "2 Corinthians": 47, Galatians: 48,
+  Ephesians: 49, Philippians: 50, Colossians: 51, "1 Thessalonians": 52,
+  "2 Thessalonians": 53, "1 Timothy": 54, "2 Timothy": 55, Titus: 56,
+  Philemon: 57, Hebrews: 58, James: 59, "1 Peter": 60, "2 Peter": 61,
+  "1 John": 62, "2 John": 63, "3 John": 64, Jude: 65, Revelation: 66
+};
+
+const BIBLICAL_ERA_MAP = {
+  Genesis: "Creation & Patriarchs", Exodus: "Torah & Law", Leviticus: "Torah & Law",
+  Numbers: "Torah & Law", Deuteronomy: "Torah & Law", Joshua: "Conquest & Settlement",
+  Judges: "Judges Era", Ruth: "Judges Era", "1 Samuel": "United Kingdom",
+  "2 Samuel": "United Kingdom", "1 Kings": "Divided Kingdom", "2 Kings": "Divided Kingdom",
+  "1 Chronicles": "Historical Record", "2 Chronicles": "Historical Record",
+  Ezra: "Return from Exile", Nehemiah: "Return from Exile", Esther: "Diaspora",
+  Job: "Wisdom Literature", Psalms: "Wisdom Literature", Proverbs: "Wisdom Literature",
+  Ecclesiastes: "Wisdom Literature", "Song of Solomon": "Wisdom Literature",
+  Isaiah: "Major Prophets", Jeremiah: "Major Prophets", Lamentations: "Major Prophets",
+  Ezekiel: "Major Prophets", Daniel: "Major Prophets",
+  Hosea: "Minor Prophets", Joel: "Minor Prophets", Amos: "Minor Prophets",
+  Obadiah: "Minor Prophets", Jonah: "Minor Prophets", Micah: "Minor Prophets",
+  Nahum: "Minor Prophets", Habakkuk: "Minor Prophets", Zephaniah: "Minor Prophets",
+  Haggai: "Minor Prophets", Zechariah: "Minor Prophets", Malachi: "Minor Prophets",
+  Matthew: "Gospels", Mark: "Gospels", Luke: "Gospels", John: "Gospels",
+  Acts: "Early Church", Romans: "Apostolic Letters", "1 Corinthians": "Apostolic Letters",
+  "2 Corinthians": "Apostolic Letters", Galatians: "Apostolic Letters",
+  Ephesians: "Apostolic Letters", Philippians: "Apostolic Letters",
+  Colossians: "Apostolic Letters", "1 Thessalonians": "Apostolic Letters",
+  "2 Thessalonians": "Apostolic Letters", "1 Timothy": "Apostolic Letters",
+  "2 Timothy": "Apostolic Letters", Titus: "Apostolic Letters", Philemon: "Apostolic Letters",
+  Hebrews: "General Epistles", James: "General Epistles", "1 Peter": "General Epistles",
+  "2 Peter": "General Epistles", "1 John": "General Epistles", "2 John": "General Epistles",
+  "3 John": "General Epistles", Jude: "General Epistles", Revelation: "Apocalyptic"
+};
+
+const BOOK_PURPOSE_MAP = {
+  Genesis: "Origins of creation, humanity, sin, and God's covenant promise.",
+  Exodus: "God's deliverance of Israel from Egypt; the Mosaic covenant and law.",
+  Leviticus: "Holiness laws and the sacrificial system — atonement framework.",
+  Psalms: "Israel's prayer and worship book; honest human expression toward God.",
+  Proverbs: "Practical wisdom for daily godly living in covenant community.",
+  Isaiah: "Judgment, comfort, and messianic hope — most quoted OT book in the NT.",
+  Micah: "Justice and mercy; precise prophecy of Messiah's birthplace.",
+  John: "The identity and mission of Jesus as divine Word and Son of God.",
+  Romans: "The gospel's theological foundation; justification by faith through grace.",
+  "1 Corinthians": "Correction and instruction for a divided, gifted church.",
+  Ephesians: "The church as body of Christ; grace, unity, and spiritual warfare.",
+  Hebrews: "Christ as the high priest and fulfillment of the Levitical system.",
+  James: "Practical faith lived out in deeds, speech, and community.",
+  Revelation: "Prophetic vision of Messiah's ultimate victory; comfort for suffering churches."
+};
+
+const COMMONLY_MISQUOTED = new Set([
+  "JER.29.11", "PHI.4.13", "MAT.18.20", "ROM.8.28",
+  "JHN.3.16", "PRO.3.5", "ISA.41.10"
+]);
+
+const PROPHECY_FULFILLMENT_PAIRS = [
+  {
+    id: "seed-of-woman",
+    shortTitle: "Seed of the Woman",
+    category: "messianic",
+    prophecyVerseId: "GEN.3.15",
+    prophecyReference: "Genesis 3:15",
+    prophecyText: "he shall bruise your head, and you shall bruise his heel.",
+    fulfillmentVerseId: "JHN.1.29",
+    fulfillmentReference: "John 1:29",
+    fulfillmentText: "Behold, the Lamb of God, who takes away the sin of the world!",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "The ultimate defeat of death and the enemy is consummated in Revelation 21.",
+    notes: "The Protoevangelium — the first messianic promise in Scripture."
+  },
+  {
+    id: "passover-to-messiah",
+    shortTitle: "Passover → Christ Our Passover",
+    category: "typological",
+    prophecyVerseId: "EXO.12.13",
+    prophecyReference: "Exodus 12:13",
+    prophecyText: "The blood shall be a sign for you on the houses where you are.",
+    fulfillmentVerseId: "1CO.5.7",
+    fulfillmentReference: "1 Corinthians 5:7",
+    fulfillmentText: "For Christ, our Passover lamb, has been sacrificed.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "Passover becomes the template for understanding Messiah's once-for-all sacrifice.",
+    notes: "Paul explicitly draws the Passover → Christ typology in 1 Corinthians 5."
+  },
+  {
+    id: "blood-atonement",
+    shortTitle: "Blood Makes Atonement → Messiah's Blood",
+    category: "typological",
+    prophecyVerseId: "LEV.17.11",
+    prophecyReference: "Leviticus 17:11",
+    prophecyText: "It is the blood that makes atonement by the life.",
+    fulfillmentVerseId: "JHN.1.29",
+    fulfillmentReference: "John 1:29",
+    fulfillmentText: "Behold, the Lamb of God, who takes away the sin of the world!",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "Hebrews 9:22 confirms: without the shedding of blood there is no forgiveness.",
+    notes: "The Levitical principle that blood = life is fulfilled in Messiah's sacrificial death."
+  },
+  {
+    id: "suffering-servant",
+    shortTitle: "Isaiah's Suffering Servant",
+    category: "messianic",
+    prophecyVerseId: "ISA.53.5",
+    prophecyReference: "Isaiah 53:5",
+    prophecyText: "But he was pierced for our transgressions; he was crushed for our iniquities.",
+    fulfillmentVerseId: "1CO.15.3",
+    fulfillmentReference: "1 Corinthians 15:3",
+    fulfillmentText: "Christ died for our sins in accordance with the Scriptures.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "The healing promised ('with his wounds we are healed') is completed in the new creation.",
+    notes: "Written 700+ years before the crucifixion. The most cited OT passage in the New Testament."
+  },
+  {
+    id: "bethlehem-ruler",
+    shortTitle: "King from Bethlehem",
+    category: "messianic",
+    prophecyVerseId: "MIC.5.2",
+    prophecyReference: "Micah 5:2",
+    prophecyText: "From you shall come forth for me one who is to be ruler in Israel, whose coming forth is from of old, from ancient days.",
+    fulfillmentVerseId: "JHN.1.1",
+    fulfillmentReference: "John 1:1",
+    fulfillmentText: "In the beginning was the Word, and the Word was with God, and the Word was God.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: "Historical birth in Bethlehem (fulfilled, nativity narratives).",
+    futureImplication: "The 'ancient days' origin affirms Messiah's eternal, divine pre-existence.",
+    notes: "Given 700 years before the birth. The eternal origins clause points beyond geography to divinity."
+  },
+  {
+    id: "faith-counted-righteousness",
+    shortTitle: "Abraham's Faith Pattern",
+    category: "doctrinal",
+    prophecyVerseId: "GEN.15.6",
+    prophecyReference: "Genesis 15:6",
+    prophecyText: "And he believed the LORD, and he counted it to him as righteousness.",
+    fulfillmentVerseId: "EPH.2.8",
+    fulfillmentReference: "Ephesians 2:8",
+    fulfillmentText: "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "The faith-righteousness pattern spans both covenants and all nations.",
+    notes: "Paul argues in Romans 4 that this verse proves justification by faith predates the Law."
+  },
+  {
+    id: "sin-to-no-condemnation",
+    shortTitle: "Universal Sin → No Condemnation",
+    category: "doctrinal",
+    prophecyVerseId: "ROM.3.23",
+    prophecyReference: "Romans 3:23",
+    prophecyText: "For all have sinned and fall short of the glory of God.",
+    fulfillmentVerseId: "ROM.8.1",
+    fulfillmentReference: "Romans 8:1",
+    fulfillmentText: "There is therefore now no condemnation for those who are in Christ Jesus.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: null,
+    futureImplication: "Revelation 21 completes this — no more curse, no more death.",
+    notes: "Romans 3:23 is the universal diagnosis; Romans 8:1 is the covenant solution."
+  },
+  {
+    id: "creation-to-new-creation",
+    shortTitle: "Original Creation → New Creation",
+    category: "typological",
+    prophecyVerseId: "GEN.1.1",
+    prophecyReference: "Genesis 1:1",
+    prophecyText: "In the beginning God created the heavens and the earth.",
+    fulfillmentVerseId: "REV.21.1",
+    fulfillmentReference: "Revelation 21:1",
+    fulfillmentText: "Then I saw a new heaven and a new earth.",
+    fulfillmentStatus: "complete",
+    partialFulfillment: "New creation inaugurated in Messiah (2 Corinthians 5:17).",
+    futureImplication: "Revelation 21-22 shows the completed new creation beyond this age.",
+    notes: "The whole Bible moves from Genesis 1 to Revelation 21 — creation to new creation."
+  }
+];
+
+const DOCTRINE_MAP = {
+  salvation: {
+    name: "Salvation",
+    definition: "The redemptive act of God delivering humanity from sin and its consequences through Messiah.",
+    keyVerses: ["EPH.2.8", "EPH.2.9", "JHN.3.16"],
+    supportingVerses: ["ROM.3.23", "ROM.6.23", "1CO.15.3"],
+    debatedPassages: ["JAS.2.17"],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "Salvation promised through the Seed", verseId: "GEN.3.15" },
+      { era: "Torah & Law", note: "Passover blood typifies redemption", verseId: "EXO.12.13" },
+      { era: "Major Prophets", note: "Suffering Servant absorbs our sin", verseId: "ISA.53.5" },
+      { era: "Gospels", note: "The Lamb of God arrives — salvation enacted", verseId: "JHN.1.29" },
+      { era: "Apostolic Letters", note: "Justified by grace through faith", verseId: "EPH.2.8" },
+      { era: "Apocalyptic", note: "New creation — full restoration realized", verseId: "REV.21.1" }
+    ]
+  },
+  grace: {
+    name: "Grace",
+    definition: "God's unmerited favor — the basis of salvation and every covenant relationship.",
+    keyVerses: ["EPH.2.8", "ROM.8.1", "JHN.3.16"],
+    supportingVerses: ["ROM.3.23", "ROM.6.23", "GEN.15.6"],
+    debatedPassages: ["JAS.2.17"],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "Grace shown to Abraham — faith counted as righteousness", verseId: "GEN.15.6" },
+      { era: "Torah & Law", note: "God's protection of Israel through shed blood", verseId: "EXO.12.13" },
+      { era: "Gospels", note: "God gave his Son — the supreme act of grace", verseId: "JHN.3.16" },
+      { era: "Apostolic Letters", note: "Grace is the explicit foundation of salvation", verseId: "EPH.2.8" },
+      { era: "Apostolic Letters", note: "Gift of eternal life — not wages earned", verseId: "ROM.6.23" },
+      { era: "Apocalyptic", note: "New heaven and earth — final act of grace", verseId: "REV.21.1" }
+    ]
+  },
+  faith: {
+    name: "Faith",
+    definition: "Trust in God's person and promises — the means through which grace is received.",
+    keyVerses: ["HEB.11.1", "GEN.15.6", "EPH.2.8"],
+    supportingVerses: ["JAS.2.17", "PRO.3.5"],
+    debatedPassages: ["JAS.2.17", "EPH.2.9"],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "Abraham's faith counted as righteousness — the pattern is set", verseId: "GEN.15.6" },
+      { era: "Wisdom Literature", note: "Trust in the Lord with all your heart", verseId: "PRO.3.5" },
+      { era: "Apostolic Letters", note: "Saved through faith — not of ourselves", verseId: "EPH.2.8" },
+      { era: "General Epistles", note: "Faith defined: substance of hope, evidence of unseen", verseId: "HEB.11.1" },
+      { era: "General Epistles", note: "Faith without works is dead — evidence of life", verseId: "JAS.2.17" }
+    ]
+  },
+  atonement: {
+    name: "Atonement",
+    definition: "The substitutionary work restoring the covenant relationship between God and humanity.",
+    keyVerses: ["EXO.12.13", "ISA.53.5", "JHN.1.29"],
+    supportingVerses: ["LEV.17.11", "1CO.5.7", "ROM.6.23", "1CO.15.3"],
+    debatedPassages: [],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "First sacrifice — Seed will bruise the serpent", verseId: "GEN.3.15" },
+      { era: "Torah & Law", note: "Passover blood provides covenant protection", verseId: "EXO.12.13" },
+      { era: "Torah & Law", note: "Life is in the blood — the principle of atonement", verseId: "LEV.17.11" },
+      { era: "Major Prophets", note: "Suffering Servant bears our iniquities", verseId: "ISA.53.5" },
+      { era: "Gospels", note: "Lamb of God — atonement enacted", verseId: "JHN.1.29" },
+      { era: "Apostolic Letters", note: "Christ our Passover lamb sacrificed for us", verseId: "1CO.5.7" }
+    ]
+  },
+  resurrection: {
+    name: "Resurrection",
+    definition: "The bodily raising from the dead — guaranteed by Messiah's own resurrection.",
+    keyVerses: ["1CO.15.3", "REV.21.1"],
+    supportingVerses: ["ROM.6.23", "ROM.8.1", "JHN.3.16"],
+    debatedPassages: [],
+    timeline: [
+      { era: "Wisdom Literature", note: "The Lord shepherd who restores — life beyond death", verseId: "PSA.23.1" },
+      { era: "Apostolic Letters", note: "Christ died and rose — the gospel creed", verseId: "1CO.15.3" },
+      { era: "Apostolic Letters", note: "Wages of sin is death; gift is eternal life", verseId: "ROM.6.23" },
+      { era: "Apostolic Letters", note: "No condemnation — life in the Spirit now", verseId: "ROM.8.1" },
+      { era: "Apocalyptic", note: "New creation — death no more", verseId: "REV.21.1" }
+    ]
+  },
+  covenant: {
+    name: "Covenant",
+    definition: "A binding relational framework between God and His people, progressively developed through Scripture.",
+    keyVerses: ["GEN.1.1", "EXO.12.13", "JHN.3.16"],
+    supportingVerses: ["GEN.3.15", "GEN.15.6", "EPH.2.8"],
+    debatedPassages: [],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "Creation — God establishes humanity for covenant", verseId: "GEN.1.1" },
+      { era: "Creation & Patriarchs", note: "Fall — first covenant promise given", verseId: "GEN.3.15" },
+      { era: "Creation & Patriarchs", note: "Abrahamic covenant — faith and righteousness", verseId: "GEN.15.6" },
+      { era: "Torah & Law", note: "Passover — blood covenant in history", verseId: "EXO.12.13" },
+      { era: "Gospels", note: "God so loved — new covenant in the Son", verseId: "JHN.3.16" },
+      { era: "Apostolic Letters", note: "Saved by grace — covenant gift to all nations", verseId: "EPH.2.8" },
+      { era: "Apocalyptic", note: "New creation — covenant dwelling fully realized", verseId: "REV.21.1" }
+    ]
+  },
+  judgment: {
+    name: "Judgment",
+    definition: "God's righteous evaluation and verdict on sin, executed through history and eschatology.",
+    keyVerses: ["ROM.3.23", "ROM.6.23"],
+    supportingVerses: ["GEN.3.15", "ISA.53.5", "REV.21.1"],
+    debatedPassages: [],
+    timeline: [
+      { era: "Creation & Patriarchs", note: "Sin enters — enmity and judgment declared", verseId: "GEN.3.15" },
+      { era: "Apostolic Letters", note: "All have sinned — universal verdict", verseId: "ROM.3.23" },
+      { era: "Apostolic Letters", note: "Wages of sin is death — judgment executed", verseId: "ROM.6.23" },
+      { era: "Apostolic Letters", note: "In Christ — no condemnation for the justified", verseId: "ROM.8.1" },
+      { era: "Apocalyptic", note: "New creation emerges after final judgment", verseId: "REV.21.1" }
+    ]
+  }
+};
+
+const INTERPRETATION_MAP = {
+  "grace-and-works": {
+    topic: "Grace and Works",
+    question: "Are we saved by faith alone, or do works play a necessary role?",
+    views: [
+      {
+        tradition: "Protestant / Reformed (Sola Fide)",
+        summary: "Salvation is entirely by grace through faith alone. Works are the fruit of salvation, not its root or cause.",
+        keyVerses: ["EPH.2.8", "EPH.2.9"],
+        agreementPoint: "All agree grace is necessary and central."
+      },
+      {
+        tradition: "Catholic / Anglican",
+        summary: "Salvation is by grace through faith, but genuine faith must work through love. Faith without charity is insufficient.",
+        keyVerses: ["JAS.2.17"],
+        agreementPoint: "All agree true faith transforms behavior."
+      },
+      {
+        tradition: "Synthesis View",
+        summary: "Paul and James address different questions: Paul defends the basis of justification (faith not works); James defends evidence of genuine faith (works prove it). Same coin, different sides.",
+        keyVerses: ["EPH.2.8", "EPH.2.9", "JAS.2.17"],
+        agreementPoint: "Real saving faith produces works. Dead faith has no works. Both Paul and James condemn dead faith."
+      }
+    ]
+  },
+  "kingdom": {
+    topic: "Kingdom of God",
+    question: "When and how does the Kingdom of God arrive and manifest?",
+    views: [
+      {
+        tradition: "Already / Not Yet (Progressive)",
+        summary: "The Kingdom was inaugurated at Messiah's first coming but awaits full consummation at his return.",
+        keyVerses: ["GEN.1.1", "REV.21.1"],
+        agreementPoint: "All recognize both a present and a future dimension to the Kingdom."
+      },
+      {
+        tradition: "Inaugurated Eschatology",
+        summary: "The Kingdom is spiritually present now through the Spirit and Word, made visible at Messiah's return.",
+        keyVerses: ["ROM.8.1", "JHN.3.16"],
+        agreementPoint: "Spiritual reality of Kingdom is accessible now through Messiah."
+      },
+      {
+        tradition: "Dispensational Pre-Millennial",
+        summary: "The Kingdom is primarily future and literal — Messiah will reign physically on earth in the Millennium.",
+        keyVerses: ["REV.21.1"],
+        agreementPoint: "The Kingdom will have a concrete, glorious physical expression."
+      }
+    ]
+  },
+  "atonement": {
+    topic: "Atonement",
+    question: "What did Messiah accomplish on the cross — and how does it save?",
+    views: [
+      {
+        tradition: "Penal Substitution",
+        summary: "Messiah bore God's righteous wrath in our place — satisfying the legal penalty our sin deserved.",
+        keyVerses: ["ISA.53.5", "ROM.3.23", "ROM.6.23"],
+        agreementPoint: "All views affirm that Messiah's death was real, intentional, and salvific."
+      },
+      {
+        tradition: "Christus Victor",
+        summary: "Messiah defeated the powers of sin, death, and the enemy — liberating humanity from bondage through resurrection.",
+        keyVerses: ["GEN.3.15", "ROM.8.1"],
+        agreementPoint: "The victory motif over death and evil spans both testaments."
+      },
+      {
+        tradition: "Moral Influence / Example",
+        summary: "Messiah's sacrifice is the supreme demonstration of divine love, motivating human transformation by example.",
+        keyVerses: ["JHN.3.16"],
+        agreementPoint: "Love as the motivation and character of atonement is universally acknowledged."
+      }
+    ]
+  }
+};
+
+const CONTRADICTION_PAIRS = [
+  {
+    id: "faith-vs-works",
+    question: "Does James 2:17 contradict Ephesians 2:8-9?",
+    passages: ["EPH.2.8", "EPH.2.9", "JAS.2.17"],
+    resolution: "Paul addresses the source of salvation (faith, not works); James addresses the evidence of genuine faith (works prove its life). Both condemn dead faith — they face different enemies in their audiences.",
+    agreementPoint: "Dead faith and living faith are not the same thing. Both Paul and James insist on real, alive, working faith."
+  },
+  {
+    id: "all-sin-no-condemnation",
+    question: "Romans 3:23 says all sin — but Romans 8:1 says no condemnation. Contradiction?",
+    passages: ["ROM.3.23", "ROM.8.1"],
+    resolution: "The guilt is real (3:23) and the solution is equally real — justification in Christ removes condemnation without erasing the historical reality of sin. Diagnosis and cure are both truthful.",
+    agreementPoint: "The court verdict is universal guilt; the redemption is through the covenant representative, Messiah."
+  },
+  {
+    id: "fear-not-fear",
+    question: "Isaiah 41:10 says 'fear not' but other texts call for 'fear of the Lord' — contradiction?",
+    passages: ["ISA.41.10", "PRO.3.5"],
+    resolution: "Two different Hebrew words: yare (dread/terror) is what Isaiah forbids; yir'ah (reverent awe) is what Proverbs prescribes. The command is against anxious terror; the call is to reverential trust.",
+    agreementPoint: "Reverent trust is the heart posture Scripture calls for — neither anxious dread nor careless presumption."
+  },
+  {
+    id: "grace-vs-wages",
+    question: "Romans 6:23 speaks of 'wages' (sin earns death) — but also a 'gift'. Wages and gifts are opposites?",
+    passages: ["ROM.6.23", "EPH.2.8"],
+    resolution: "Precisely. Paul uses military language (opsonia = soldier's pay) to contrast sin's earned outcome (death) with God's gift (life). The contrast is intentional — you earn death; you receive life.",
+    agreementPoint: "Both verses agree: salvation is never earned. The wage-gift contrast is the point, not a problem."
+  }
+];
+
+const PARALLEL_PASSAGE_DATA = [
+  {
+    theme: "Covenant Sacrifice → Messianic Fulfillment",
+    pairs: [
+      { left: "EXO.12.13", right: "JHN.1.29", note: "Passover blood → Lamb of God who takes away sin" },
+      { left: "EXO.12.13", right: "1CO.5.7", note: "Passover → Christ our Passover lamb sacrificed" },
+      { left: "LEV.17.11", right: "JHN.1.29", note: "Life is in the blood → Lamb takes away the sin of the world" }
+    ]
+  },
+  {
+    theme: "Creation → New Creation Arc",
+    pairs: [
+      { left: "GEN.1.1", right: "JHN.1.1", note: "In the beginning (Torah) → In the beginning was the Word" },
+      { left: "GEN.1.1", right: "REV.21.1", note: "Original creation → New heaven and earth" }
+    ]
+  },
+  {
+    theme: "Suffering → Healing Pattern",
+    pairs: [
+      { left: "ISA.53.5", right: "JHN.1.29", note: "Suffering servant pierced → Lamb who takes away sin" },
+      { left: "ISA.41.10", right: "2TI.1.7", note: "Fear not (OT promise) → Spirit of power not fear (NT gift)" }
+    ]
+  },
+  {
+    theme: "Faith as Covenant Pattern",
+    pairs: [
+      { left: "GEN.15.6", right: "EPH.2.8", note: "Abraham's faith counted as righteousness → Saved by grace through faith" },
+      { left: "HEB.11.1", right: "PRO.3.5", note: "Faith defined as assurance → Trust in the Lord with all your heart" }
+    ]
+  },
+  {
+    theme: "Sin → Grace Reversal",
+    pairs: [
+      { left: "ROM.3.23", right: "ROM.8.1", note: "All have sinned → No condemnation in Christ" },
+      { left: "ROM.6.23", right: "EPH.2.8", note: "Wages of sin is death → Free gift of God is eternal life" }
+    ]
+  }
+];
+
+// ── DISCOVERY ENGINE UTILITY FUNCTIONS ────────────────────────────────
+
+function sortedCanonicalVerses() {
+  return [...scriptureData.verses].sort((a, b) => {
+    const orderA = CANONICAL_BOOK_ORDER[a.book] || 99;
+    const orderB = CANONICAL_BOOK_ORDER[b.book] || 99;
+    if (orderA !== orderB) return orderA - orderB;
+    if (a.chapter !== b.chapter) return a.chapter - b.chapter;
+    return a.verse - b.verse;
+  });
+}
+
+function buildFirstMentionResult(term) {
+  const normalized = normalizedString(term);
+  const sorted = sortedCanonicalVerses();
+
+  const matchingVerses = sorted.filter((verse) =>
+    normalizedString(verse.text).includes(normalized) ||
+    verse.themes.some((t) => normalizedString(t).includes(normalized)) ||
+    verse.people.some((p) => normalizedString(p).includes(normalized)) ||
+    verse.events.some((e) => normalizedString(e).includes(normalized))
+  );
+
+  if (matchingVerses.length === 0) return null;
+
+  const firstMention = matchingVerses[0];
+
+  const eraGroups = {};
+  matchingVerses.forEach((verse) => {
+    const era = BIBLICAL_ERA_MAP[verse.book] || "Unknown Era";
+    if (!eraGroups[era]) eraGroups[era] = [];
+    eraGroups[era].push({ reference: verse.reference, text: verse.text, themes: verse.themes, verseId: verse.id });
+  });
+
+  const developments = Object.entries(eraGroups).map(([era, eraVerses]) => {
+    const topThemes = [...new Set(eraVerses.flatMap((v) => v.themes))].slice(0, 3);
+    return {
+      era,
+      occurrences: eraVerses.length,
+      primaryVerse: eraVerses[0].reference,
+      primaryVerseId: eraVerses[0].verseId,
+      themes: topThemes,
+      note: `In ${era}: connected to ${topThemes.join(", ") || "multiple themes"}`
+    };
+  });
+
+  return {
+    term,
+    firstMention: {
+      reference: firstMention.reference,
+      text: firstMention.text,
+      book: firstMention.book,
+      era: BIBLICAL_ERA_MAP[firstMention.book] || "Unknown",
+      verseId: firstMention.id
+    },
+    totalOccurrences: matchingVerses.length,
+    developments,
+    note: `"${term}" first appears in the dataset at ${firstMention.reference} (${BIBLICAL_ERA_MAP[firstMention.book] || "Unknown Era"}).`
+  };
+}
+
+function buildContextIntegrityPayload(verse) {
+  const contextWindow = buildContextGuardPayload(verse);
+  const isCommonlyMisquoted = COMMONLY_MISQUOTED.has(verse.id);
+  const contextWarning = isCommonlyMisquoted
+    ? `This verse (${verse.reference}) is frequently quoted outside its full context. The surrounding passage is essential for accurate interpretation.`
+    : null;
+
+  return {
+    verseId: verse.id,
+    reference: verse.reference,
+    contextWarning,
+    isCommonlyMisquoted,
+    surroundingContext: contextWindow.context,
+    contextStatus: contextWindow.warning,
+    bookPurpose: BOOK_PURPOSE_MAP[verse.book] || "Part of the biblical canon, contributing to the whole narrative.",
+    readFullPassagePrompt: contextWarning ? `View full passage in ${verse.book} chapter ${verse.chapter}` : null
+  };
+}
+
+function findParallelPassagesForVerse(verseId) {
+  const result = [];
+  PARALLEL_PASSAGE_DATA.forEach((group) => {
+    group.pairs.forEach((pair) => {
+      if (pair.left === verseId || pair.right === verseId) {
+        const partnerId = pair.left === verseId ? pair.right : pair.left;
+        const partnerVerse = getVerseById(partnerId);
+        result.push({
+          theme: group.theme,
+          parallelVerseId: partnerId,
+          parallelReference: partnerVerse ? partnerVerse.reference : partnerId,
+          parallelText: partnerVerse ? partnerVerse.text : null,
+          note: pair.note
+        });
+      }
+    });
+  });
+  return result;
+}
+
+// ── DISCOVERY ENGINE ENDPOINTS ─────────────────────────────────────────
+
+app.get("/api/v1/first-mention", (req, res) => {
+  const term = String(req.query.term || "").trim();
+  if (!term) {
+    return res.status(400).json({ error: "term parameter is required" });
+  }
+  const result = buildFirstMentionResult(term);
+  if (!result) {
+    return res.status(404).json({ error: `No mentions of "${term}" found in the current dataset.` });
+  }
+  return res.json(result);
+});
+
+app.get("/api/v1/theme-evolution", (req, res) => {
+  const theme = String(req.query.theme || "").trim();
+  if (!theme) {
+    return res.status(400).json({ error: "theme parameter is required" });
+  }
+  const result = buildFirstMentionResult(theme);
+  if (!result) {
+    return res.status(404).json({ error: `No theme matches for "${theme}" found.` });
+  }
+  const doctrineKey = Object.keys(DOCTRINE_MAP).find(
+    (k) =>
+      normalizedString(k).includes(normalizedString(theme)) ||
+      normalizedString(DOCTRINE_MAP[k].name).includes(normalizedString(theme))
+  );
+  const doctrineArc = doctrineKey ? DOCTRINE_MAP[doctrineKey].timeline : null;
+  const devCount = result.developments.length;
+  return res.json({
+    ...result,
+    doctrineArc,
+    evolutionSummary: `"${theme}" develops from ${result.developments[0]?.era || "early Scripture"} through ${result.developments[devCount - 1]?.era || "the New Testament"}, revealing progressive disclosure of meaning.`
+  });
+});
+
+app.get("/api/v1/context-integrity/:verseId", (req, res) => {
+  const verse = getVerseById(req.params.verseId);
+  if (!verse) {
+    return res.status(404).json({ error: "Verse not found" });
+  }
+  return res.json(buildContextIntegrityPayload(verse));
+});
+
+app.get("/api/v1/prophecy/all", (req, res) => {
+  return res.json({
+    total: PROPHECY_FULFILLMENT_PAIRS.length,
+    pairs: PROPHECY_FULFILLMENT_PAIRS
+  });
+});
+
+app.get("/api/v1/prophecy/:verseId", (req, res) => {
+  const verseId = req.params.verseId;
+  const matches = PROPHECY_FULFILLMENT_PAIRS.filter(
+    (pair) => pair.prophecyVerseId === verseId || pair.fulfillmentVerseId === verseId
+  );
+  if (matches.length === 0) {
+    return res.status(404).json({ error: "No prophecy/fulfillment link found for this verse." });
+  }
+  return res.json({ verseId, links: matches });
+});
+
+app.get("/api/v1/doctrine/list", (req, res) => {
+  return res.json({
+    doctrines: Object.keys(DOCTRINE_MAP).map((key) => ({
+      key,
+      name: DOCTRINE_MAP[key].name,
+      definition: DOCTRINE_MAP[key].definition
+    }))
+  });
+});
+
+app.get("/api/v1/doctrine", (req, res) => {
+  const name = normalizedString(req.query.name || "");
+  if (!name) {
+    return res.status(400).json({ error: "name parameter is required" });
+  }
+  const doc = DOCTRINE_MAP[name] || Object.values(DOCTRINE_MAP).find((d) => normalizedString(d.name) === name);
+  if (!doc) {
+    return res.status(404).json({ error: `No doctrine found for "${name}".` });
+  }
+
+  const enrichedTimeline = doc.timeline.map((entry) => {
+    const verse = getVerseById(entry.verseId);
+    return {
+      ...entry,
+      reference: verse ? verse.reference : entry.verseId,
+      text: verse ? verse.text : null
+    };
+  });
+
+  const allRelevantVerseIds = [...new Set([...doc.keyVerses, ...doc.supportingVerses, ...doc.debatedPassages])];
+  const verseObjects = allRelevantVerseIds
+    .map((id) => getVerseById(id))
+    .filter(Boolean)
+    .map(mapSummary);
+
+  return res.json({
+    ...doc,
+    timeline: enrichedTimeline,
+    verseObjects
+  });
+});
+
+app.get("/api/v1/parallel-passages/:verseId", (req, res) => {
+  const parallels = findParallelPassagesForVerse(req.params.verseId);
+  if (parallels.length === 0) {
+    return res.status(404).json({ error: "No parallel passages defined for this verse." });
+  }
+  return res.json({ verseId: req.params.verseId, parallels });
+});
+
+app.get("/api/v1/interpretations", (req, res) => {
+  const topic = normalizedString(req.query.topic || "");
+  if (!topic) {
+    return res.json({
+      topics: Object.keys(INTERPRETATION_MAP).map((k) => ({
+        key: k,
+        topic: INTERPRETATION_MAP[k].topic,
+        question: INTERPRETATION_MAP[k].question
+      }))
+    });
+  }
+  const result = INTERPRETATION_MAP[topic] || Object.values(INTERPRETATION_MAP).find(
+    (item) => normalizedString(item.topic).includes(topic)
+  );
+  if (!result) {
+    return res.status(404).json({ error: `No interpretations found for topic "${topic}".` });
+  }
+  const enrichedViews = result.views.map((view) => {
+    const verseObjects = (view.keyVerses || []).map((id) => getVerseById(id)).filter(Boolean).map(mapSummary);
+    return { ...view, verseObjects };
+  });
+  return res.json({ ...result, views: enrichedViews });
+});
+
+app.post("/api/v1/contradiction-resolver", (req, res) => {
+  const { passage = "", question = "" } = req.body || {};
+  const query = normalizedString(passage || question);
+  const match = CONTRADICTION_PAIRS.find(
+    (pair) =>
+      pair.passages.some((p) => normalizedString(p).includes(query) || query.includes(normalizedString(p))) ||
+      normalizedString(pair.question).includes(query) ||
+      normalizedString(pair.id).includes(query)
+  );
+
+  if (!match) {
+    const closest = CONTRADICTION_PAIRS[0];
+    return res.json({
+      found: false,
+      suggestion: "No exact match found. Showing example contradiction for reference.",
+      example: {
+        ...closest,
+        verseObjects: closest.passages.map((id) => getVerseById(id)).filter(Boolean).map(mapSummary)
+      },
+      available: CONTRADICTION_PAIRS.map((p) => ({ id: p.id, question: p.question }))
+    });
+  }
+
+  return res.json({
+    found: true,
+    ...match,
+    verseObjects: match.passages.map((id) => getVerseById(id)).filter(Boolean).map(mapSummary)
+  });
+});
+
+app.get("/api/v1/visual-network", (req, res) => {
+  const seed = String(req.query.seed || "").trim();
+  const allVerses = scriptureData.verses;
+
+  let nodes = [];
+  let edges = [];
+
+  if (seed) {
+    const normalized = normalizedString(seed);
+    const centerVerses = allVerses.filter(
+      (v) =>
+        v.themes.some((t) => normalizedString(t).includes(normalized)) ||
+        normalizedString(v.text).includes(normalized)
+    );
+    const centerIds = new Set(centerVerses.map((v) => v.id));
+
+    nodes = centerVerses.map((v) => ({
+      id: v.id,
+      label: v.reference,
+      themes: v.themes,
+      era: BIBLICAL_ERA_MAP[v.book] || "Unknown",
+      isSeed: true
+    }));
+
+    centerVerses.forEach((v) => {
+      (v.relatedVerseIds || []).forEach((relId) => {
+        const relVerse = getVerseById(relId);
+        if (relVerse && !centerIds.has(relId)) {
+          nodes.push({
+            id: relVerse.id,
+            label: relVerse.reference,
+            themes: relVerse.themes,
+            era: BIBLICAL_ERA_MAP[relVerse.book] || "Unknown",
+            isSeed: false
+          });
+          centerIds.add(relId);
+        }
+        edges.push({ from: v.id, to: relId, type: "RELATED" });
+      });
+    });
+
+    PARALLEL_PASSAGE_DATA.forEach((group) => {
+      group.pairs.forEach((pair) => {
+        if (centerIds.has(pair.left) || centerIds.has(pair.right)) {
+          edges.push({ from: pair.left, to: pair.right, type: "PARALLEL", note: pair.note });
+        }
+      });
+    });
+  } else {
+    nodes = allVerses.map((v) => ({
+      id: v.id,
+      label: v.reference,
+      themes: v.themes,
+      era: BIBLICAL_ERA_MAP[v.book] || "Unknown",
+      isSeed: false
+    }));
+    allVerses.forEach((v) => {
+      (v.relatedVerseIds || []).forEach((relId) => {
+        edges.push({ from: v.id, to: relId, type: "RELATED" });
+      });
+    });
+  }
+
+  const uniqueNodes = Array.from(new Map(nodes.map((n) => [n.id, n])).values());
+
+  return res.json({ seed: seed || null, nodes: uniqueNodes, edges });
+});
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
