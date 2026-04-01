@@ -248,6 +248,192 @@
         "connections": ["Genesis 1:1", "Isaiah 65:17", "Romans 8:21"]
       },
       "relatedVerseIds": ["GEN.1.1", "ROM.8.1"]
+    },
+    {
+      "id": "ISA.41.10",
+      "reference": "Isaiah 41:10",
+      "book": "Isaiah",
+      "chapter": 41,
+      "verse": 10,
+      "text": "Fear not, for I am with you; be not dismayed, for I am your God.",
+      "translation": "ESV",
+      "crossReferences": ["2 Timothy 1:7", "Psalm 23:1", "Joshua 1:9"],
+      "commentary": "A covenant assurance of divine presence and strengthening in fear-producing circumstances.",
+      "original": {
+        "language": "Hebrew",
+        "text": "al-tira ki imkha ani",
+        "strongs": [
+          { "number": "H3372", "lemma": "yare", "definition": "to fear" },
+          { "number": "H5973", "lemma": "im", "definition": "with" }
+        ]
+      },
+      "contextTimeline": ["Prophetic Consolation", "Exilic Pressure", "Restoration Assurance"],
+      "themes": ["fear", "courage", "presence"],
+      "people": ["God", "Israel"],
+      "events": ["Prophetic Assurance"],
+      "keyLayers": {
+        "literal": "God commands His people not to fear because He is with them.",
+        "historical": "Addressed to a vulnerable covenant people under geopolitical threats.",
+        "prophetic": "Extends to Messianic-era confidence in God's sustaining presence.",
+        "symbolic": "Fear yields to covenant trust and divine nearness.",
+        "connections": ["2 Timothy 1:7", "Joshua 1:9", "Psalm 46:1"]
+      },
+      "relatedVerseIds": ["2TI.1.7", "PSA.23.1"]
+    },
+    {
+      "id": "2TI.1.7",
+      "reference": "2 Timothy 1:7",
+      "book": "2 Timothy",
+      "chapter": 1,
+      "verse": 7,
+      "text": "For God gave us a spirit not of fear but of power and love and self-control.",
+      "translation": "ESV",
+      "crossReferences": ["Isaiah 41:10", "Romans 8:15", "Psalm 23:1"],
+      "commentary": "Paul frames Christian courage as Spirit-formed power, love, and disciplined faithfulness.",
+      "original": {
+        "language": "Greek",
+        "text": "ou gar edoken hemin ho theos pneuma deilias",
+        "strongs": [
+          { "number": "G1167", "lemma": "deilia", "definition": "timidity, fearfulness" },
+          { "number": "G1411", "lemma": "dynamis", "definition": "power" }
+        ]
+      },
+      "contextTimeline": ["Pauline Encouragement", "Persecution Context", "Ministerial Perseverance"],
+      "themes": ["fear", "power", "love"],
+      "people": ["Paul", "Timothy"],
+      "events": ["Pastoral Exhortation"],
+      "keyLayers": {
+        "literal": "The Spirit empowers believers away from fear and into faithful strength.",
+        "historical": "Written amid ministry pressure and opposition to sustain courage.",
+        "prophetic": "Reflects the Spirit-enabled endurance promised to God's people.",
+        "symbolic": "Fear is displaced by covenantal courage and disciplined love.",
+        "connections": ["Isaiah 41:10", "Romans 8:15", "Joshua 1:9"]
+      },
+      "relatedVerseIds": ["ISA.41.10", "ROM.8.1"]
+    },
+    {
+      "id": "PRO.3.5",
+      "reference": "Proverbs 3:5",
+      "book": "Proverbs",
+      "chapter": 3,
+      "verse": 5,
+      "text": "Trust in the Lord with all your heart, and do not lean on your own understanding.",
+      "translation": "ESV",
+      "crossReferences": ["Psalm 23:1", "Isaiah 41:10", "James 1:5"],
+      "commentary": "Wisdom literature directs total reliance on God above autonomous judgment.",
+      "original": {
+        "language": "Hebrew",
+        "text": "betach el-yhwh bekhol-libbekha",
+        "strongs": [
+          { "number": "H982", "lemma": "batach", "definition": "to trust" },
+          { "number": "H3820", "lemma": "leb", "definition": "heart" }
+        ]
+      },
+      "contextTimeline": ["Wisdom Instruction", "Covenant Ethics", "Generational Formation"],
+      "themes": ["trust", "wisdom", "guidance"],
+      "people": ["Solomon"],
+      "events": ["Wisdom Teaching"],
+      "keyLayers": {
+        "literal": "Wholehearted trust in God should govern decisions.",
+        "historical": "Part of covenant wisdom instruction shaping faithful life practice.",
+        "prophetic": "Anticipates renewed-heart obedience fulfilled in covenant transformation.",
+        "symbolic": "Heart-level trust reorders reasoning under divine wisdom.",
+        "connections": ["Psalm 23:1", "Isaiah 26:3", "James 1:5"]
+      },
+      "relatedVerseIds": ["PSA.23.1", "ISA.41.10"]
+    },
+    {
+      "id": "EPH.2.8",
+      "reference": "Ephesians 2:8",
+      "book": "Ephesians",
+      "chapter": 2,
+      "verse": 8,
+      "text": "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God.",
+      "translation": "ESV",
+      "crossReferences": ["Romans 3:28", "Romans 8:1", "Ephesians 2:9"],
+      "commentary": "Salvation is presented as divine gift received by faith, not human achievement.",
+      "original": {
+        "language": "Greek",
+        "text": "te gar chariti este sesosmenoi dia pisteos",
+        "strongs": [
+          { "number": "G5485", "lemma": "charis", "definition": "grace" },
+          { "number": "G4102", "lemma": "pistis", "definition": "faith" }
+        ]
+      },
+      "contextTimeline": ["Pauline Doctrine", "Unity in Christ", "Grace Theology"],
+      "themes": ["grace", "faith", "salvation"],
+      "people": ["Paul"],
+      "events": ["Epistle to Ephesians"],
+      "keyLayers": {
+        "literal": "Grace is the source of salvation and faith is the means of reception.",
+        "historical": "Addresses identity and boasting issues in a mixed church setting.",
+        "prophetic": "Reveals covenant mercy fulfilled in Messiah's redemptive work.",
+        "symbolic": "Gift language highlights dependence on divine initiative.",
+        "connections": ["Ephesians 2:9", "Romans 3:28", "James 2:17"]
+      },
+      "relatedVerseIds": ["EPH.2.9", "JAS.2.17", "ROM.8.1"]
+    },
+    {
+      "id": "EPH.2.9",
+      "reference": "Ephesians 2:9",
+      "book": "Ephesians",
+      "chapter": 2,
+      "verse": 9,
+      "text": "Not a result of works, so that no one may boast.",
+      "translation": "ESV",
+      "crossReferences": ["Ephesians 2:8", "Romans 4:5", "James 2:17"],
+      "commentary": "Paul excludes boasting by denying works as the basis of salvation.",
+      "original": {
+        "language": "Greek",
+        "text": "ouk ex ergon hina me tis kauchesetai",
+        "strongs": [
+          { "number": "G2041", "lemma": "ergon", "definition": "work, deed" },
+          { "number": "G2744", "lemma": "kauchaomai", "definition": "to boast" }
+        ]
+      },
+      "contextTimeline": ["Pauline Doctrine", "Grace Theology", "Church Formation"],
+      "themes": ["grace", "works", "salvation"],
+      "people": ["Paul"],
+      "events": ["Epistle to Ephesians"],
+      "keyLayers": {
+        "literal": "Works cannot be the ground of salvation.",
+        "historical": "Counters status-based boasting in first-century community dynamics.",
+        "prophetic": "Emphasizes salvation as God's covenant act in Messiah.",
+        "symbolic": "Boasting is replaced by grateful trust.",
+        "connections": ["Ephesians 2:8", "Romans 4:5", "James 2:17"]
+      },
+      "relatedVerseIds": ["EPH.2.8", "JAS.2.17"]
+    },
+    {
+      "id": "JAS.2.17",
+      "reference": "James 2:17",
+      "book": "James",
+      "chapter": 2,
+      "verse": 17,
+      "text": "So also faith by itself, if it does not have works, is dead.",
+      "translation": "ESV",
+      "crossReferences": ["Ephesians 2:8", "Ephesians 2:9", "Matthew 7:20"],
+      "commentary": "James teaches that genuine faith necessarily expresses itself through obedient action.",
+      "original": {
+        "language": "Greek",
+        "text": "he pistis ean me eche erga nekra estin",
+        "strongs": [
+          { "number": "G4102", "lemma": "pistis", "definition": "faith" },
+          { "number": "G2041", "lemma": "ergon", "definition": "work, deed" }
+        ]
+      },
+      "contextTimeline": ["Practical Wisdom", "Diaspora Instruction", "Ethical Faithfulness"],
+      "themes": ["faith", "works", "obedience"],
+      "people": ["James"],
+      "events": ["Epistle of James"],
+      "keyLayers": {
+        "literal": "Faith that lacks visible fruit is functionally lifeless.",
+        "historical": "Addresses communities where confession and conduct diverged.",
+        "prophetic": "Echoes covenant calls to embodied righteousness.",
+        "symbolic": "Living faith demonstrates itself through obedience.",
+        "connections": ["Ephesians 2:8", "Ephesians 2:9", "Matthew 7:20"]
+      },
+      "relatedVerseIds": ["EPH.2.8", "EPH.2.9"]
     }
   ]
 }

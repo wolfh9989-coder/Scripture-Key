@@ -299,6 +299,11 @@ button {
   min-height: 70px;
 }
 
+#livingWordOutput {
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
 .dropzone {
   border: 1px dashed rgba(115, 201, 255, 0.45);
   text-align: center;

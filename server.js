@@ -560,6 +560,122 @@ function buildContextRibbon(verse) {
   return defaults;
 }
 
+const LIVING_WORD_MODELS = {
+  pure_scripture: "Returns scripture quotations and references only.",
+  scripture_explanation: "Returns scripture quotations with concise anchored explanation.",
+  living_voice: "Returns a unified pastoral tone while explicitly citing scripture references."
+};
+
+function scoreVerseForQuery(verse, normalizedQuery) {
+  let score = 0;
+  const fields = [
+    verse.reference,
+    verse.text,
+    ...(verse.themes || []),
+    ...(verse.people || []),
+    ...(verse.events || []),
+    ...((verse.keyLayers && verse.keyLayers.connections) || [])
+  ]
+    .map((item) => normalizedString(item))
+    .join(" ");
+
+  normalizedQuery.split(/\s+/).forEach((token) => {
+    if (token && fields.includes(token)) {
+      score += 1;
+    }
+  });
+
+  if (normalizedQuery.includes("fear") && (verse.themes || []).includes("fear")) {
+    score += 2;
+  }
+  if (normalizedQuery.includes("salvation") && (verse.themes || []).includes("salvation")) {
+    score += 2;
+  }
+  if (normalizedQuery.includes("works") && (verse.themes || []).includes("works")) {
+    score += 2;
+  }
+  if (normalizedQuery.includes("faith") && (verse.themes || []).includes("faith")) {
+    score += 2;
+  }
+  if (normalizedQuery.includes("grace") && (verse.themes || []).includes("grace")) {
+    score += 2;
+  }
+
+  return score;
+}
+
+function rankedVersesForQuery(query) {
+  const normalized = normalizedString(query);
+  const withScore = scriptureData.verses
+    .map((verse) => ({ verse, score: scoreVerseForQuery(verse, normalized) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (withScore.length > 0) {
+    return withScore.map((entry) => entry.verse);
+  }
+
+  return scriptureData.verses.slice(0, 5);
+}
+
+function buildContextGuardPayload(verse) {
+  const chapterVerses = scriptureData.verses
+    .filter((item) => item.book === verse.book && item.chapter === verse.chapter)
+    .sort((a, b) => a.verse - b.verse);
+
+  const currentIndex = chapterVerses.findIndex((item) => item.id === verse.id);
+  if (currentIndex === -1) {
+    return { warning: "Context unavailable for this verse in the current dataset.", context: [] };
+  }
+
+  const before = chapterVerses[currentIndex - 1];
+  const after = chapterVerses[currentIndex + 1];
+  const context = [before, chapterVerses[currentIndex], after]
+    .filter(Boolean)
+    .map((item) => ({ reference: item.reference, text: item.text }));
+
+  return {
+    warning: context.length < 3 ? "Limited chapter context in current dataset." : "Context window loaded.",
+    context
+  };
+}
+
+function formatLivingWordResponse(query, mode, verses, correctionMode) {
+  const modeKey = Object.keys(LIVING_WORD_MODELS).includes(mode) ? mode : "scripture_explanation";
+  const picks = verses.slice(0, Math.max(3, Math.min(6, verses.length)));
+
+  if (modeKey === "pure_scripture") {
+    return {
+      responseText: picks.map((v) => `\"${v.text}\" (${v.reference})`).join("\n"),
+      style: LIVING_WORD_MODELS[modeKey]
+    };
+  }
+
+  if (modeKey === "living_voice") {
+    const stitched = picks
+      .map((v) => `${v.text} (${v.reference})`)
+      .join(" ");
+
+    return {
+      responseText: `Scripture-centered synthesis: ${stitched}`,
+      style: LIVING_WORD_MODELS[modeKey]
+    };
+  }
+
+  const summary = picks
+    .map((v) => `${v.reference} emphasizes ${v.themes.slice(0, 2).join("/") || "core truth"}`)
+    .join("; ");
+
+  const correctionNote = correctionMode
+    ? "Correction/Alignment Mode active: response balances related passages where needed."
+    : "";
+
+  return {
+    responseText: `${summary}. ${correctionNote}`.trim(),
+    style: LIVING_WORD_MODELS[modeKey]
+  };
+}
+
 function buildBookCatalogFromLoadedVerses() {
   const byBook = new Map();
 
@@ -717,6 +833,48 @@ app.get("/api/v1/context/ribbon/:verseId", (req, res) => {
     verseId: verse.id,
     reference: verse.reference,
     tools: buildContextRibbon(verse)
+  });
+});
+
+app.post("/api/v1/living-word/respond", (req, res) => {
+  const {
+    query = "",
+    responseMode = "scripture_explanation",
+    correctionMode = false,
+    minSupportVerses = 3,
+    contextGuard = true
+  } = req.body || {};
+
+  const ranked = rankedVersesForQuery(query);
+  const supportCount = Math.max(2, Number(minSupportVerses) || 3);
+  const selectedVerses = ranked.slice(0, Math.max(supportCount, 3));
+
+  const formatted = formatLivingWordResponse(query, responseMode, selectedVerses, correctionMode);
+
+  const contextWindows = contextGuard
+    ? selectedVerses.slice(0, 3).map((verse) => ({
+        reference: verse.reference,
+        ...buildContextGuardPayload(verse)
+      }))
+    : [];
+
+  return res.json({
+    designBoundary:
+      "Scripture remains the authority. This tool does not provide new revelation and does not replace Scripture.",
+    query,
+    responseMode,
+    correctionMode,
+    contextGuard,
+    responseText: formatted.responseText,
+    responseStyle: formatted.style,
+    supportVerses: selectedVerses.map((verse) => ({
+      id: verse.id,
+      reference: verse.reference,
+      text: verse.text,
+      themes: verse.themes
+    })),
+    citations: selectedVerses.map((verse) => verse.reference),
+    contextWindows
   });
 });
 

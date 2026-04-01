@@ -125,6 +125,38 @@
         <div class="panel-head">
           <h2>Smart Sidebar</h2>
         </div>
+        <h3>Living Word Interface</h3>
+        <p class="meta">
+          Scripture-driven response mode. Anchored to text, references always visible, no new revelation.
+        </p>
+        <textarea
+          id="livingWordInput"
+          class="command-input"
+          rows="3"
+          placeholder="Ask: What does the Bible say about fear?"
+        ></textarea>
+        <div class="mode-controls">
+          <label for="livingWordMode">Response Style</label>
+          <select id="livingWordMode">
+            <option value="pure_scripture">Pure Scripture</option>
+            <option value="scripture_explanation" selected>Scripture + Explanation</option>
+            <option value="living_voice">Living Voice</option>
+          </select>
+        </div>
+        <div class="inline-actions">
+          <label><input id="livingWordCorrection" type="checkbox" /> Correction / Alignment Mode</label>
+          <label><input id="livingWordContextGuard" type="checkbox" checked /> Context Guard</label>
+        </div>
+        <div class="inline-actions">
+          <button id="runLivingWordBtn">Ask Scripture</button>
+          <button id="livingWordVerseOnlyBtn">Let Scripture Answer</button>
+          <button id="livingWordPatternBtn">Show Me the Pattern</button>
+        </div>
+        <p id="livingWordBoundary" class="meta"></p>
+        <div id="livingWordOutput" class="pattern-item"></div>
+        <div id="livingWordCitations" class="chips"></div>
+        <ul id="livingWordSupportList" class="pattern-list"></ul>
+
         <h3>Verse Layers</h3>
         <div id="layerStack" class="layer-stack"></div>
         <h4>Related Verses</h4>

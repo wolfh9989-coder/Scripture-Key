@@ -36,6 +36,17 @@ const runPatternBtnEl = document.getElementById("runPatternBtn");
 const patternScopeTypeEl = document.getElementById("patternScopeType");
 const patternScopeRefEl = document.getElementById("patternScopeRef");
 const patternFindingsEl = document.getElementById("patternFindings");
+const livingWordInputEl = document.getElementById("livingWordInput");
+const livingWordModeEl = document.getElementById("livingWordMode");
+const livingWordCorrectionEl = document.getElementById("livingWordCorrection");
+const livingWordContextGuardEl = document.getElementById("livingWordContextGuard");
+const runLivingWordBtnEl = document.getElementById("runLivingWordBtn");
+const livingWordVerseOnlyBtnEl = document.getElementById("livingWordVerseOnlyBtn");
+const livingWordPatternBtnEl = document.getElementById("livingWordPatternBtn");
+const livingWordBoundaryEl = document.getElementById("livingWordBoundary");
+const livingWordOutputEl = document.getElementById("livingWordOutput");
+const livingWordCitationsEl = document.getElementById("livingWordCitations");
+const livingWordSupportListEl = document.getElementById("livingWordSupportList");
 
 const parallelVersion1El = document.getElementById("parallelVersion1");
 const parallelVersion2El = document.getElementById("parallelVersion2");
@@ -437,6 +448,34 @@ async function runPatternAnalysis() {
   }, "No high-confidence patterns found for this scope.");
 }
 
+async function runLivingWordInterface(forcedMode) {
+  const query = livingWordInputEl.value.trim();
+  if (!query) {
+    livingWordOutputEl.textContent = "Enter a question first.";
+    return;
+  }
+
+  const responseMode = forcedMode || livingWordModeEl.value;
+  const data = await fetchJson("/api/v1/living-word/respond", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query,
+      responseMode,
+      correctionMode: Boolean(livingWordCorrectionEl.checked),
+      minSupportVerses: 3,
+      contextGuard: Boolean(livingWordContextGuardEl.checked)
+    })
+  });
+
+  livingWordBoundaryEl.textContent = data.designBoundary;
+  livingWordOutputEl.textContent = data.responseText;
+  renderChips(livingWordCitationsEl, data.citations || []);
+  renderList(livingWordSupportListEl, data.supportVerses || [], (item) => {
+    return `<strong>${item.reference}</strong><br/>${item.text}<p class="meta">themes: ${(item.themes || []).join(", ")}</p>`;
+  }, "No support verses returned.");
+}
+
 async function loadParallelView() {
   if (!selectedVerseId) {
     return;
@@ -637,6 +676,13 @@ function bindEvents() {
   });
 
   runPatternBtnEl.addEventListener("click", () => runPatternAnalysis().catch(() => {}));
+  runLivingWordBtnEl.addEventListener("click", () => runLivingWordInterface().catch(() => {}));
+  livingWordVerseOnlyBtnEl.addEventListener("click", () => {
+    runLivingWordInterface("pure_scripture").catch(() => {});
+  });
+  livingWordPatternBtnEl.addEventListener("click", () => {
+    runPatternAnalysis().catch(() => {});
+  });
   patternScopeTypeEl.addEventListener("change", () => {
     patternScopeRefEl.value = defaultScopeRef(patternScopeTypeEl.value);
   });
