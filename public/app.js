@@ -41,6 +41,7 @@ const livingWordModeEl = document.getElementById("livingWordMode");
 const livingWordCorrectionEl = document.getElementById("livingWordCorrection");
 const livingWordContextGuardEl = document.getElementById("livingWordContextGuard");
 const livingWordStrictCitationsEl = document.getElementById("livingWordStrictCitations");
+const livingWordMinCitationsEl = document.getElementById("livingWordMinCitations");
 const runLivingWordBtnEl = document.getElementById("runLivingWordBtn");
 const livingWordVerseOnlyBtnEl = document.getElementById("livingWordVerseOnlyBtn");
 const livingWordPatternBtnEl = document.getElementById("livingWordPatternBtn");
@@ -457,6 +458,7 @@ async function runLivingWordInterface(forcedMode) {
   }
 
   const responseMode = forcedMode || livingWordModeEl.value;
+  const minSupportVerses = Math.max(2, Math.min(10, Number(livingWordMinCitationsEl.value) || 3));
   let data;
   try {
     data = await fetchJson("/api/v1/living-word/respond", {
@@ -466,14 +468,14 @@ async function runLivingWordInterface(forcedMode) {
         query,
         responseMode,
         correctionMode: Boolean(livingWordCorrectionEl.checked),
-        minSupportVerses: 3,
+        minSupportVerses,
         contextGuard: Boolean(livingWordContextGuardEl.checked),
         strictCitationEnforcement: Boolean(livingWordStrictCitationsEl.checked)
       })
     });
   } catch (error) {
     livingWordBoundaryEl.textContent = "Strict mode can fail when not enough citations are found.";
-    livingWordOutputEl.textContent = "Response blocked by strict citation enforcement.";
+    livingWordOutputEl.textContent = `Response blocked by strict citation enforcement (required minimum: ${minSupportVerses}).`;
     renderChips(livingWordCitationsEl, []);
     renderList(livingWordSupportListEl, [], () => "", "No support verses returned.");
     return;
