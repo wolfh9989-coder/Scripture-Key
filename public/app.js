@@ -40,6 +40,7 @@ const livingWordInputEl = document.getElementById("livingWordInput");
 const livingWordModeEl = document.getElementById("livingWordMode");
 const livingWordCorrectionEl = document.getElementById("livingWordCorrection");
 const livingWordContextGuardEl = document.getElementById("livingWordContextGuard");
+const livingWordStrictCitationsEl = document.getElementById("livingWordStrictCitations");
 const runLivingWordBtnEl = document.getElementById("runLivingWordBtn");
 const livingWordVerseOnlyBtnEl = document.getElementById("livingWordVerseOnlyBtn");
 const livingWordPatternBtnEl = document.getElementById("livingWordPatternBtn");
@@ -456,17 +457,27 @@ async function runLivingWordInterface(forcedMode) {
   }
 
   const responseMode = forcedMode || livingWordModeEl.value;
-  const data = await fetchJson("/api/v1/living-word/respond", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query,
-      responseMode,
-      correctionMode: Boolean(livingWordCorrectionEl.checked),
-      minSupportVerses: 3,
-      contextGuard: Boolean(livingWordContextGuardEl.checked)
-    })
-  });
+  let data;
+  try {
+    data = await fetchJson("/api/v1/living-word/respond", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query,
+        responseMode,
+        correctionMode: Boolean(livingWordCorrectionEl.checked),
+        minSupportVerses: 3,
+        contextGuard: Boolean(livingWordContextGuardEl.checked),
+        strictCitationEnforcement: Boolean(livingWordStrictCitationsEl.checked)
+      })
+    });
+  } catch (error) {
+    livingWordBoundaryEl.textContent = "Strict mode can fail when not enough citations are found.";
+    livingWordOutputEl.textContent = "Response blocked by strict citation enforcement.";
+    renderChips(livingWordCitationsEl, []);
+    renderList(livingWordSupportListEl, [], () => "", "No support verses returned.");
+    return;
+  }
 
   livingWordBoundaryEl.textContent = data.designBoundary;
   livingWordOutputEl.textContent = data.responseText;

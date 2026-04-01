@@ -842,7 +842,8 @@ app.post("/api/v1/living-word/respond", (req, res) => {
     responseMode = "scripture_explanation",
     correctionMode = false,
     minSupportVerses = 3,
-    contextGuard = true
+    contextGuard = true,
+    strictCitationEnforcement = false
   } = req.body || {};
 
   const ranked = rankedVersesForQuery(query);
@@ -857,6 +858,17 @@ app.post("/api/v1/living-word/respond", (req, res) => {
         ...buildContextGuardPayload(verse)
       }))
     : [];
+
+  if (strictCitationEnforcement && selectedVerses.length < supportCount) {
+    return res.status(422).json({
+      error: "Strict citation enforcement failed.",
+      requiredCitations: supportCount,
+      foundCitations: selectedVerses.length,
+      designBoundary:
+        "Scripture remains the authority. This tool does not provide new revelation and does not replace Scripture.",
+      citations: selectedVerses.map((verse) => verse.reference)
+    });
+  }
 
   return res.json({
     designBoundary:
